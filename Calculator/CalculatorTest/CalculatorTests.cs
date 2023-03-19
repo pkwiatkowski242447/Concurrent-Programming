@@ -45,10 +45,10 @@ namespace CalculatorTest
         {
             Kalkulator kalkulator = new Kalkulator();
             Assert.AreEqual(kalkulator.Div(0, 3), 0);
-            Assert.AreEqual(kalkulator.Div(5, 10), 0,5);
+            Assert.AreEqual(kalkulator.Div(5, 10), 0);
             Assert.AreEqual(kalkulator.Div(-20, 10), -2);
             Assert.AreEqual(kalkulator.Div(42, -6), -7);
-            Assert.AreEqual(kalkulator.Div(-33, -6), 5,5);
+            Assert.AreEqual(kalkulator.Div(-33, -6), 5);
             Assert.ThrowsException<NotImplementedException>(() => kalkulator.Div(0, 0));
         }
     }
