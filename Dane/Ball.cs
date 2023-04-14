@@ -1,4 +1,6 @@
-﻿
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Dane
 {
@@ -8,10 +10,6 @@ namespace Dane
         private Position centerOfTheBall;
         private int ballRadius;
         private Position velocityVector;
-
-        /*
-         * Constructor used to create ball object.
-         */
 
         public Ball(double massOfTheBall, Position centerOfTheBall, int ballRadius, Position velocityVector)
         {
@@ -58,6 +56,5 @@ namespace Dane
         {
             this.velocityVector = newVelocity;
         }
-
     }
 }
