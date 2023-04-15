@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Dane
+namespace Logika
 {
-    public class DataAbstractAPI
+    public abstract class DataAbstractAPI
     {
+
     }
 }

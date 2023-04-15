@@ -7,11 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "View", "View\View.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewModel", "ViewModel\ViewModel.csproj", "{42EBCF80-DE9A-46E7-9F9C-E627D98B17DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{843C8907-947D-4610-A726-F068A74692C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{843C8907-947D-4610-A726-F068A74692C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logika", "Logika\Logika.csproj", "{737EFB85-56D5-4686-B47F-8C2C78129C58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logika", "Logika\Logika.csproj", "{737EFB85-56D5-4686-B47F-8C2C78129C58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dane", "Dane\Dane.csproj", "{7D941878-2D05-4CE0-8794-FB432DD43340}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dane", "Dane\Dane.csproj", "{7D941878-2D05-4CE0-8794-FB432DD43340}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{E014DF18-AD65-4B01-A223-0851490D9534}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{7D941878-2D05-4CE0-8794-FB432DD43340}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D941878-2D05-4CE0-8794-FB432DD43340}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D941878-2D05-4CE0-8794-FB432DD43340}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E014DF18-AD65-4B01-A223-0851490D9534}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E014DF18-AD65-4B01-A223-0851490D9534}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E014DF18-AD65-4B01-A223-0851490D9534}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E014DF18-AD65-4B01-A223-0851490D9534}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
