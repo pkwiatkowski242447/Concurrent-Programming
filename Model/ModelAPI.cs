@@ -5,31 +5,38 @@ using System.Collections.Generic;
 namespace Model { 
     public class ModelAPI : ModelAbstractAPI
     {
-        private int SelectedNumberOfBalls = 0;
         private LogicAbstractAPI LogicAPI;
         private IObserver<BallInterface>? BallObserver;
-        private ObserverManager? ManagerOfObserver;
-        private List<ModelBall> listOfBalls = new List<ModelBall>();
+        private IDisposable? ManagerOfObserver;
+        private List<ModelBall> ListOfBalls = new List<ModelBall>();
         internal ModelAPI(int widthOfTheTable, int heightOfTheTable)
         {
             LogicAPI = LogicAbstractAPI.CreateLogicAPIInstace(widthOfTheTable, heightOfTheTable);
             ManagerOfObserver = LogicAPI.Subscribe(this);
         }
 
-        public override void AddSpecifiedNumberOfBalls()
+        public override void MoveGeneratedBalls(int SelectedNumberOfBalls)
         {
             LogicAPI.AddSpecifiedNumerOfBalls(SelectedNumberOfBalls);
-        }
-
-        public override void MoveGeneratedBalls()
-        {
-            LogicAPI.AddSpecifiedNumerOfBalls(SelectedNumberOfBalls);
+            List<Ball> listFromLogic = LogicAPI.GetBallsList();
+            for (int i = 0; i < listFromLogic.Count; i++)
+            {
+                Ball ballObject = listFromLogic[i];
+                ListOfBalls.Add(new ModelBall(ballObject.centerOfTheBall.xCoordinate, ballObject.centerOfTheBall.yCoordinate, ballObject.ballRadius));
+            }
             LogicAPI.MoveGeneratedBalls();
         }
 
         public override void ClearPoolTable()
         {
             LogicAPI.ClearPoolTable();
+            ListOfBalls.Clear();
+            ManagerOfObserver?.Dispose();
+        }
+
+        public override ModelBall GetModelBall(int value)
+        {
+            return ListOfBalls[value];
         }
 
         public override void OnCompleted()
@@ -44,7 +51,14 @@ namespace Model {
 
         public override void OnNext(int value)
         {
-
+            if (value < ListOfBalls.Count)
+            {
+                ModelBall ball = ListOfBalls[value];
+                Ball ballObject = LogicAPI.GetBallsList()[value];
+                Position velocityVector = ballObject.velocityVector;
+                Position currentCenter = ballObject.centerOfTheBall;
+                ball.Move(velocityVector.yCoordinate + currentCenter.yCoordinate, velocityVector.xCoordinate + currentCenter.xCoordinate);
+            }
         }
 
         public override IDisposable Subscribe(IObserver<BallInterface> Observer)

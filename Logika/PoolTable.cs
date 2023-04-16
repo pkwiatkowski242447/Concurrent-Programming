@@ -103,8 +103,8 @@ namespace Logika
         internal Position GetRandomPosition()
         {
             int minimumCoordinateValue = 0 + radius;
-            int generatedX = randomNumberGenerator.Next(this.tableWidth - 2 * radius) + radius;
-            int generatedY = randomNumberGenerator.Next(this.tableHeight - 2 * radius) + radius;
+            int generatedX = randomNumberGenerator.Next(2 * (this.tableWidth - radius)) - this.tableWidth + radius;
+            int generatedY = randomNumberGenerator.Next(2 * (this.tableHeight - radius)) - this.tableHeight + radius;
             return new Position(generatedX, generatedY);
         }
 

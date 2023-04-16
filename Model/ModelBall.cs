@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Model
 {
-    internal class ModelBall : BallInterface
+    public class ModelBall : BallInterface
     {
         private int topValue;
         public int TopValue
