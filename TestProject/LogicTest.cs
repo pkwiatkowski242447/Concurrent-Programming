@@ -34,16 +34,26 @@ namespace TestProject
         public void MoveGeneratedBallsTest()
         {
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstace(500, 500);
-            LogicAPI.AddSpecifiedNumerOfBalls(20);
-            LogicAPI.MoveGeneratedBalls();
-            List<Ball> listOfBallNo1 = LogicAPI.GetBallsList();
-            Thread.Sleep(50);
-            List<Ball> listOfBallNo2 = LogicAPI.GetBallsList();
-            bool positionChanges = false;
-            for (int i = 0; i < listOfBallNo1.Count; i++)
+            LogicAPI.AddSpecifiedNumerOfBalls(1);
+            List<Ball> originalListOfBalls = LogicAPI.GetBallsList();
+            List<Position> listOfStartingPositions = new List<Position>();
+            foreach (Ball ball in originalListOfBalls)
             {
-                if (listOfBallNo1[i].centerOfTheBall.xCoordinate != listOfBallNo2[i].centerOfTheBall.xCoordinate
-                    || listOfBallNo1[i].centerOfTheBall.yCoordinate != listOfBallNo2[i].centerOfTheBall.yCoordinate)
+                listOfStartingPositions.Add(new Position(ball.centerOfTheBall.xCoordinate, ball.centerOfTheBall.yCoordinate));
+            }
+            LogicAPI.MoveGeneratedBalls();
+            Thread.Sleep(25);
+            originalListOfBalls = LogicAPI.GetBallsList();
+            List<Position> listOfEndingPositions = new List<Position>();
+            foreach (Ball ball in originalListOfBalls)
+            {
+                listOfEndingPositions.Add(new Position(ball.centerOfTheBall.xCoordinate, ball.centerOfTheBall.yCoordinate));
+            }
+            bool positionChanges = false;
+            for (int i = 0; i < listOfStartingPositions.Count; i++)
+            {
+                if (listOfStartingPositions[i].xCoordinate != listOfEndingPositions[i].xCoordinate
+                    || listOfStartingPositions[i].yCoordinate != listOfEndingPositions[i].yCoordinate)
                 {
                     positionChanges = true;
                     break;

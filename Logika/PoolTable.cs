@@ -44,7 +44,7 @@ namespace Logika
                             newBall.centerOfTheBall = GetRandomPosition();
                         } while (newBall.centerOfTheBall.xCoordinate == previousPosition.xCoordinate ||
                             newBall.centerOfTheBall.yCoordinate == previousPosition.yCoordinate);
-                        Thread.Sleep(10);
+                        Thread.Sleep(50);
                     }
                 });
                 listOfTasks.Add(newTask);
