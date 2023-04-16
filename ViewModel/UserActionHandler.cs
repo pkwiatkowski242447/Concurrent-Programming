@@ -1,4 +1,5 @@
 ﻿using Model;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -8,8 +9,8 @@ namespace ViewModel
 {
     public class UserActionHandler : INotifyPropertyChanged
     {
-        private readonly int widthOfTheTable = 754;
-        private readonly int heightOfTheTable = 748;
+        private readonly int widthOfTheTable = 758;
+        private readonly int heightOfTheTable = 745;
 
         private ModelAbstractAPI ModelAPI;
         private int numberOfSelectedBalls = 0;
@@ -28,6 +29,7 @@ namespace ViewModel
             set
             {
                 this.StartButtonDisabled = value;
+                NotifyPropertyChanged();
             }
         }
         public bool _End
@@ -36,6 +38,7 @@ namespace ViewModel
             set
             {
                 this.EndButtonDisable = value;
+                NotifyPropertyChanged();
             }
         }
 
@@ -52,8 +55,9 @@ namespace ViewModel
 
         public void StartSimulationHandler()
         {
-            StartButtonDisabled = false;
-            EndButtonDisable = true;
+            NumberOfBalls = "1";
+            _Start = false;
+            _End = true;
             int selectedNumberOfBalls = ParseEnteredStringToInt();
             ModelAPI.MoveGeneratedBalls(selectedNumberOfBalls);
             for (int i = 0; i < selectedNumberOfBalls; i++)
@@ -64,22 +68,23 @@ namespace ViewModel
 
         public void EndSimulationHandler()
         {
+            _Start = true;
+            _End = false;
             ModelAPI.ClearPoolTable();
             ListOfObservableBalls.Clear();
-            StartButtonDisabled = true;
-            EndButtonDisable = false;
         }
 
         public int ParseEnteredStringToInt()
         {
             if (int.TryParse(NumberOfBalls, out int SomeOutput) && NumberOfBalls != "0")
             {
+                Console.WriteLine(NumberOfBalls);
                 return int.Parse(NumberOfBalls);
             }
             return 0;
         }
 
-        private void NotifyPropertyChanged([CallerFilePath] string propertyName = "")
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

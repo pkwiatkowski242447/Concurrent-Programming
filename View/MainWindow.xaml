@@ -27,10 +27,10 @@
 
         <Border Grid.Column="1" Grid.Row="1" BorderThickness="5" BorderBrush="Black"></Border>
 
-        <ItemsControl ItemsSource="{Binding ListOfObservableBalls}">
+        <ItemsControl ItemsSource="{Binding ListOfObservableBalls}" Grid.Column="1" Grid.Row="1">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <Canvas />
+                    <Canvas x:Name="PoolTable" Background="Green"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
 
@@ -47,16 +47,6 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
-
-        <Canvas x:Name="PoolTable"
-                            Grid.Row="1"
-                            Grid.Column="1">
-            <Rectangle Canvas.Left="5"
-                            Canvas.Top="5"
-                            Width="758"
-                            Height="745  "
-                            Fill="Green" HorizontalAlignment="Center" VerticalAlignment="Top"></Rectangle>
-        </Canvas>
 
         <Grid x:Name="MenuGrid" Grid.Row="1" Grid.Column="3">
             <Grid.RowDefinitions>
@@ -106,7 +96,7 @@
                     Height="50"
                     Width="170"
                     Content="Zakoncz" 
-                    Command="{Binding EndSimulation}"
+                    Command="{Binding EndSimulation, Mode=TwoWay}"
                     IsEnabled="{Binding _End}"/>
 
             <Button x:Name="StartSimulation" 
@@ -117,7 +107,7 @@
                     Height="50"
                     Width="170"
                     Content="Rozpocznij" 
-                    Command="{Binding StartSimulation}"
+                    Command="{Binding StartSimulation, Mode=TwoWay}"
                     IsEnabled="{Binding _Start}"/>
 
         </Grid>
