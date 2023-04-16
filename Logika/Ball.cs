@@ -2,10 +2,10 @@
 {
     public class Ball
     {
-        private double massOfTheBall;
-        private Position centerOfTheBall;
-        private int ballRadius;
-        private Position velocityVector;
+        private double massOfTheBall { get; set; }
+        public Position centerOfTheBall { get; set; }
+        public int ballRadius { get; set; }
+        public Position velocityVector { get; set; }
 
         public Ball(double massOfTheBall, Position centerOfTheBall, int ballRadius, Position velocityVector)
         {
@@ -15,53 +15,21 @@
             this.velocityVector = velocityVector;
         }
 
-        /*
-         * Getters
-         */
-
-        public int GetBallRadius()
-        {
-            return this.ballRadius;
-        }
-
-        public Position GetCenterOfTheBall()
-        {
-            return centerOfTheBall;
-        }
-
-        /*
-         * Setter methods.
-         */
-
-        public void SetVelocityVector(Position newVelocity)
-        {
-            this.velocityVector = newVelocity;
-        }
-
-        public void SetCenterOfTheBall(Position newCenterOfTheBall)
-        {
-            this.centerOfTheBall = newCenterOfTheBall;
-        }
-
-        public Position GetVelocityVector()
-        {
-            return velocityVector;
-        }
 
         public void MoveBall(int height, int width)
         {
-            if (centerOfTheBall.getXCoordinate() + velocityVector.getXCoordinate() > width - GetBallRadius() || 0 > (centerOfTheBall.getXCoordinate() + velocityVector.getXCoordinate() - ballRadius))
+            if (centerOfTheBall.xCoordinate + velocityVector.xCoordinate > width - ballRadius || 0 > (centerOfTheBall.xCoordinate + velocityVector.xCoordinate - ballRadius))
             {
-                velocityVector.setXCoordinate(0);
+                velocityVector.xCoordinate = -velocityVector.xCoordinate;
 
             }
-            if (centerOfTheBall.getYCoordinate() + velocityVector.getYCoordinate() > height - GetBallRadius() || 0 > (centerOfTheBall.getYCoordinate() + velocityVector.getYCoordinate() - ballRadius))
+            if (centerOfTheBall.yCoordinate + velocityVector.yCoordinate > height - ballRadius || 0 > (centerOfTheBall.yCoordinate + velocityVector.yCoordinate - ballRadius))
             {
-                velocityVector.setYCoordinate(0);
+                velocityVector.yCoordinate = -velocityVector.yCoordinate;
 
             }
-            centerOfTheBall.setXCoordinate(velocityVector.getXCoordinate() + centerOfTheBall.getXCoordinate());
-            centerOfTheBall.setYCoordinate(velocityVector.getYCoordinate() + centerOfTheBall.getYCoordinate());
+            centerOfTheBall.xCoordinate =  velocityVector.xCoordinate + centerOfTheBall.xCoordinate;
+            centerOfTheBall.yCoordinate = velocityVector.yCoordinate + centerOfTheBall.yCoordinate;
 
         }
     }

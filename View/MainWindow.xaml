@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:View" 
         xmlns:vm="clr-namespace:ViewModel;assembly=ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="960" Width="1280">
+        Title="Stol bilardowy" Height="960" Width="1280">
 
     <Window.DataContext>
         <vm:UserActionHandler/>
@@ -27,15 +27,26 @@
 
         <Border Grid.Column="1" Grid.Row="1" BorderThickness="5" BorderBrush="Black"></Border>
 
-        <Canvas x:Name="PoolTable"
-                Grid.Row="1"
-                Grid.Column="1">
-            <Rectangle Canvas.Left="5"
-                       Canvas.Top="5"
-                       Width="758"
-                       Height="745  "
-                       Fill="Green" HorizontalAlignment="Center" VerticalAlignment="Top"></Rectangle>
-        </Canvas>
+        <ItemsControl ItemsSource="{Binding ListOfObservableBalls}" Grid.Column="1" Grid.Row="1">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas x:Name="PoolTable" Background="Green"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Ellipse Width="{Binding BallRadius}" Height="{Binding BallRadius}" Fill="Blue" Stroke="Black"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding LeftValue}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding TopValue}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
 
         <Grid x:Name="MenuGrid" Grid.Row="1" Grid.Column="3">
             <Grid.RowDefinitions>
@@ -74,47 +85,30 @@
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
                      FontFamily="Times New Roman"
-                     FontSize="30"/>
-
-            <Button x:Name="AddBalls"
-                    Grid.Column="0"
-                    Grid.Row="2"
-                    Width="170"
-                    Height="50"
-                    FontFamily="Times New Roman"
-                    FontSize="30"
-                    Content="Dodaj kule"
-                    Command="{Binding AddBalls}"/>
-
-            <Button x:Name="RemoveBalls"
-                    Grid.Column="1"
-                    Grid.Row="2"
-                    Width="170"
-                    Height="50"
-                    FontFamily="Times New Roman"
-                    FontSize="30"
-                    Content="Usun kule"
-                    Command="{Binding RemoveBalls}"/>
+                     FontSize="30"
+                     Text="{Binding NumberOfBalls}"/>
 
             <Button x:Name="EndSimulation" 
                     FontFamily="Times New Roman"
                     FontSize="30"
                     Grid.Column="1" 
-                    Grid.Row="3" 
+                    Grid.Row="2" 
                     Height="50"
                     Width="170"
                     Content="Zakoncz" 
-                    Command="{Binding EndSimulation}"/>
+                    Command="{Binding EndSimulation, Mode=TwoWay}"
+                    IsEnabled="{Binding _End}"/>
 
             <Button x:Name="StartSimulation" 
                     FontFamily="Times New Roman"
                     FontSize="30"
                     Grid.Column="0" 
-                    Grid.Row="3" 
+                    Grid.Row="2" 
                     Height="50"
                     Width="170"
                     Content="Rozpocznij" 
-                    Command="{Binding StartSimulation}"/>
+                    Command="{Binding StartSimulation, Mode=TwoWay}"
+                    IsEnabled="{Binding _Start}"/>
 
         </Grid>
 

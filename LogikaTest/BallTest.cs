@@ -39,7 +39,7 @@ namespace LogikaTest
             List<Position> position_before_move = new List<Position>();
             foreach (Ball ball in before_move_list)
             {
-                position_before_move.Add(new Position(ball.GetCenterOfTheBall().xCoordinate, ball.GetCenterOfTheBall().yCoordinate));
+                position_before_move.Add(new Position(ball.centerOfTheBall.xCoordinate, ball.centerOfTheBall.yCoordinate));
             }
             test_api.MoveBalls();
             Thread.Sleep(25);
@@ -47,7 +47,7 @@ namespace LogikaTest
             List<Position> position_after_move = new List<Position>();
             foreach (Ball ball in before_move_list)
             {
-                position_after_move.Add(new Position(ball.GetCenterOfTheBall().xCoordinate, ball.GetCenterOfTheBall().yCoordinate));
+                position_after_move.Add(new Position(ball.centerOfTheBall.xCoordinate, ball.centerOfTheBall.yCoordinate));
             }
             bool position_change = false;
             for (int i = 0; i < position_before_move.Count; i++)
