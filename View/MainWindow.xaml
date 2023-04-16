@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:View" 
         xmlns:vm="clr-namespace:ViewModel;assembly=ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="960" Width="1280">
+        Title="Sto³ bilardowy" Height="960" Width="1280">
 
     <Window.DataContext>
         <vm:UserActionHandler/>

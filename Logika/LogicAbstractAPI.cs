@@ -5,16 +5,17 @@ using System.Text;
 
 namespace Logika
 {
-    public abstract class LogicAbstractAPI
+    public abstract class LogicAbstractAPI : IObservable<int>
     {
-        public static LogicAbstractAPI CreateLogicAPIInstace(int width, int height)
+        public static LogicAbstractAPI CreateLogicAPIInstace(int widthOfTheTable, int heightOfTheTable)
         {
-            return new PoolTable(width, height);
+            return new PoolTable(widthOfTheTable, heightOfTheTable);
         }
 
         public abstract void AddSpecifiedNumerOfBalls(int numberOfBallsToAdd);
         public abstract void ClearPoolTable();
         public abstract void MoveGeneratedBalls();
         public abstract List<Ball> GetBallsList();
+        public abstract IDisposable Subscribe(IObserver<int> observer);
     }
 }

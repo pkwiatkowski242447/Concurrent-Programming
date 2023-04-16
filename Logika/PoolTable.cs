@@ -7,14 +7,15 @@ namespace Logika
 {
     public class PoolTable : LogicAbstractAPI
     {
-        internal bool stopTasks { get; set; }
-        internal int tableWidth { get; }
-        internal int tableHeight { get; }
-        internal static int radius = 10;
-        internal static double mass = 10;
-        internal List<Ball> listOfBalls = new List<Ball>();
+        private bool stopTasks { get; set; }
+        private int tableWidth { get; }
+        private int tableHeight { get; }
+        private static int radius = 10;
+        private static double mass = 10;
+        private IObserver<int>? observer = null;
+        private List<Ball> listOfBalls = new List<Ball>();
         private readonly List<Task> listOfTasks = new List<Task>();
-        internal Random randomNumberGenerator = new Random();
+        private Random randomNumberGenerator = new Random();
 
         internal PoolTable(int tableWidth, int tableHeight)
         {
@@ -36,6 +37,7 @@ namespace Logika
                 {
                     while (!stopTasks)
                     {
+                        int identifier = i;
                         newBall.Move(this.tableWidth, this.tableHeight);
                         Position previousPosition;
                         do
@@ -44,6 +46,10 @@ namespace Logika
                             newBall.centerOfTheBall = GetRandomPosition();
                         } while (newBall.centerOfTheBall.xCoordinate == previousPosition.xCoordinate ||
                             newBall.centerOfTheBall.yCoordinate == previousPosition.yCoordinate);
+                        if (observer != null)
+                        {
+                            observer.OnNext(i);
+                        }
                         Thread.Sleep(50);
                     }
                 });
@@ -88,12 +94,33 @@ namespace Logika
             return listOfBalls;
         }
 
+        public override IDisposable Subscribe(IObserver<int> observer)
+        {
+            this.observer = observer;
+            return new ObserverManager(observer);
+        }
+
         internal Position GetRandomPosition()
         {
             int minimumCoordinateValue = 0 + radius;
             int generatedX = randomNumberGenerator.Next(this.tableWidth - 2 * radius) + radius;
             int generatedY = randomNumberGenerator.Next(this.tableHeight - 2 * radius) + radius;
             return new Position(generatedX, generatedY);
-        } 
+        }
+
+        private class ObserverManager : IDisposable
+        {
+            public IObserver<int>? ObserverToBeManaged;
+
+            public ObserverManager(IObserver<int> observerObject)
+            {
+                ObserverToBeManaged = observerObject;
+            } 
+
+            public void Dispose()
+            {
+                ObserverToBeManaged = null;
+            }
+        }
     }
 }
