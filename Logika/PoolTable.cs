@@ -71,6 +71,7 @@ namespace Logika
                 listOfTasks[i].Dispose();
             }
             listOfBalls.Clear();
+            listOfTasks.Clear();
         }
 
         public override void MoveGeneratedBalls()

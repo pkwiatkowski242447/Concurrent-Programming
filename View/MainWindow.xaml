@@ -3,10 +3,121 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:View"
+        xmlns:local="clr-namespace:View" 
+        xmlns:vm="clr-namespace:ViewModel;assembly=ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="960" Width="1280">
+
+    <Window.DataContext>
+        <vm:UserActionHandler/>
+    </Window.DataContext>
+
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="80*"/>
+            <RowDefinition Height="10*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="60*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="30*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="1" Grid.Row="1" BorderThickness="5" BorderBrush="Black"></Border>
+
+        <Canvas x:Name="PoolTable"
+                Grid.Row="1"
+                Grid.Column="1">
+            <Rectangle Canvas.Left="5"
+                       Canvas.Top="5"
+                       Width="758"
+                       Height="745  "
+                       Fill="Green" HorizontalAlignment="Center" VerticalAlignment="Top"></Rectangle>
+        </Canvas>
+
+        <Grid x:Name="MenuGrid" Grid.Row="1" Grid.Column="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="90"/>
+                <RowDefinition Height="90"/>
+                <RowDefinition Height="90"/>
+                <RowDefinition Height="90"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50*"/>
+                <ColumnDefinition Width="50*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="Menu"
+                       FontFamily="Times New Roman"
+                       FontSize="40"
+                       Grid.Column="0"
+                       Grid.Row="0"
+                       Grid.ColumnSpan="2"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center">Menu</TextBlock>
+            
+            <TextBlock x:Name="numberOfBallsText"
+                       Grid.Row="1"
+                       Grid.Column="0"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontFamily="Times New Roman"
+                       FontSize="30">Liczba kul</TextBlock>
+
+            <TextBox x:Name="numberOfBallsField"
+                     Grid.Row="1"
+                     Grid.Column="1"
+                     Width="170"
+                     Height="50"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     FontFamily="Times New Roman"
+                     FontSize="30"/>
+
+            <Button x:Name="AddBalls"
+                    Grid.Column="0"
+                    Grid.Row="2"
+                    Width="170"
+                    Height="50"
+                    FontFamily="Times New Roman"
+                    FontSize="30"
+                    Content="Dodaj kule"
+                    Command="{Binding AddBalls}"/>
+
+            <Button x:Name="RemoveBalls"
+                    Grid.Column="1"
+                    Grid.Row="2"
+                    Width="170"
+                    Height="50"
+                    FontFamily="Times New Roman"
+                    FontSize="30"
+                    Content="Usun kule"
+                    Command="{Binding RemoveBalls}"/>
+
+            <Button x:Name="EndSimulation" 
+                    FontFamily="Times New Roman"
+                    FontSize="30"
+                    Grid.Column="1" 
+                    Grid.Row="3" 
+                    Height="50"
+                    Width="170"
+                    Content="Zakoncz" 
+                    Command="{Binding EndSimulation}"/>
+
+            <Button x:Name="StartSimulation" 
+                    FontFamily="Times New Roman"
+                    FontSize="30"
+                    Grid.Column="0" 
+                    Grid.Row="3" 
+                    Height="50"
+                    Width="170"
+                    Content="Rozpocznij" 
+                    Command="{Binding StartSimulation}"/>
+
+        </Grid>
+
 
     </Grid>
 </Window>
