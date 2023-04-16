@@ -97,6 +97,7 @@ namespace Logika
                 Tasks[i].Dispose();
             }
             Balls.Clear();
+            Tasks.Clear();
         }
 
         public override List<Ball> GetBalls()
