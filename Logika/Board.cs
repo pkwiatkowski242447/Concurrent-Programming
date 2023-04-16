@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Logika
 {
-    internal class Board : LogicAbstractAPI
+    public class Board : LogicAbstractAPI
     {
+        public bool stop;
         private int heightOfTheBoard;
         private int widthOfTheBoard;
         private int radius;
@@ -20,11 +22,11 @@ namespace Logika
             this.radius = 10;
             this.mass = 10;
         }
-        private int getHeightOfTheBoard()
+        public int GetHeightOfTheBoard()
         {
             return heightOfTheBoard;
         }
-        private int getWidthOfTheBoard()
+        public int GetWidthOfTheBoard()
         {
             return widthOfTheBoard;
         }
@@ -33,16 +35,33 @@ namespace Logika
         {
             for (int i = 0; i < howManyBalls; i++)
             {
-                Ball ball = new Ball(mass, randomXY(), radius, randomXY());
+                Position centerOfTheBall = randomXY();
+                Position velocityVector = randomXY();
+                Ball ball = new Ball(mass, centerOfTheBall, radius, velocityVector);
                 Balls.Add(ball);
+                Task task = new Task(() =>
+                {
+                    while (!stop)
+                    {
+                        ball.MoveBall(this.heightOfTheBoard, this.widthOfTheBoard);
+                        Position previousPosition;
+                        do
+                        {
+                            previousPosition = ball.GetCenterOfTheBall();
+                            ball.SetCenterOfTheBall(randomXY());   
+                        } while (ball.GetCenterOfTheBall().xCoordinate == previousPosition.xCoordinate || ball.GetCenterOfTheBall().yCoordinate == previousPosition.yCoordinate);
+                        Thread.Sleep(50);
+                    }
+                });
+                Tasks.Add(task);
             }
         }
 
-        internal Position randomXY()
+        public Position randomXY()
         {
             var random = new Random();
-            int x = random.Next(0 + radius, getWidthOfTheBoard());
-            int y = random.Next(0 + radius, getHeightOfTheBoard());
+            int x = random.Next(radius, GetWidthOfTheBoard() - 2 * radius);
+            int y = random.Next(radius, GetHeightOfTheBoard() - 2 * radius);
             Position coordinates = new Position(x, y);
             return coordinates;
         }
@@ -50,27 +69,39 @@ namespace Logika
 
         public override void MoveBalls()
         {
+            stop = false;
             for (int i = 0; i < Balls.Count; i++)
             {
-                Task task = new Task(() =>
-                {
-                    while (true)
-                    {
-                        Balls[i].MoveBall(this.heightOfTheBoard, this.widthOfTheBoard);
-                        Balls[i].setVelocityVector(randomXY());
-                        Thread.Sleep(10);
-                    }
-                });
-                Tasks.Add(task);
+                Tasks[i].Start();
             }
         }
 
         public override void ClearBoard()
         {
-            for (int i = 0; i < Balls.Count; i++)
+            stop = true;
+            bool isEveryTaskStopped = false;
+            while (!isEveryTaskStopped)
+            {
+                isEveryTaskStopped = true;
+                foreach (Task task in Tasks)
+                {
+                    if (!task.IsCompleted)
+                    {
+                        isEveryTaskStopped = false;
+                        break;
+                    }
+                }
+            }
+            for (int i = 0; i < Tasks.Count; i++)
             {
                 Tasks[i].Dispose();
             }
+            Balls.Clear();
+        }
+
+        public override List<Ball> GetBalls()
+        {
+            return Balls;
         }
     }
 }

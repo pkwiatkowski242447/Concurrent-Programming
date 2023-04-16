@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Logika
 {
     public abstract class LogicAbstractAPI
@@ -9,5 +11,6 @@ namespace Logika
         public abstract void CreateBalls(int howManyBalls);
         public abstract void MoveBalls();
         public abstract void ClearBoard();
+        public abstract List<Ball> GetBalls();
     }
 }
