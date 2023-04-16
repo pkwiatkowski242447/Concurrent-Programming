@@ -7,13 +7,14 @@ namespace Logika
 {
     public abstract class LogicAbstractAPI
     {
-        public static LogicAbstractAPI CreateLogicAPIInstace(int width, int height, int numOfBalls)
+        public static LogicAbstractAPI CreateLogicAPIInstace(int width, int height)
         {
-            return new PoolTable(width, height, numOfBalls);
+            return new PoolTable(width, height);
         }
 
         public abstract void AddSpecifiedNumerOfBalls(int numberOfBallsToAdd);
         public abstract void ClearPoolTable();
         public abstract void MoveGeneratedBalls();
+        public abstract List<Ball> GetBallsList();
     }
 }

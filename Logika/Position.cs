@@ -2,10 +2,10 @@ using System;
 
 namespace Logika
 {
-    internal class Position
+    public class Position
     {
-        internal int xCoordinate { get => xCoordinate; set => xCoordinate = value; }
-        internal int yCoordinate { get => yCoordinate; set => yCoordinate = value; }
+        public int xCoordinate { get ; set ; }
+        public int yCoordinate { get ; set ; }
 
         public Position(int xCoordinate, int yCoordinate)
         {

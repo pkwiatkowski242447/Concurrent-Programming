@@ -1,67 +1,94 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Logika
 {
-    internal class PoolTable : LogicAbstractAPI
+    public class PoolTable : LogicAbstractAPI
     {
+        internal bool stopTasks { get; set; }
         internal int tableWidth { get; }
         internal int tableHeight { get; }
-        internal int numberOfBalls { get; }
         internal static int radius = 10;
-        internal static int mass = 10;
+        internal static double mass = 10;
         internal List<Ball> listOfBalls = new List<Ball>();
-        internal List<Task> listOfTasks = new List<Task>();
+        private readonly List<Task> listOfTasks = new List<Task>();
+        internal Random randomNumberGenerator = new Random();
 
-        internal PoolTable(int tableWidth, int tableHeight, int numberOfBalls)
+        internal PoolTable(int tableWidth, int tableHeight)
         {
             this.tableWidth = tableWidth;
             this.tableHeight = tableHeight;
-            this.numberOfBalls = numberOfBalls;
         }
 
         
         public override void AddSpecifiedNumerOfBalls(int numberOfBallsToAdd)
         {
-            for (int i = 0; i < numberOfBalls; i++)
+            for (int i = 0; i < numberOfBallsToAdd; i++)
             {
-                Ball newBall = new Ball(mass, GetRandomPosition(), radius, GetRandomPosition());
+                Position centerOfTheBall = GetRandomPosition();
+                Position velocityVector = GetRandomPosition();
+                Ball newBall = new Ball(mass, centerOfTheBall, radius, velocityVector);
                 listOfBalls.Add(newBall);
-            }
-        }
-        public override void ClearPoolTable()
-        {
-            for (int i = 0; i < listOfTasks.Count; i++)
-            {
-                listOfTasks[i].Dispose();
-            }
-        }
 
-        public override void MoveGeneratedBalls()
-        {
-            for (int i = 0; i < listOfBalls.Count; i++)
-            {
                 Task newTask = new Task(() =>
                 {
-                    while (true)
+                    while (!stopTasks)
                     {
-                        listOfBalls[i].Move(this.tableWidth, this.tableHeight);
-                        listOfBalls[i].velocityVector = GetRandomPosition();
+                        newBall.Move(this.tableWidth, this.tableHeight);
+                        Position previousPosition;
+                        do
+                        {
+                            previousPosition = newBall.centerOfTheBall;
+                            newBall.centerOfTheBall = GetRandomPosition();
+                        } while (newBall.centerOfTheBall.xCoordinate == previousPosition.xCoordinate ||
+                            newBall.centerOfTheBall.yCoordinate == previousPosition.yCoordinate);
                         Thread.Sleep(10);
                     }
                 });
                 listOfTasks.Add(newTask);
             }
         }
+        public override void ClearPoolTable()
+        {
+            stopTasks = true;
+            bool isEveryTaskStopped = false;
+            while (!isEveryTaskStopped)
+            {
+                isEveryTaskStopped = true;
+                foreach (Task task in listOfTasks)
+                {
+                    if (!task.IsCompleted)
+                    {
+                        isEveryTaskStopped = false;
+                        break;
+                    }
+                }
+            }
+            for (int i = 0; i < listOfTasks.Count; i++)
+            {
+                listOfTasks[i].Dispose();
+            }
+            listOfBalls.Clear();
+        }
+
+        public override void MoveGeneratedBalls()
+        {
+            stopTasks = false;
+            for (int i = 0; i < listOfBalls.Count; i++)
+            {
+                listOfTasks[i].Start();
+            }
+        }
+
+        public override List<Ball> GetBallsList()
+        {
+            return listOfBalls;
+        }
 
         internal Position GetRandomPosition()
         {
-            Random randomNumberGenerator = new Random();
             int minimumCoordinateValue = 0 + radius;
             int generatedX = randomNumberGenerator.Next(this.tableWidth - 2 * radius) + radius;
             int generatedY = randomNumberGenerator.Next(this.tableHeight - 2 * radius) + radius;
