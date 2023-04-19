@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.ComponentModel;
 
 namespace Model
 {
-    public interface BallInterface
+    public interface BallInterface : INotifyPropertyChanged
     {
         public int TopValue { get; }
         public int LeftValue { get; }

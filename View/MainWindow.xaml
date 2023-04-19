@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:View" 
         xmlns:vm="clr-namespace:ViewModel;assembly=ViewModel"
         mc:Ignorable="d"
-        Title="Stol bilardowy" Height="960" Width="1280">
+        Title="Stol bilardowy" Height="800" Width="1200">
 
     <Window.DataContext>
         <vm:UserActionHandler/>
@@ -14,20 +14,20 @@
 
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="80*"/>
-            <RowDefinition Height="10*"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="700"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="5*"/>
-            <ColumnDefinition Width="60*"/>
-            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="750"/>
+            <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="30*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="1" Grid.Row="1" BorderThickness="5" BorderBrush="Black"></Border>
+        <Border Grid.Row="1" Grid.Column="1" BorderThickness="5" BorderBrush="Black"></Border>
 
-        <ItemsControl ItemsSource="{Binding ListOfObservableBalls}" Grid.Column="1" Grid.Row="1">
+        <ItemsControl ItemsSource="{Binding ListOfObservableBalls}" Grid.Column="1" Grid.Row="1" Width="740" Height="690" VerticalAlignment="Center" HorizontalAlignment="Center">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Canvas x:Name="PoolTable" Background="Green"/>
@@ -36,7 +36,12 @@
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Ellipse Width="{Binding BallRadius}" Height="{Binding BallRadius}" Fill="Blue" Stroke="Black"/>
+                    <Path Fill="Blue" Stroke="Black">
+                        <Path.Data>
+                            <EllipseGeometry
+                                RadiusX="{Binding BallRadius}" RadiusY="{Binding BallRadius}"/>
+                        </Path.Data>
+                    </Path>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
 
@@ -68,7 +73,7 @@
                        Grid.ColumnSpan="2"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center">Menu</TextBlock>
-            
+
             <TextBlock x:Name="numberOfBallsText"
                        Grid.Row="1"
                        Grid.Column="0"
@@ -84,6 +89,8 @@
                      Height="50"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     VerticalContentAlignment="Center"
                      FontFamily="Times New Roman"
                      FontSize="30"
                      Text="{Binding NumberOfBalls}"/>
@@ -97,7 +104,7 @@
                     Width="170"
                     Content="Zakoncz" 
                     Command="{Binding EndSimulation, Mode=TwoWay}"
-                    IsEnabled="{Binding _End}"/>
+                    IsEnabled="{Binding End}"/>
 
             <Button x:Name="StartSimulation" 
                     FontFamily="Times New Roman"
@@ -108,10 +115,7 @@
                     Width="170"
                     Content="Rozpocznij" 
                     Command="{Binding StartSimulation, Mode=TwoWay}"
-                    IsEnabled="{Binding _Start}"/>
-
+                    IsEnabled="{Binding Start}"/>
         </Grid>
-
-
     </Grid>
 </Window>
