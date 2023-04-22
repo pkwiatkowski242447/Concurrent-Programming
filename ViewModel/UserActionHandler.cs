@@ -9,15 +9,9 @@ namespace ViewModel
 {
     public class UserActionHandler : INotifyPropertyChanged
     {
-        private readonly int widthOfTheTable = 758;
-        private readonly int heightOfTheTable = 745;
-
         private ModelAbstractAPI ModelAPI;
-        private int numberOfSelectedBalls = 0;
-
         public ObservableCollection<ModelBall> ListOfObservableBalls { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
-
         public ICommand? StartSimulation { get; set; }
         public ICommand? EndSimulation { get; set; }
         public string? NumberOfBalls { get; set; }
@@ -44,7 +38,7 @@ namespace ViewModel
 
         public UserActionHandler()
         {
-            ModelAPI = ModelAbstractAPI.CreateModelAPI(widthOfTheTable, heightOfTheTable);
+            ModelAPI = ModelAbstractAPI.CreateModelAPI();
             ListOfObservableBalls = new ObservableCollection<ModelBall>();
             StartButtonDisabled = true;
             EndButtonDisable = false;
@@ -58,7 +52,7 @@ namespace ViewModel
             _Start = false;
             _End = true;
             int selectedNumberOfBalls = ParseEnteredStringToInt();
-            ModelAPI.MoveBalls(selectedNumberOfBalls);
+            ModelAPI.CreateBalls(selectedNumberOfBalls);
             for (int i = 0; i < selectedNumberOfBalls; i++)
             {
                 ListOfObservableBalls.Add(ModelAPI.GetModelBall(i));
