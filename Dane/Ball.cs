@@ -2,10 +2,10 @@ namespace Data
 {
     public class Ball
     {
-        public double MassOfTheBall { get ; set ;  }
-        public Position CenterOfTheBall { get ; set ; }
-        public int BallRadius { get ; set ; }
-        public Position VelocityVector { get ; set ; }
+        public double MassOfTheBall { get; set; }
+        public Position CenterOfTheBall { get; set; }
+        public int BallRadius { get; set; }
+        public Position VelocityVector { get; set; }
 
         public Ball(double massOfTheBall, Position centerOfTheBall, int ballRadius, Position velocityVector)
         {
@@ -15,7 +15,8 @@ namespace Data
             this.VelocityVector = velocityVector;
         }
 
-        public void Move()
+
+        public void MoveBall()
         {
             /*
              * Za logikê poruszania siê odpowiedzialna bêdzie, jak sama nazwa wskazuje, Logika
@@ -28,9 +29,9 @@ namespace Data
              * + promieñ = 0 lub równa siê wysokoœæ / szerokoœæ to trzeba odwróciæ jedynie odpowiedni¹ wspó³rzêdn¹
              * wektora prêdkoœci (w przypadku ektremalnym: obie - przy trafieniu w sam róg).
              */
+            CenterOfTheBall.XCoordinate = VelocityVector.XCoordinate + CenterOfTheBall.XCoordinate;
+            CenterOfTheBall.YCoordinate = VelocityVector.YCoordinate + CenterOfTheBall.YCoordinate;
 
-            CenterOfTheBall.XCoordinate = CenterOfTheBall.XCoordinate + VelocityVector.XCoordinate;
-            CenterOfTheBall.YCoordinate = CenterOfTheBall.YCoordinate + VelocityVector.YCoordinate;
         }
     }
 }

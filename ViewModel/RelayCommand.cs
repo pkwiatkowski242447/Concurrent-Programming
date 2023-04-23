@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Input;
 
 namespace ViewModel
@@ -6,7 +6,7 @@ namespace ViewModel
     public class RelayCommand : ICommand
     {
         public RelayCommand(Action execute) : this(execute, null) { }
-        public RelayCommand(Action execute, Func<bool> canExcute) 
+        public RelayCommand(Action execute, Func<bool> canExcute)
         {
             this.m_Execute = execute ?? throw new ArgumentNullException(nameof(execute));
             this.m_CanExecute = canExcute;

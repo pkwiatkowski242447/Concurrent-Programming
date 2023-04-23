@@ -1,4 +1,4 @@
-﻿using Logic;
+using Logic;
 using System;
 using System.Collections.Generic;
 
@@ -6,29 +6,32 @@ namespace Model
 {
     public abstract class ModelAbstractAPI : IObserver<int>, IObservable<BallInterface>
     {
-        public static ModelAbstractAPI CreateModelAPIInstance()
+        public static ModelAbstractAPI CreateModelApi()
         {
             return new ModelAPI();
         }
-
-        public abstract void CreateBalls(int SelectedNumberOfBalls);
-        public abstract void ClearPoolTable();
-        public abstract void OnCompleted();
-        public abstract ModelBall GetModelBall(int indexValue);
-        public abstract void OnError(Exception error);
-        public abstract void OnNext(int indexValue);
         public abstract void MoveBalls();
-        public abstract IDisposable Subscribe(IObserver<BallInterface> ObserverObject);
+        public abstract void CreateBalls(int howManyBalls);
+        public abstract void ClearPoolTable();
 
+        public abstract void OnCompleted();
+
+        public abstract ModelBall GetModelBall(int value);
+
+        public abstract void OnError(Exception error);
+
+        public abstract void OnNext(int value);
+
+        public abstract IDisposable Subscribe(IObserver<BallInterface> observer);
         private class ModelAPI : ModelAbstractAPI
         {
-            private readonly LogicAbstractAPI LogicAPI;
+            private LogicAbstractAPI LogicAPI;
             private IObserver<BallInterface>? BallObserver;
-            private readonly IDisposable? ManagerOfObserver;
-            private readonly List<ModelBall> ListOfModelBalls = new List<ModelBall>();
+            private IDisposable? ManagerOfObserver;
+            private List<ModelBall> ListOfModelBalls = new List<ModelBall>();
             internal ModelAPI()
             {
-                LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
+                LogicAPI = LogicAbstractAPI.CreateLogicApi();
                 ManagerOfObserver = LogicAPI.Subscribe(this);
             }
 
@@ -43,21 +46,11 @@ namespace Model
                 }
             }
 
-            public override void MoveBalls()
-            {
-                LogicAPI.MoveGeneratedBalls();
-            }
-
             public override void ClearPoolTable()
             {
                 LogicAPI.ClearPoolTable();
                 ListOfModelBalls.Clear();
                 ManagerOfObserver?.Dispose();
-            }
-
-            public override ModelBall GetModelBall(int indexValue)
-            {
-                return ListOfModelBalls[indexValue];
             }
 
             public override void OnCompleted()
@@ -70,20 +63,31 @@ namespace Model
                 throw new NotImplementedException();
             }
 
-            public override void OnNext(int indexValue)
+            public override void OnNext(int value)
             {
-                if (indexValue < ListOfModelBalls.Count)
+                if (value < ListOfModelBalls.Count)
                 {
-                    ModelBall ball = ListOfModelBalls[indexValue];
-                    List<int> ballObjectCoordinates = LogicAPI.GetAllBallsCoordinates()[indexValue];
-                    ball.Move(ballObjectCoordinates[1] + ballObjectCoordinates[4], ballObjectCoordinates[0] + ballObjectCoordinates[3]);
+                    ModelBall ball_model = ListOfModelBalls[value];
+                    List<int> ball = LogicAPI.GetAllBallsCoordinates()[value];
+                    ball_model.Move(ball[1] + ball[4], ball[0] + ball[3]);
                 }
+
             }
 
             public override IDisposable Subscribe(IObserver<BallInterface> Observer)
             {
                 this.BallObserver = Observer;
                 return new ObserverManager(Observer);
+            }
+
+            public override ModelBall GetModelBall(int value)
+            {
+                return ListOfModelBalls[value];
+            }
+
+            public override void MoveBalls()
+            {
+                LogicAPI.MoveBalls();
             }
 
             private class ObserverManager : IDisposable
@@ -100,6 +104,7 @@ namespace Model
                     ObserverToBeManaged = null;
                 }
             }
+
         }
     }
 }

@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,13 +8,13 @@ namespace Logic
 {
     public abstract class LogicAbstractAPI : IObservable<int>
     {
-        public static LogicAbstractAPI CreateLogicAPIInstance()
+        public static LogicAbstractAPI CreateLogicApi()
         {
             return new LogicAPI();
         }
         public abstract void CreateSpecifiedNumerOfBalls(int numberOfBallsToAdd);
         public abstract void ClearPoolTable();
-        public abstract void MoveGeneratedBalls();
+        public abstract void MoveBalls();
         public abstract List<List<int>> GetAllBallsCoordinates();
         public abstract IDisposable Subscribe(IObserver<int> observer);
 
@@ -29,7 +30,7 @@ namespace Logic
 
             public LogicAPI()
             {
-                DataAPI = DataAbstractAPI.CreateDataAPIInstance(WidthOfTheTable, HeightOfTheTable);
+                DataAPI = DataAbstractAPI.CreateDataApi(HeightOfTheTable, WidthOfTheTable);
                 ListOfManagedBalls = new List<Ball>();
                 ListOfManagedTasks = new List<Task>();
             }
@@ -39,14 +40,14 @@ namespace Logic
                 for (int i = 0; i < numberOfBallsToAdd; i++)
                 {
                     int taskIdentfier = i;
-                    Ball currentBall = DataAPI.CreateASingleBall();
+                    Ball currentBall = DataAPI.CreateBall();
                     ListOfManagedBalls.Add(currentBall);
                     Task ballMovement = new Task(() =>
                     {
                         while (!stopTasks)
                         {
                             ManageCollisions(currentBall);
-                            currentBall.Move();
+                            currentBall.MoveBall();
                             if (ObserverObject != null)
                             {
                                 ObserverObject.OnNext(taskIdentfier);
@@ -81,15 +82,15 @@ namespace Logic
                 ListOfManagedTasks.Clear();
                 ListOfManagedBalls.Clear();
             }
-            public override void MoveGeneratedBalls()
+            public override void MoveBalls()
             {
                 stopTasks = false;
-                // Tu powinna byæ ju¿ faktyczna implementacja, jako, ¿e ruch to element Logiki programu
                 for (int i = 0; i < ListOfManagedTasks.Count; i++)
                 {
                     ListOfManagedTasks[i].Start();
                 }
             }
+
             public override List<List<int>> GetAllBallsCoordinates()
             {
                 List<List<int>> ListOfBallsCoordinates = new List<List<int>>();
@@ -120,7 +121,7 @@ namespace Logic
 
             private void ManageCollisions(Ball SomeBall)
             {
-                if (0 >= (SomeBall.CenterOfTheBall.XCoordinate - SomeBall.BallRadius) || 
+                if (0 >= (SomeBall.CenterOfTheBall.XCoordinate - SomeBall.BallRadius) ||
                     (SomeBall.CenterOfTheBall.XCoordinate + SomeBall.BallRadius) >= WidthOfTheTable)
                 {
                     SomeBall.VelocityVector.XCoordinate = -SomeBall.VelocityVector.XCoordinate;
@@ -135,7 +136,7 @@ namespace Logic
 
             private class ObserverManager : IDisposable
             {
-                IObserver<int>? SomeObserver; 
+                IObserver<int>? SomeObserver;
 
                 public ObserverManager(IObserver<int> observer)
                 {

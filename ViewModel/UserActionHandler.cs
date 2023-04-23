@@ -1,4 +1,4 @@
-﻿using Model;
+using Model;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -39,7 +39,7 @@ namespace ViewModel
 
         public UserActionHandler()
         {
-            ModelAPI = ModelAbstractAPI.CreateModelAPIInstance();
+            ModelAPI = ModelAbstractAPI.CreateModelApi();
             ListOfObservableBalls = new ObservableCollection<ModelBall>();
             StartButtonDisabled = true;
             EndButtonDisable = false;

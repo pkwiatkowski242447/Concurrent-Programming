@@ -4,56 +4,49 @@ namespace Data
 {
     public abstract class DataAbstractAPI
     {
-        public static DataAbstractAPI CreateDataAPIInstance(int widthOfTheTable, int heightOfTheTable)
+        public static DataAbstractAPI CreateDataApi(int heightOfTheBoard, int widthOfTheBoard)
         {
-            return new DataAPI(widthOfTheTable, heightOfTheTable);
+            return new DataAPI(heightOfTheBoard, widthOfTheBoard);
         }
-
-        public abstract Ball CreateASingleBall();
+        public abstract Ball CreateBall();
         public abstract double GetMassOfTheBall();
         public abstract int GetRadiusOfTheBall();
-
         private class DataAPI : DataAbstractAPI
         {
-            internal double HardcodedMass = 10.0;
-            internal int HardcodedRadius = 10;
+            internal int mass;
+            internal int radius;
+            internal int boardHeight;
+            internal int boardWidth;
             internal Random randomIntNumber = new Random();
-            internal int WidthOfTheTable { get; }
-            internal int HeightOfTheTable { get; }
 
-            public DataAPI(int widthOfTheTable, int heightOfTheTable)
+            public DataAPI(int boardHeight, int boardWidth)
             {
-                this.WidthOfTheTable = widthOfTheTable;
-                this.HeightOfTheTable = heightOfTheTable;
+                this.mass = 10;
+                this.radius = 10;
+                this.boardHeight = boardHeight;
+                this.boardWidth = boardWidth;
             }
 
-            public override Ball CreateASingleBall()
+            public override Ball CreateBall()
             {
-                Position centerOfTheBall = GetRandomPositionWithinTheMap();
+                Position ball_center_position = RandomBallCenterCoordinates();
                 Position velocityVector;
                 do
                 {
                     velocityVector = GetAppropriateVelocityVector();
                 }
-                while(velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
-                Ball NewlyCreatedBall = new Ball(HardcodedMass, centerOfTheBall, HardcodedRadius, velocityVector);
-                return NewlyCreatedBall;
+                while (velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
+                Ball ball = new Ball(mass, ball_center_position, radius, velocityVector);
+                return ball;
             }
 
             public override double GetMassOfTheBall()
             {
-                return HardcodedMass;
+                return mass;
             }
             public override int GetRadiusOfTheBall()
             {
-                return HardcodedRadius;
-            }
-
-            internal Position GetRandomPositionWithinTheMap()
-            {
-                int CoordinateX = randomIntNumber.Next(HardcodedRadius, WidthOfTheTable - HardcodedRadius);
-                int CoordinateY = randomIntNumber.Next(HardcodedRadius, HeightOfTheTable - HardcodedRadius);
-                return new Position(CoordinateX, CoordinateY);
+                return radius;
             }
 
             internal Position GetAppropriateVelocityVector()
@@ -63,13 +56,20 @@ namespace Data
                 return new Position(Velocity_XValue, Velocity_YValue);
             }
 
+            public Position RandomBallCenterCoordinates()
+            {
+                int CoordinateX = randomIntNumber.Next(radius, boardWidth - radius);
+                int CoordinateY = randomIntNumber.Next(radius, boardHeight - radius);
+                Position coordinates = new Position(CoordinateX, CoordinateY);
+                return coordinates;
+            }
             internal bool CheckIfBallCenterPostionIsCorrect(Position centerOfTheBall)
             {
-                if (0 > (centerOfTheBall.XCoordinate - HardcodedRadius) || (centerOfTheBall.XCoordinate + HardcodedRadius) > WidthOfTheTable)
+                if (0 > (centerOfTheBall.XCoordinate - radius) || (centerOfTheBall.XCoordinate + radius) > boardWidth)
                 {
                     return false;
                 }
-                if (0 > (centerOfTheBall.YCoordinate - HardcodedRadius) || (centerOfTheBall.YCoordinate + HardcodedRadius) > HeightOfTheTable)
+                if (0 > (centerOfTheBall.YCoordinate - radius) || (centerOfTheBall.YCoordinate + radius) > boardHeight)
                 {
                     return false;
                 }

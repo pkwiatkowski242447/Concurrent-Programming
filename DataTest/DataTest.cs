@@ -6,10 +6,17 @@ namespace DataTest
     public class DataTest
     {
         [TestMethod]
+        public void CreatingApiTest()
+        {
+            DataAbstractAPI test_api = DataAbstractAPI.CreateDataApi(1000, 1000);
+            Assert.IsNotNull(test_api);
+        }
+
+        [TestMethod]
         public void CreateASingleBallTest()
         {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance(1000, 1000);
-            Ball NewlyCreatedBall = DataAPI.CreateASingleBall();
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataApi(1000, 1000);
+            Ball NewlyCreatedBall = DataAPI.CreateBall();
             Assert.AreNotEqual(null, NewlyCreatedBall);
         }
 
@@ -18,13 +25,13 @@ namespace DataTest
         {
             int XCoordinate = 678;
             int YCoordinate = 876;
-            Position CenterOfTheBall = new Position(XCoordinate, YCoordinate);
+            Position CenterOfTheBall = new(XCoordinate, YCoordinate);
             int VelocityX = 10;
             int VelocityY = 10;
-            Position VelocityVector = new Position(VelocityX, VelocityY);
+            Position VelocityVector = new (VelocityX, VelocityY);
             int RadiusOfTheBall = 15;
             double MassOfTheBall = 17.2;
-            Ball NewBall = new Ball(MassOfTheBall, CenterOfTheBall, RadiusOfTheBall, VelocityVector);
+            Ball NewBall = new (MassOfTheBall, CenterOfTheBall, RadiusOfTheBall, VelocityVector);
             Assert.AreEqual(XCoordinate, NewBall.CenterOfTheBall.XCoordinate);
             Assert.AreEqual(YCoordinate, NewBall.CenterOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityX, NewBall.VelocityVector.YCoordinate);
@@ -36,11 +43,11 @@ namespace DataTest
         [TestMethod]
         public void TestFor1000Balls()
         {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance(740, 690);
-            List<Ball> ListOfBalls = new List<Ball>();
-            for(int i = 0; i < 1000; i++)
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataApi(690, 740);
+            List<Ball> ListOfBalls = new List<Ball> ();
+            for (int i = 0; i < 1000; i++)
             {
-                ListOfBalls.Add(DataAPI.CreateASingleBall());
+                ListOfBalls.Add(DataAPI.CreateBall());
             }
             bool correct = true;
             for (int i = 0; i < 1000; i++)
@@ -66,11 +73,11 @@ namespace DataTest
         {
             int WidthOfTheTable = 910;
             int HeightOfTheTable = 678;
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance(WidthOfTheTable, HeightOfTheTable);
-            Ball NewlyCreatedBall = DataAPI.CreateASingleBall();
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataApi(HeightOfTheTable, WidthOfTheTable);
+            Ball NewlyCreatedBall = DataAPI.CreateBall();
             Assert.AreNotEqual(null, NewlyCreatedBall);
             bool correct = true;
-            if (NewlyCreatedBall.CenterOfTheBall.XCoordinate - NewlyCreatedBall.BallRadius < 0 || 
+            if (NewlyCreatedBall.CenterOfTheBall.XCoordinate - NewlyCreatedBall.BallRadius < 0 ||
                 NewlyCreatedBall.CenterOfTheBall.XCoordinate + NewlyCreatedBall.BallRadius > WidthOfTheTable)
             {
                 correct = false;
@@ -88,8 +95,8 @@ namespace DataTest
         {
             int WidthOfTheTable = 910;
             int HeightOfTheTable = 678;
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance(WidthOfTheTable, HeightOfTheTable);
-            Ball NewlyCreatedBall = DataAPI.CreateASingleBall();
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataApi(HeightOfTheTable, WidthOfTheTable);
+            Ball NewlyCreatedBall = DataAPI.CreateBall();
             Assert.AreNotEqual(null, NewlyCreatedBall);
             bool correct = true;
             if (NewlyCreatedBall.CenterOfTheBall.XCoordinate - NewlyCreatedBall.BallRadius + NewlyCreatedBall.VelocityVector.XCoordinate < 0 ||
@@ -110,7 +117,7 @@ namespace DataTest
         {
             int XCoordinate = 700;
             int YCoordinate = 678;
-            Position NewPosition = new Position(XCoordinate, YCoordinate);
+            Position NewPosition = new (XCoordinate, YCoordinate);
             Assert.AreEqual(XCoordinate, NewPosition.XCoordinate);
             Assert.AreEqual(YCoordinate, NewPosition.YCoordinate);
         }
@@ -118,7 +125,7 @@ namespace DataTest
         [TestMethod]
         public void GetMassOfTheBall()
         {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance(700, 700);
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataApi(700, 700);
             double MassOfTheBall = DataAPI.GetMassOfTheBall();
             Assert.AreEqual(10.0, MassOfTheBall);
         }
@@ -126,7 +133,7 @@ namespace DataTest
         [TestMethod]
         public void GetRadiusOfTheBall()
         {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance(500, 500);
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataApi(500, 500);
             int RadiusOfTheBall = DataAPI.GetRadiusOfTheBall();
             Assert.AreEqual(10, RadiusOfTheBall);
         }
