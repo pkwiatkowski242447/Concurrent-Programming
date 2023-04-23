@@ -1,28 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Dane
+namespace Data
 {
     public class Position
     {
-        public int xCoordinate;
-        public int yCoordinate;
+        public int XCoordinate { get; set; }
+        public int YCoordinate { get; set; }
 
         public Position(int xCoordinate, int yCoordinate)
         {
-            this.xCoordinate = xCoordinate;
-            this.yCoordinate = yCoordinate;
-        }
-
-        public int getXCoordinate()
-        {
-            return this.xCoordinate;
-        }
-
-        public int getYCoordinate()
-        {
-            return this.yCoordinate;
+            this.XCoordinate = xCoordinate;
+            this.YCoordinate = yCoordinate;
         }
     }
 }

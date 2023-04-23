@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Logic\Logika.csproj" />
+    <ProjectReference Include="..\Logika\Logic.csproj" />
   </ItemGroup>
 
 </Project>
