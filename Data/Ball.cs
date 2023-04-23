@@ -19,15 +19,15 @@ namespace Data
         public void MoveBall()
         {
             /*
-             * Za logikê poruszania siê odpowiedzialna bêdzie, jak sama nazwa wskazuje, Logika
-             * czyli w warstwie wy¿ej dokonywaæ bêdziemy korekt VelocityVectora - w wyniku tego 
-             * w tej metodzie wystarczy tylko zmieniaæ po³o¿enie.
+             * Za logikÄ™ poruszania siÄ™ odpowiedzialna bÄ™dzie, jak sama nazwa wskazuje, Logika
+             * czyli w warstwie wyÅ¼ej dokonywaÄ‡ bÄ™dziemy korekt VelocityVectora - w wyniku tego 
+             * w tej metodzie wystarczy tylko zmieniaÄ‡ poÅ‚oÅ¼enie.
              * 
-             * Sam pomys³ polega na tym: Dla ka¿dej kulki generujemy losow¹ pozycjê na mapie, i nastêpnie
-             * generowany jest wektor prêdkoœci, który sprawia, ¿e kulka po ruchu znajduje siê w mapie. I dalej
-             * opieraæ siê to bêdzie na okresowym sprawdzaniu po³o¿enia i je¿eli pozycja kulki, a dok³adnie centrum
-             * + promieñ = 0 lub równa siê wysokoœæ / szerokoœæ to trzeba odwróciæ jedynie odpowiedni¹ wspó³rzêdn¹
-             * wektora prêdkoœci (w przypadku ektremalnym: obie - przy trafieniu w sam róg).
+             * Sam pomysÅ‚ polega na tym: Dla kaÅ¼dej kulki generujemy losowÄ… pozycjÄ™ na mapie, i nastÄ™pnie
+             * generowany jest wektor prÄ™dkoÅ›ci, ktÃ³ry sprawia, Å¼e kulka po ruchu znajduje siÄ™ w mapie. I dalej
+             * opieraÄ‡ siÄ™ to bÄ™dzie na okresowym sprawdzaniu poÅ‚oÅ¼enia i jeÅ¼eli pozycja kulki, a dokÅ‚adnie centrum
+             * + promieÅ„ = 0 lub rÃ³wna siÄ™ wysokoÅ›Ä‡ / szerokoÅ›Ä‡ to trzeba odwrÃ³ciÄ‡ jedynie odpowiedniÄ… wspÃ³Å‚rzÄ™dnÄ…
+             * wektora prÄ™dkoÅ›ci (w przypadku ektremalnym: obie - przy trafieniu w sam rÃ³g).
              */
             CenterOfTheBall.XCoordinate = VelocityVector.XCoordinate + CenterOfTheBall.XCoordinate;
             CenterOfTheBall.YCoordinate = VelocityVector.YCoordinate + CenterOfTheBall.YCoordinate;
