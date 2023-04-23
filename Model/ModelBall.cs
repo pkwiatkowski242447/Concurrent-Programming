@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Model
@@ -29,7 +29,7 @@ namespace Model
         }
         public int BallRadius { get; }
 
-        public event PropertyChangedEventHandler? PropertyChanged; 
+        public event PropertyChangedEventHandler ?PropertyChanged;
 
         public ModelBall(int topValue, int leftValue, int ballRadius)
         {
@@ -42,7 +42,7 @@ namespace Model
         {
             this.TopValue = topValue;
             this.LeftValue = leftValue;
-        }
+        } 
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {

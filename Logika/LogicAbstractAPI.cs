@@ -1,44 +1,72 @@
-using Dane;
+
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
+using Data;
 
-namespace Logika
+namespace Logic
 {
     public abstract class LogicAbstractAPI : IObservable<int>
     {
-        public static LogicAbstractAPI CreateApi()
+        public static LogicAbstractAPI CreateLogicApi()
         {
             return new LogicAPI();
         }
-        public abstract void CreateBalls(int howManyBalls);
+        public abstract void CreateSpecifiedNumerOfBalls(int numberOfBallsToAdd);
+        public abstract void ClearPoolTable();
         public abstract void MoveBalls();
-        public abstract void ClearBoard();
-        public abstract List<List<int>> GetBalls();
+        public abstract List<List<int>> GetAllBallsCoordinates();
         public abstract IDisposable Subscribe(IObserver<int> observer);
+
         private class LogicAPI : LogicAbstractAPI
         {
-            internal int boardHeight = 690;
-            internal int boardWidth = 740;
+            internal bool stopTasks = true;
             internal DataAbstractAPI DataAPI;
-            internal List<Ball> Balls = new List<Ball>();
-            internal List<Task> Tasks = new List<Task>();
-            internal bool stop;
-            private IObserver<int>? observer;
+            internal int WidthOfTheTable = 740;
+            internal int HeightOfTheTable = 690;
+            internal IObserver<int>? ObserverObject;
+            internal List<Ball> ListOfManagedBalls { get; set; }
+            internal List<Task> ListOfManagedTasks { get; set; }
 
-            internal LogicAPI()
+            public LogicAPI()
             {
-                DataAPI = DataAbstractAPI.CreateApi(boardWidth, boardHeight);
+                DataAPI = DataAbstractAPI.CreateDataApi(HeightOfTheTable, WidthOfTheTable);
+                ListOfManagedBalls = new List<Ball>();
+                ListOfManagedTasks = new List<Task>();
             }
-            public override void ClearBoard()
+
+            public override void CreateSpecifiedNumerOfBalls(int numberOfBallsToAdd)
             {
-                stop = true;
+                for (int i = 0; i < numberOfBallsToAdd; i++)
+                {
+                    int taskIdentfier = i;
+                    Ball currentBall = DataAPI.CreateBall();
+                    ListOfManagedBalls.Add(currentBall);
+                    Task ballMovement = new Task(() =>
+                    {
+                        while (!stopTasks)
+                        {
+                            ManageCollisions(currentBall);
+                            currentBall.MoveBall();
+                            if (ObserverObject != null)
+                            {
+                                ObserverObject.OnNext(taskIdentfier);
+                            }
+                            Task.Delay(10).Wait();
+                        }
+                    });
+                    ListOfManagedTasks.Add(ballMovement);
+                }
+            }
+
+            public override void ClearPoolTable()
+            {
+                stopTasks = true;
                 bool isEveryTaskStopped = false;
                 while (!isEveryTaskStopped)
                 {
                     isEveryTaskStopped = true;
-                    foreach (Task task in Tasks)
+                    foreach (Task task in ListOfManagedTasks)
                     {
                         if (!task.IsCompleted)
                         {
@@ -47,48 +75,32 @@ namespace Logika
                         }
                     }
                 }
-                for (int i = 0; i < Tasks.Count; i++)
+                for (int i = 0; i < ListOfManagedTasks.Count; i++)
                 {
-                    Tasks[i].Dispose();
+                    ListOfManagedTasks[i].Dispose();
                 }
-                Balls.Clear();
-                Tasks.Clear();
+                ListOfManagedTasks.Clear();
+                ListOfManagedBalls.Clear();
             }
-
-            public override void CreateBalls(int howManyBalls)
+            public override void MoveBalls()
             {
-                for (int i = 0; i < howManyBalls; i++)
+                stopTasks = false;
+                for (int i = 0; i < ListOfManagedTasks.Count; i++)
                 {
-                    int id = i;
-                    Ball ball = DataAPI.CreateBall();
-                    Balls.Add(ball);
-                    Task task = new Task(() =>
-                    {
-                        while (!stop)
-                        {
-                            check_coordinates(ball);
-                            ball.MoveBall();
-                            if (observer != null)
-                            {
-                                observer.OnNext(id);
-                            }
-                            Task.Delay(10).Wait();
-                        }
-                    });
-                    Tasks.Add(task);
+                    ListOfManagedTasks[i].Start();
                 }
             }
 
-            public override List<List<int>> GetBalls()
+            public override List<List<int>> GetAllBallsCoordinates()
             {
                 List<List<int>> ListOfBallsCoordinates = new List<List<int>>();
-                for (int i = 0; i < Balls.Count; i++)
+                for (int i = 0; i < ListOfManagedBalls.Count; i++)
                 {
-                    int XCoordinate = Balls[i].centerOfTheBall.xCoordinate;
-                    int YCoordinate = Balls[i].centerOfTheBall.yCoordinate;
-                    int BallRadius = Balls[i].ballRadius;
-                    int VelocityX = Balls[i].velocityVector.xCoordinate;
-                    int VelocityY = Balls[i].velocityVector.yCoordinate;
+                    int XCoordinate = ListOfManagedBalls[i].CenterOfTheBall.XCoordinate;
+                    int YCoordinate = ListOfManagedBalls[i].CenterOfTheBall.YCoordinate;
+                    int BallRadius = ListOfManagedBalls[i].BallRadius;
+                    int VelocityX = ListOfManagedBalls[i].VelocityVector.XCoordinate;
+                    int VelocityY = ListOfManagedBalls[i].VelocityVector.YCoordinate;
                     List<int> Coords = new List<int>()
                     {
                         XCoordinate,
@@ -101,46 +113,40 @@ namespace Logika
                 }
                 return ListOfBallsCoordinates;
             }
-
-            public override void MoveBalls()
+            public override IDisposable Subscribe(IObserver<int> observer)
             {
-                stop = false;
-                for (int i = 0; i < Tasks.Count; i++)
+                this.ObserverObject = observer;
+                return new ObserverManager(observer);
+            }
+
+            private void ManageCollisions(Ball SomeBall)
+            {
+                if (0 >= (SomeBall.CenterOfTheBall.XCoordinate - SomeBall.BallRadius) ||
+                    (SomeBall.CenterOfTheBall.XCoordinate + SomeBall.BallRadius) >= WidthOfTheTable)
                 {
-                    Tasks[i].Start();
+                    SomeBall.VelocityVector.XCoordinate = -SomeBall.VelocityVector.XCoordinate;
+                }
+
+                if (0 >= (SomeBall.CenterOfTheBall.YCoordinate - SomeBall.BallRadius) ||
+                    (SomeBall.CenterOfTheBall.YCoordinate + SomeBall.BallRadius) >= HeightOfTheTable)
+                {
+                    SomeBall.VelocityVector.YCoordinate = -SomeBall.VelocityVector.YCoordinate;
                 }
             }
 
-            public override IDisposable Subscribe(IObserver<int> observer)
-            {
-                this.observer = observer;
-                return new ObserverManager(observer);
-            }
             private class ObserverManager : IDisposable
             {
-                public IObserver<int>? ObserverToBeManaged;
+                IObserver<int>? SomeObserver;
 
-                public ObserverManager(IObserver<int> observerObject)
+                public ObserverManager(IObserver<int> observer)
                 {
-                    ObserverToBeManaged = observerObject;
+                    this.SomeObserver = observer;
                 }
 
                 public void Dispose()
                 {
-                    ObserverToBeManaged = null;
+                    this.SomeObserver = null;
                 }
-            }
-            private void check_coordinates(Ball ball_object)
-            {
-                if (ball_object.centerOfTheBall.xCoordinate + ball_object.velocityVector.xCoordinate > boardWidth || ball_object.centerOfTheBall.xCoordinate + ball_object.velocityVector.xCoordinate < 0)
-                {
-                    ball_object.velocityVector.xCoordinate = -ball_object.velocityVector.xCoordinate;
-                }
-                if (ball_object.centerOfTheBall.yCoordinate + ball_object.velocityVector.yCoordinate > boardHeight || ball_object.centerOfTheBall.yCoordinate + ball_object.velocityVector.yCoordinate < 0)
-                {
-                    ball_object.velocityVector.yCoordinate = -ball_object.velocityVector.yCoordinate;
-                }
-
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using Dane;
-using Logika;
+using Logic;
 using System;
 using System.Collections.Generic;
 
@@ -7,13 +6,13 @@ namespace Model
 {
     public abstract class ModelAbstractAPI : IObserver<int>, IObservable<BallInterface>
     {
-        public static ModelAbstractAPI CreateModelAPI()
+        public static ModelAbstractAPI CreateModelApi()
         {
             return new ModelAPI();
         }
         public abstract void MoveBalls();
         public abstract void CreateBalls(int howManyBalls);
-        public abstract void ClearBoard();
+        public abstract void ClearPoolTable();
 
         public abstract void OnCompleted();
 
@@ -29,29 +28,28 @@ namespace Model
             private LogicAbstractAPI LogicAPI;
             private IObserver<BallInterface>? BallObserver;
             private IDisposable? ManagerOfObserver;
-            private List<ModelBall> listOfBalls = new List<ModelBall>();
+            private List<ModelBall> ListOfModelBalls = new List<ModelBall>();
             internal ModelAPI()
             {
-                LogicAPI = LogicAbstractAPI.CreateApi();
+                LogicAPI = LogicAbstractAPI.CreateLogicApi();
                 ManagerOfObserver = LogicAPI.Subscribe(this);
             }
 
-            public override void CreateBalls(int howManyBalls)
+            public override void CreateBalls(int SelectedNumberOfBalls)
             {
-                LogicAPI.CreateBalls(howManyBalls);
-                List<List<int>> listFromLogic = LogicAPI.GetBalls();
-                for (int i = 0; i < listFromLogic.Count; i++)
+                LogicAPI.CreateSpecifiedNumerOfBalls(SelectedNumberOfBalls);
+                List<List<int>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
+                for (int i = 0; i < ListFromLogic.Count; i++)
                 {
-                    List<int> ball = listFromLogic[i];
-                    listOfBalls.Add(new ModelBall(ball[1], ball[0], ball[2]));
+                    List<int> BallObjectCoordinates = ListFromLogic[i];
+                    ListOfModelBalls.Add(new ModelBall(BallObjectCoordinates[1], BallObjectCoordinates[0], BallObjectCoordinates[2]));
                 }
-                LogicAPI.MoveBalls();
             }
 
-            public override void ClearBoard()
+            public override void ClearPoolTable()
             {
-                LogicAPI.ClearBoard();
-                listOfBalls.Clear();
+                LogicAPI.ClearPoolTable();
+                ListOfModelBalls.Clear();
                 ManagerOfObserver?.Dispose();
             }
 
@@ -67,10 +65,10 @@ namespace Model
 
             public override void OnNext(int value)
             {
-                if (value < listOfBalls.Count)
+                if (value < ListOfModelBalls.Count)
                 {
-                    ModelBall ball_model = listOfBalls[value];
-                    List<int> ball = LogicAPI.GetBalls()[value];
+                    ModelBall ball_model = ListOfModelBalls[value];
+                    List<int> ball = LogicAPI.GetAllBallsCoordinates()[value];
                     ball_model.Move(ball[1] + ball[4], ball[0] + ball[3]);
                 }
 
@@ -84,12 +82,12 @@ namespace Model
 
             public override ModelBall GetModelBall(int value)
             {
-                return listOfBalls[value];
+                return ListOfModelBalls[value];
             }
 
             public override void MoveBalls()
             {
-                throw new NotImplementedException();
+                LogicAPI.MoveBalls();
             }
 
             private class ObserverManager : IDisposable

@@ -1,14 +1,14 @@
-﻿namespace Dane
+namespace Data
 {
     public class Position
     {
-        public int xCoordinate { get; set; }
-        public int yCoordinate { get; set; }
+        public int XCoordinate { get; set; }
+        public int YCoordinate { get; set; }
 
         public Position(int xCoordinate, int yCoordinate)
         {
-            this.xCoordinate = xCoordinate;
-            this.yCoordinate = yCoordinate;
+            this.XCoordinate = xCoordinate;
+            this.YCoordinate = yCoordinate;
         }
     }
 }

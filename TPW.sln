@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
@@ -9,13 +8,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewModel", "ViewModel\View
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{843C8907-947D-4610-A726-F068A74692C0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logika", "Logika\Logika.csproj", "{737EFB85-56D5-4686-B47F-8C2C78129C58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logic", "Logika\Logic.csproj", "{737EFB85-56D5-4686-B47F-8C2C78129C58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dane", "Dane\Dane.csproj", "{7D941878-2D05-4CE0-8794-FB432DD43340}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Dane\Data.csproj", "{7D941878-2D05-4CE0-8794-FB432DD43340}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogikaTest", "LogikaTest\LogikaTest.csproj", "{D06F129C-DD8C-4D76-BAAC-274F8587209F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogicTest", "LogikaTest\LogicTest.csproj", "{D06F129C-DD8C-4D76-BAAC-274F8587209F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTest", "DataTest\DataTest.csproj", "{2D17D1F4-5847-46B2-BC8B-E3D43D7C675C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataTest", "DataTest\DataTest.csproj", "{2D17D1F4-5847-46B2-BC8B-E3D43D7C675C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
