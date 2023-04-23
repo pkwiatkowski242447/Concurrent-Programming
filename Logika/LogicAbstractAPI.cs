@@ -19,8 +19,8 @@ namespace Logika
         public abstract IDisposable Subscribe(IObserver<int> observer);
         private class LogicAPI : LogicAbstractAPI
         {
-            internal int boardHeight = 1000;
-            internal int boardWidth = 1000;
+            internal int boardHeight = 690;
+            internal int boardWidth = 740;
             internal DataAbstractAPI DataAPI;
             internal List<Ball> Balls = new List<Ball>();
             internal List<Task> Tasks = new List<Task>();
@@ -66,6 +66,7 @@ namespace Logika
                     {
                         while (!stop)
                         {
+                            check_coordinates(ball);
                             ball.MoveBall();
                             if (observer != null)
                             {
@@ -128,6 +129,18 @@ namespace Logika
                 {
                     ObserverToBeManaged = null;
                 }
+            }
+            private void check_coordinates(Ball ball_object)
+            {
+                if (ball_object.centerOfTheBall.xCoordinate + ball_object.velocityVector.xCoordinate > boardWidth || ball_object.centerOfTheBall.xCoordinate + ball_object.velocityVector.xCoordinate < 0)
+                {
+                    ball_object.velocityVector.xCoordinate = -ball_object.velocityVector.xCoordinate;
+                }
+                if (ball_object.centerOfTheBall.yCoordinate + ball_object.velocityVector.yCoordinate > boardHeight || ball_object.centerOfTheBall.yCoordinate + ball_object.velocityVector.yCoordinate < 0)
+                {
+                    ball_object.velocityVector.yCoordinate = -ball_object.velocityVector.yCoordinate;
+                }
+
             }
         }
     }

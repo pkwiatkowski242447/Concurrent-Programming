@@ -13,8 +13,8 @@ namespace Dane
         public abstract int getRadiusOfTheBall();
         private class DataAPI : DataAbstractAPI
         {
-            internal int mass;
-            internal int radius;
+            public int mass;
+            public int radius;
             internal int boardHeight;
             internal int boardWidth;
 
@@ -28,11 +28,11 @@ namespace Dane
 
             public override Ball CreateBall()
             {
-                Position ball_center_position = randomXY_ball();
-                Position velocityVector = new Position(0,0);
-                while (velocityVector.xCoordinate ==0 && velocityVector.yCoordinate ==0)
+                Position ball_center_position = randomBallCenterCoordinates();
+                Position velocityVector = new Position(0, 0);
+                while (velocityVector.xCoordinate == 0 && velocityVector.yCoordinate == 0)
                 {
-                    velocityVector = randomXY();
+                    velocityVector = randomVelocityVector();
                 }
                 Ball ball = new Ball(mass, ball_center_position, radius, velocityVector);
                 return ball;
@@ -48,7 +48,7 @@ namespace Dane
                 return radius;
             }
 
-            public Position randomXY()
+            public Position randomVelocityVector()
             {
                 var random = new Random();
                 int x = random.Next(-10, 10);
@@ -57,7 +57,7 @@ namespace Dane
                 return coordinates;
             }
 
-            public Position randomXY_ball()
+            public Position randomBallCenterCoordinates()
             {
                 var random = new Random();
                 int x = random.Next(radius, boardWidth - radius);

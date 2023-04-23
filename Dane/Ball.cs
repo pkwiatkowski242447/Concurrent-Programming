@@ -2,7 +2,7 @@
 {
     public class Ball
     {
-        private double massOfTheBall { get; set; }
+        public double massOfTheBall { get; set; }
         public Position centerOfTheBall { get; set; }
         public int ballRadius { get; set; }
         public Position velocityVector { get; set; }
