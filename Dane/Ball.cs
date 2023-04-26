@@ -4,10 +4,10 @@ namespace Data
     {
         public double MassOfTheBall { get; set; }
         public Position CenterOfTheBall { get; set; }
-        public int BallRadius { get; set; }
+        public double BallRadius { get; set; }
         public Position VelocityVector { get; set; }
 
-        public Ball(double massOfTheBall, Position centerOfTheBall, int ballRadius, Position velocityVector)
+        public Ball(double massOfTheBall, Position centerOfTheBall, double ballRadius, Position velocityVector)
         {
             this.MassOfTheBall = massOfTheBall;
             this.CenterOfTheBall = centerOfTheBall;

@@ -38,10 +38,10 @@ namespace Model
             public override void CreateBalls(int SelectedNumberOfBalls)
             {
                 LogicAPI.CreateSpecifiedNumerOfBalls(SelectedNumberOfBalls);
-                List<List<int>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
+                List<List<double>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
                 for (int i = 0; i < ListFromLogic.Count; i++)
                 {
-                    List<int> BallObjectCoordinates = ListFromLogic[i];
+                    List<double> BallObjectCoordinates = ListFromLogic[i];
                     ListOfModelBalls.Add(new ModelBall(BallObjectCoordinates[1], BallObjectCoordinates[0], BallObjectCoordinates[2]));
                 }
             }
@@ -68,7 +68,7 @@ namespace Model
                 if (value < ListOfModelBalls.Count)
                 {
                     ModelBall ball_model = ListOfModelBalls[value];
-                    List<int> ball = LogicAPI.GetAllBallsCoordinates()[value];
+                    List<double> ball = LogicAPI.GetAllBallsCoordinates()[value];
                     ball_model.Move(ball[1] + ball[4], ball[0] + ball[3]);
                 }
 

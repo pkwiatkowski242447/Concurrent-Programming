@@ -4,8 +4,8 @@ namespace Model
 {
     public interface BallInterface : INotifyPropertyChanged
     {
-        public int TopValue { get; }
-        public int LeftValue { get; }
-        public int BallRadius { get; }
+        public double TopValue { get; }
+        public double LeftValue { get; }
+        public double BallRadius { get; }
     }
 }

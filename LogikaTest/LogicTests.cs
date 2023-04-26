@@ -15,7 +15,7 @@ namespace LogicTest
         {
             LogicAbstractAPI TestLogicApi = LogicAbstractAPI.CreateLogicApi();
             TestLogicApi.CreateSpecifiedNumerOfBalls(10);
-            List<List<int>> listOfBallsCoordinates = TestLogicApi.GetAllBallsCoordinates();
+            List<List<double>> listOfBallsCoordinates = TestLogicApi.GetAllBallsCoordinates();
             Assert.AreEqual(10, TestLogicApi.GetAllBallsCoordinates().Count);
             bool correct = true;
             for (int i = 0; i < listOfBallsCoordinates.Count; i++)
@@ -33,7 +33,7 @@ namespace LogicTest
             LogicAbstractAPI TestLogicApi = LogicAbstractAPI.CreateLogicApi();
             TestLogicApi.CreateSpecifiedNumerOfBalls(10);
             TestLogicApi.MoveBalls();
-            List<List<int>> listOfBalls = TestLogicApi.GetAllBallsCoordinates();
+            List<List<double>> listOfBalls = TestLogicApi.GetAllBallsCoordinates();
             Assert.AreEqual(10, listOfBalls.Count);
             TestLogicApi.ClearPoolTable();
             listOfBalls = TestLogicApi.GetAllBallsCoordinates();
@@ -44,9 +44,9 @@ namespace LogicTest
         {
             LogicAbstractAPI TestLogicApi = LogicAbstractAPI.CreateLogicApi();
             TestLogicApi.CreateSpecifiedNumerOfBalls(1);
-            List<List<int>> ball_before_move = TestLogicApi.GetAllBallsCoordinates();
+            List<List<double>> ball_before_move = TestLogicApi.GetAllBallsCoordinates();
             TestLogicApi.MoveBalls();
-            List<List<int>> ball_after_move = TestLogicApi.GetAllBallsCoordinates();
+            List<List<double>> ball_after_move = TestLogicApi.GetAllBallsCoordinates();
             CollectionAssert.AreNotEqual(ball_after_move, ball_before_move);
         }
     }

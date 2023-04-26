@@ -10,19 +10,19 @@ namespace Data
         }
         public abstract Ball CreateBall();
         public abstract double GetMassOfTheBall();
-        public abstract int GetRadiusOfTheBall();
+        public abstract double GetRadiusOfTheBall();
         private class DataAPI : DataAbstractAPI
         {
-            internal int mass;
-            internal int radius;
+            internal double mass;
+            internal double radius;
             internal int boardHeight;
             internal int boardWidth;
-            internal Random randomIntNumber = new Random();
+            internal Random randomNumber = new Random();
 
             public DataAPI(int boardHeight, int boardWidth)
             {
-                this.mass = 10;
-                this.radius = 10;
+                this.mass = 10.0;
+                this.radius = 10.0;
                 this.boardHeight = boardHeight;
                 this.boardWidth = boardWidth;
             }
@@ -44,22 +44,22 @@ namespace Data
             {
                 return mass;
             }
-            public override int GetRadiusOfTheBall()
+            public override double GetRadiusOfTheBall()
             {
                 return radius;
             }
 
             internal Position GetAppropriateVelocityVector()
             {
-                int Velocity_XValue = randomIntNumber.Next(-5, 5);
-                int Velocity_YValue = randomIntNumber.Next(-5, 5);
+                double Velocity_XValue = (randomNumber.NextDouble() * 10) - 5;
+                double Velocity_YValue = (randomNumber.NextDouble() * 10) - 5;
                 return new Position(Velocity_XValue, Velocity_YValue);
             }
 
             public Position RandomBallCenterCoordinates()
             {
-                int CoordinateX = randomIntNumber.Next(radius, boardWidth - radius);
-                int CoordinateY = randomIntNumber.Next(radius, boardHeight - radius);
+                double CoordinateX = randomNumber.NextDouble() * (boardWidth - 2 * radius) + radius;
+                double CoordinateY = randomNumber.NextDouble() * (boardHeight - 2 * radius) + radius;
                 Position coordinates = new Position(CoordinateX, CoordinateY);
                 return coordinates;
             }

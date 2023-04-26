@@ -5,8 +5,8 @@ namespace Model
 {
     public class ModelBall : BallInterface
     {
-        private int topValue;
-        public int TopValue
+        private double topValue;
+        public double TopValue
         {
             get { return topValue; }
             set
@@ -16,8 +16,8 @@ namespace Model
                 NotifyPropertyChanged();
             }
         }
-        private int leftValue;
-        public int LeftValue
+        private double leftValue;
+        public double LeftValue
         {
             get { return leftValue; }
             set
@@ -27,18 +27,18 @@ namespace Model
                 NotifyPropertyChanged();
             }
         }
-        public int BallRadius { get; }
+        public double BallRadius { get; }
 
         public event PropertyChangedEventHandler ?PropertyChanged;
 
-        public ModelBall(int topValue, int leftValue, int ballRadius)
+        public ModelBall(double topValue, double leftValue, double ballRadius)
         {
             this.topValue = topValue;
             this.leftValue = leftValue;
             this.BallRadius = ballRadius;
         }
 
-        public void Move(int topValue, int leftValue)
+        public void Move(double topValue, double leftValue)
         {
             this.TopValue = topValue;
             this.LeftValue = leftValue;
