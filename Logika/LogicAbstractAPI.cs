@@ -124,6 +124,7 @@ namespace Logic
                 this.ObserverObject = observer;
                 return new ObserverManager(observer);
             }
+
             private void ManageCollisions(DataBallInterface SomeBall)
             {
                 if (0 >= (SomeBall.CenterOfTheBall.XCoordinate - SomeBall.RadiusOfTheBall) || 

@@ -10,6 +10,7 @@ namespace DataTest
         {
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(1000, 1000);
+
             DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall();
             Assert.AreNotEqual(null, NewlyCreatedBall);
         }
@@ -41,35 +42,6 @@ namespace DataTest
         }
 
         [TestMethod]
-        public void TestFor1000Balls()
-        {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(740, 690);
-            List<DataBallInterface> ListOfBalls = new List<DataBallInterface>();
-            for(int i = 0; i < 1000; i++)
-            {
-                ListOfBalls.Add(DataAPI.CreateASingleBall());
-            }
-            bool correct = true;
-            for (int i = 0; i < 1000; i++)
-            {
-                if (ListOfBalls[i].CenterOfTheBall.XCoordinate - ListOfBalls[i].RadiusOfTheBall < 0 ||
-                    ListOfBalls[i].CenterOfTheBall.XCoordinate + ListOfBalls[i].RadiusOfTheBall > 740)
-                {
-                    correct = false;
-                    break;
-                }
-                if (ListOfBalls[i].CenterOfTheBall.YCoordinate - ListOfBalls[i].RadiusOfTheBall < 0 ||
-                    ListOfBalls[i].CenterOfTheBall.YCoordinate + ListOfBalls[i].RadiusOfTheBall > 690)
-                {
-                    correct = false;
-                    break;
-                }
-            }
-            Assert.AreEqual(true, correct);
-        }
-
-        [TestMethod]
         public void CheckIfCenterOfTheBallIsCorrect()
         {
             int WidthOfTheTable = 910;
@@ -84,7 +56,7 @@ namespace DataTest
 
             bool correct = true;
 
-            if (NewlyCreatedBall.CenterOfTheBall.XCoordinate - NewlyCreatedBall.RadiusOfTheBall < 0 || 
+            if (NewlyCreatedBall.CenterOfTheBall.XCoordinate - NewlyCreatedBall.RadiusOfTheBall < 0 ||
                 NewlyCreatedBall.CenterOfTheBall.XCoordinate + NewlyCreatedBall.RadiusOfTheBall > WidthOfTheTable)
             {
                 correct = false;
@@ -98,7 +70,7 @@ namespace DataTest
         }
 
         [TestMethod]
-        public void CheckIfVelocityVectorIsCorrect()
+        public void CheckIfVelocityVectorOfTheBallIsCorrect()
         {
             int WidthOfTheTable = 910;
             int HeightOfTheTable = 678;
@@ -126,6 +98,55 @@ namespace DataTest
         }
 
         [TestMethod]
+        public void GetMassOfTheBallTest()
+        {
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
+            DataAPI.CreateBoard(700, 700);
+            double MassOfTheBall = DataAPI.GetMassOfTheBall();
+            Assert.AreEqual(10.0, MassOfTheBall);
+        }
+
+        [TestMethod]
+        public void GetRadiusOfTheBallTest()
+        {
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
+            DataAPI.CreateBoard(500, 500);
+            double RadiusOfTheBall = DataAPI.GetRadiusOfTheBall();
+            Assert.AreEqual(10, RadiusOfTheBall);
+        }
+
+        [TestMethod]
+        public void CenterOfTheBallValidityTestFor1000Balls()
+        {
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
+            DataAPI.CreateBoard(740, 690);
+            List<DataBallInterface> ListOfBalls = new List<DataBallInterface>();
+            for(int i = 0; i < 1000; i++)
+            {
+                ListOfBalls.Add(DataAPI.CreateASingleBall());
+            }
+            bool correct = true;
+            for (int i = 0; i < 1000; i++)
+            {
+                if (ListOfBalls[i].CenterOfTheBall.XCoordinate - ListOfBalls[i].RadiusOfTheBall < 0 ||
+                    ListOfBalls[i].CenterOfTheBall.XCoordinate + ListOfBalls[i].RadiusOfTheBall > 740)
+                {
+                    correct = false;
+                    break;
+                }
+                if (ListOfBalls[i].CenterOfTheBall.YCoordinate - ListOfBalls[i].RadiusOfTheBall < 0 ||
+                    ListOfBalls[i].CenterOfTheBall.YCoordinate + ListOfBalls[i].RadiusOfTheBall > 690)
+                {
+                    correct = false;
+                    break;
+                }
+            }
+            Assert.AreEqual(true, correct);
+        }
+
+        // Position tests
+
+        [TestMethod]
         public void CheckIfConstructorOfThePositionIsCorrect()
         {
             int XCoordinate = 700;
@@ -137,22 +158,37 @@ namespace DataTest
             Assert.AreEqual(YCoordinate, NewPosition.YCoordinate);
         }
 
+        // Board tests
+
         [TestMethod]
-        public void GetMassOfTheBall()
+        public void CreateBoardTest()
         {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(700, 700);
-            double MassOfTheBall = DataAPI.GetMassOfTheBall();
-            Assert.AreEqual(10.0, MassOfTheBall);
+            int WidthOfTheBoard = 123;
+            int HeightOfTheBoard = 456;
+            DataBoardInterface Board = DataBoardInterface.CreateBoard(WidthOfTheBoard, HeightOfTheBoard);
+            Assert.AreNotEqual(null, Board);
         }
 
         [TestMethod]
-        public void GetRadiusOfTheBall()
+        public void GetWidthOfTheBoardTest()
         {
+            int WidthOfTheBoard = 123;
+            int HeightOfTheBoard = 456;
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(500, 500);
-            double RadiusOfTheBall = DataAPI.GetRadiusOfTheBall();
-            Assert.AreEqual(10, RadiusOfTheBall);
+            DataAPI.CreateBoard(WidthOfTheBoard, HeightOfTheBoard);
+            Assert.AreEqual(WidthOfTheBoard, DataAPI.GetWidthOfTheBoard());
         }
+
+        [TestMethod]
+        public void GetHeightOfTheBoardTest()
+        {
+            int WidthOfTheBoard = 123;
+            int HeightOfTheBoard = 456;
+            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
+            DataAPI.CreateBoard(WidthOfTheBoard, HeightOfTheBoard);
+            Assert.AreEqual(HeightOfTheBoard, DataAPI.GetHeightOfTheBoard());
+        }
+
+
     }
 }
