@@ -3,10 +3,9 @@ using System.Windows.Input;
 
 namespace ViewModel
 {
-    public class RelayCommand : ICommand
+    internal class RelayCommand : ICommand
     {
-        public RelayCommand(Action execute) : this(execute, null) { }
-        public RelayCommand(Action execute, Func<bool> canExcute) 
+        public RelayCommand(Action execute, Func<bool>? canExcute = null) 
         {
             this.m_Execute = execute ?? throw new ArgumentNullException(nameof(execute));
             this.m_CanExecute = canExcute;
@@ -38,6 +37,6 @@ namespace ViewModel
         }
 
         private readonly Action m_Execute;
-        private readonly Func<bool> m_CanExecute;
+        private readonly Func<bool>? m_CanExecute;
     }
 }

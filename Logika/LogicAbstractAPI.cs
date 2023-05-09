@@ -7,31 +7,38 @@ namespace Logic
 {
     public abstract class LogicAbstractAPI : IObservable<int>
     {
-        public static LogicAbstractAPI CreateLogicAPIInstance()
+        public static LogicAbstractAPI CreateLogicAPIInstance(DataAbstractAPI? DataAPI = default)
         {
-            return new LogicAPI();
+            return new LogicAPI(DataAPI == null ? DataAbstractAPI.CreateDataAPIInstance() : DataAPI);
         }
+
+        public abstract void CreatePlayingBoard();
         public abstract void CreateSpecifiedNumerOfBalls(int numberOfBallsToAdd);
         public abstract void ClearPoolTable();
         public abstract void MoveGeneratedBalls();
-        public abstract List<List<int>> GetAllBallsCoordinates();
+        public abstract List<List<double>> GetAllBallsCoordinates();
         public abstract IDisposable Subscribe(IObserver<int> observer);
 
         private class LogicAPI : LogicAbstractAPI
         {
             internal bool stopTasks = true;
             internal DataAbstractAPI DataAPI;
-            internal int WidthOfTheTable = 740;
-            internal int HeightOfTheTable = 690;
             internal IObserver<int>? ObserverObject;
-            internal List<Ball> ListOfManagedBalls { get; set; }
+            internal int WidthOfTheBoard = 740;
+            internal int HeightOfTheBoard = 690;
+            internal List<DataBallInterface> ListOfManagedBalls { get; set; }
             internal List<Task> ListOfManagedTasks { get; set; }
 
-            public LogicAPI()
+            public LogicAPI(DataAbstractAPI DataAPI)
             {
-                DataAPI = DataAbstractAPI.CreateDataAPIInstance(WidthOfTheTable, HeightOfTheTable);
-                ListOfManagedBalls = new List<Ball>();
+                this.DataAPI = DataAPI;
+                ListOfManagedBalls = new List<DataBallInterface>();
                 ListOfManagedTasks = new List<Task>();
+            }
+
+            public override void CreatePlayingBoard()
+            {
+                DataAPI.CreateBoard(this.WidthOfTheBoard, this.HeightOfTheBoard);
             }
 
             public override void CreateSpecifiedNumerOfBalls(int numberOfBallsToAdd)
@@ -39,7 +46,7 @@ namespace Logic
                 for (int i = 0; i < numberOfBallsToAdd; i++)
                 {
                     int taskIdentfier = i;
-                    Ball currentBall = DataAPI.CreateASingleBall();
+                    DataBallInterface currentBall = DataAPI.CreateASingleBall();
                     ListOfManagedBalls.Add(currentBall);
                     Task ballMovement = new Task(() =>
                     {
@@ -51,7 +58,7 @@ namespace Logic
                             {
                                 ObserverObject.OnNext(taskIdentfier);
                             }
-                            Task.Delay(10).Wait();
+                            Task.Delay(1).Wait();
                         }
                     });
                     ListOfManagedTasks.Add(ballMovement);
@@ -84,23 +91,23 @@ namespace Logic
             public override void MoveGeneratedBalls()
             {
                 stopTasks = false;
-                // Tu powinna byæ ju¿ faktyczna implementacja, jako, ¿e ruch to element Logiki programu
                 for (int i = 0; i < ListOfManagedTasks.Count; i++)
                 {
                     ListOfManagedTasks[i].Start();
                 }
             }
-            public override List<List<int>> GetAllBallsCoordinates()
+            public override List<List<double>> GetAllBallsCoordinates()
             {
-                List<List<int>> ListOfBallsCoordinates = new List<List<int>>();
+                List<List<double>> ListOfBallsCoordinates = new List<List<double>>();
                 for (int i = 0; i < ListOfManagedBalls.Count; i++)
                 {
-                    int XCoordinate = ListOfManagedBalls[i].CenterOfTheBall.XCoordinate;
-                    int YCoordinate = ListOfManagedBalls[i].CenterOfTheBall.YCoordinate;
-                    int BallRadius = ListOfManagedBalls[i].BallRadius;
-                    int VelocityX = ListOfManagedBalls[i].VelocityVector.XCoordinate;
-                    int VelocityY = ListOfManagedBalls[i].VelocityVector.YCoordinate;
-                    List<int> Coords = new List<int>()
+                    double XCoordinate = ListOfManagedBalls[i].CenterOfTheBall.XCoordinate;
+                    double YCoordinate = ListOfManagedBalls[i].CenterOfTheBall.YCoordinate;
+                    double BallRadius = ListOfManagedBalls[i].RadiusOfTheBall;
+                    double VelocityX = ListOfManagedBalls[i].VelocityVectorOfTheBall.XCoordinate;
+                    double VelocityY = ListOfManagedBalls[i].VelocityVectorOfTheBall.YCoordinate;
+
+                    List<double> Coords = new List<double>()
                     {
                         XCoordinate,
                         YCoordinate,
@@ -117,19 +124,18 @@ namespace Logic
                 this.ObserverObject = observer;
                 return new ObserverManager(observer);
             }
-
-            private void ManageCollisions(Ball SomeBall)
+            private void ManageCollisions(DataBallInterface SomeBall)
             {
-                if (0 >= (SomeBall.CenterOfTheBall.XCoordinate - SomeBall.BallRadius) || 
-                    (SomeBall.CenterOfTheBall.XCoordinate + SomeBall.BallRadius) >= WidthOfTheTable)
+                if (0 >= (SomeBall.CenterOfTheBall.XCoordinate - SomeBall.RadiusOfTheBall) || 
+                    (SomeBall.CenterOfTheBall.XCoordinate + SomeBall.RadiusOfTheBall) >= this.WidthOfTheBoard)
                 {
-                    SomeBall.VelocityVector.XCoordinate = -SomeBall.VelocityVector.XCoordinate;
+                    SomeBall.VelocityVectorOfTheBall.XCoordinate = -SomeBall.VelocityVectorOfTheBall.XCoordinate;
                 }
 
-                if (0 >= (SomeBall.CenterOfTheBall.YCoordinate - SomeBall.BallRadius) ||
-                    (SomeBall.CenterOfTheBall.YCoordinate + SomeBall.BallRadius) >= HeightOfTheTable)
+                if (0 >= (SomeBall.CenterOfTheBall.YCoordinate - SomeBall.RadiusOfTheBall) ||
+                    (SomeBall.CenterOfTheBall.YCoordinate + SomeBall.RadiusOfTheBall) >= this.HeightOfTheBoard)
                 {
-                    SomeBall.VelocityVector.YCoordinate = -SomeBall.VelocityVector.YCoordinate;
+                    SomeBall.VelocityVectorOfTheBall.YCoordinate = -SomeBall.VelocityVectorOfTheBall.YCoordinate;
                 }
             }
 

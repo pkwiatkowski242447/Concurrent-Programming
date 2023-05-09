@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Model
 {
-    public abstract class ModelAbstractAPI : IObserver<int>, IObservable<BallInterface>
+    public abstract class ModelAbstractAPI : IObserver<int>, IObservable<ModelBallInterface>
     {
         public static ModelAbstractAPI CreateModelAPIInstance()
         {
@@ -14,18 +14,18 @@ namespace Model
         public abstract void CreateBalls(int SelectedNumberOfBalls);
         public abstract void ClearPoolTable();
         public abstract void OnCompleted();
-        public abstract ModelBall GetModelBall(int indexValue);
+        public abstract ModelBallInterface GetModelBall(int indexValue);
         public abstract void OnError(Exception error);
         public abstract void OnNext(int indexValue);
         public abstract void MoveBalls();
-        public abstract IDisposable Subscribe(IObserver<BallInterface> ObserverObject);
+        public abstract IDisposable Subscribe(IObserver<ModelBallInterface> ObserverObject);
 
         private class ModelAPI : ModelAbstractAPI
         {
             private readonly LogicAbstractAPI LogicAPI;
-            private IObserver<BallInterface>? BallObserver;
+            private IObserver<ModelBallInterface>? BallObserver;
             private readonly IDisposable? ManagerOfObserver;
-            private readonly List<ModelBall> ListOfModelBalls = new List<ModelBall>();
+            private readonly List<ModelBallInterface> ListOfModelBalls = new List<ModelBallInterface>();
             internal ModelAPI()
             {
                 LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
@@ -34,12 +34,13 @@ namespace Model
 
             public override void CreateBalls(int SelectedNumberOfBalls)
             {
+                LogicAPI.CreatePlayingBoard();
                 LogicAPI.CreateSpecifiedNumerOfBalls(SelectedNumberOfBalls);
-                List<List<int>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
+                List<List<double>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
                 for (int i = 0; i < ListFromLogic.Count; i++)
                 {
-                    List<int> BallObjectCoordinates = ListFromLogic[i];
-                    ListOfModelBalls.Add(new ModelBall(BallObjectCoordinates[1], BallObjectCoordinates[0], BallObjectCoordinates[2]));
+                    List<double> BallObjectCoordinates = ListFromLogic[i];
+                    ListOfModelBalls.Add(ModelBallInterface.CreatModelBall(BallObjectCoordinates[1], BallObjectCoordinates[0], BallObjectCoordinates[2]));
                 }
             }
 
@@ -55,7 +56,7 @@ namespace Model
                 ManagerOfObserver?.Dispose();
             }
 
-            public override ModelBall GetModelBall(int indexValue)
+            public override ModelBallInterface GetModelBall(int indexValue)
             {
                 return ListOfModelBalls[indexValue];
             }
@@ -74,13 +75,13 @@ namespace Model
             {
                 if (indexValue < ListOfModelBalls.Count)
                 {
-                    ModelBall ball = ListOfModelBalls[indexValue];
-                    List<int> ballObjectCoordinates = LogicAPI.GetAllBallsCoordinates()[indexValue];
+                    ModelBallInterface ball = ListOfModelBalls[indexValue];
+                    List<double> ballObjectCoordinates = LogicAPI.GetAllBallsCoordinates()[indexValue];
                     ball.Move(ballObjectCoordinates[1] + ballObjectCoordinates[4], ballObjectCoordinates[0] + ballObjectCoordinates[3]);
                 }
             }
 
-            public override IDisposable Subscribe(IObserver<BallInterface> Observer)
+            public override IDisposable Subscribe(IObserver<ModelBallInterface> Observer)
             {
                 this.BallObserver = Observer;
                 return new ObserverManager(Observer);
@@ -88,9 +89,9 @@ namespace Model
 
             private class ObserverManager : IDisposable
             {
-                public IObserver<BallInterface>? ObserverToBeManaged;
+                public IObserver<ModelBallInterface>? ObserverToBeManaged;
 
-                public ObserverManager(IObserver<BallInterface> ObserverObject)
+                public ObserverManager(IObserver<ModelBallInterface> ObserverObject)
                 {
                     ObserverToBeManaged = ObserverObject;
                 }

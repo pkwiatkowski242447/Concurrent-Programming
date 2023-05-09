@@ -5,10 +5,12 @@ namespace LogicTest
     [TestClass]
     public class LogicTest
     {
+
         [TestMethod]
-        public void creatingLogicAPITest()
+        public void CreatingLogicAPITest()
         {
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
+            LogicAPI.CreatePlayingBoard();
             Assert.IsNotNull(LogicAPI);
         }
 
@@ -16,8 +18,9 @@ namespace LogicTest
         public void AddSpecifiedNumberOfBallsTest()
         {
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
+            LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumerOfBalls(10);
-            List<List<int>> listOfBallsCoordinates = LogicAPI.GetAllBallsCoordinates();
+            List<List<double>> listOfBallsCoordinates = LogicAPI.GetAllBallsCoordinates();
             Assert.AreEqual(10, listOfBallsCoordinates.Count);
             bool correct = true;
             for (int i = 0; i < listOfBallsCoordinates.Count; i++)
@@ -34,10 +37,11 @@ namespace LogicTest
         public void MoveGeneratedBallsTest()
         {
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
+            LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumerOfBalls(1);
-            List<List<int>> originalListOfBallsCoordinatesNo1 = LogicAPI.GetAllBallsCoordinates();
+            List<List<double>> originalListOfBallsCoordinatesNo1 = LogicAPI.GetAllBallsCoordinates();
             LogicAPI.MoveGeneratedBalls();
-            List<List<int>> originalListOfBallsCoordinatesNo2 = LogicAPI.GetAllBallsCoordinates();
+            List<List<double>> originalListOfBallsCoordinatesNo2 = LogicAPI.GetAllBallsCoordinates();
             bool positionChanges = false;
             for (int i = 0; i < originalListOfBallsCoordinatesNo1.Count; i++)
             {
@@ -55,9 +59,10 @@ namespace LogicTest
         public void ClearPoolTableTest()
         {
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
+            LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumerOfBalls(10);
             LogicAPI.MoveGeneratedBalls();
-            List<List<int>> listOfBalls = LogicAPI.GetAllBallsCoordinates();
+            List<List<double>> listOfBalls = LogicAPI.GetAllBallsCoordinates();
             Assert.AreEqual(10, listOfBalls.Count);
             LogicAPI.ClearPoolTable();
             listOfBalls = LogicAPI.GetAllBallsCoordinates();
@@ -68,8 +73,9 @@ namespace LogicTest
         public void GetTotalNumberOfBalls()
         {
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
+            LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumerOfBalls(15);
-            List<List<int>> listOfBallsCoordinates = LogicAPI.GetAllBallsCoordinates();
+            List<List<double>> listOfBallsCoordinates = LogicAPI.GetAllBallsCoordinates();
             Assert.AreEqual(15, listOfBallsCoordinates.Count);
         }
     }

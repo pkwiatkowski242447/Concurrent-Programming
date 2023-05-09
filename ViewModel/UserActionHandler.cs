@@ -10,7 +10,7 @@ namespace ViewModel
     {
         private readonly ModelAbstractAPI ModelAPI;
 
-        public ObservableCollection<ModelBall> ListOfObservableBalls { get; set; }
+        public ObservableCollection<ModelBallInterface> ListOfObservableBalls { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ICommand? StartSimulation { get; set; }
@@ -40,7 +40,7 @@ namespace ViewModel
         public UserActionHandler()
         {
             ModelAPI = ModelAbstractAPI.CreateModelAPIInstance();
-            ListOfObservableBalls = new ObservableCollection<ModelBall>();
+            ListOfObservableBalls = new ObservableCollection<ModelBallInterface>();
             StartButtonDisabled = true;
             EndButtonDisable = false;
 
@@ -78,7 +78,7 @@ namespace ViewModel
             return 0;
         }
 
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        private void NotifyPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
