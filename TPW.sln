@@ -17,6 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogicTest", "TestProject\Lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataTest", "DataTest\DataTest.csproj", "{4D17F075-4590-4A61-B809-CF2BD10D5884}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementy rozwiązania", "Elementy rozwiązania", "{D49DBBB6-90B6-4E57-8307-7CC2F1688E95}"
+	ProjectSection(SolutionItems) = preProject
+		Graph1.dgml = Graph1.dgml
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

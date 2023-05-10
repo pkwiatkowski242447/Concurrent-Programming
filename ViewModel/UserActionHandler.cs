@@ -58,7 +58,7 @@ namespace ViewModel
             {
                 ListOfObservableBalls.Add(ModelAPI.GetModelBall(i));
             }
-            ModelAPI.MoveBalls();
+            ModelAPI.StartBallMovement();
         }
 
         public void EndSimulationHandler()

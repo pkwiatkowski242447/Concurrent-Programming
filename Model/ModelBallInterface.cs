@@ -27,7 +27,6 @@ namespace Model
                 get { return _TopValue; }
                 set
                 {
-                    if (_TopValue == value) return;
                     _TopValue = value;
                     NotifyPropertyChanged();
                 }
@@ -38,7 +37,6 @@ namespace Model
                 get { return _LeftValue; }
                 set
                 {
-                    if (_LeftValue == value) return;
                     _LeftValue = value;
                     NotifyPropertyChanged();
                 }
