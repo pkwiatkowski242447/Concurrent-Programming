@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Data;
 
 namespace Logic
@@ -126,6 +125,7 @@ namespace Logic
                         ManageCollisionsWithWalls(ListOfManagedDataBalls[index]);
                         ManageCollisionsWithOtherBalls(ListOfManagedDataBalls[index]);
                     }
+                    this.RepairCoordinates(dataBall);
                 }
                 if (this.ObserverObject != null)
                 {
@@ -157,7 +157,8 @@ namespace Logic
                     distanceBetweenTheseBalls = dataBall.CenterOfTheBall.EuclideanDistance(ListOfManagedDataBalls[i].CenterOfTheBall);
                     DataPositionInterface NextLogicBallPosition = dataBall.CenterOfTheBall.Addition(dataBall.VelocityVectorOfTheBall);
                     DataPositionInterface NextPositionOfOtherBall = ListOfManagedDataBalls[i].CenterOfTheBall.Addition(ListOfManagedDataBalls[i].VelocityVectorOfTheBall);
-                    if (ListOfManagedDataBalls[i] != dataBall && distanceBetweenTheseBalls <= 2 * this.RadiusOfTheBall)
+                    if (ListOfManagedDataBalls[i] != dataBall && distanceBetweenTheseBalls <= 2 * this.RadiusOfTheBall && 
+                        distanceBetweenTheseBalls - NextLogicBallPosition.EuclideanDistance(NextPositionOfOtherBall) > 0)
                     {
                         ListOfCollidingBalls.Add(ListOfManagedDataBalls[i]);
                     }
@@ -178,9 +179,6 @@ namespace Logic
 
                     dataBall.VelocityVectorOfTheBall = newVelocityVectorForLogicBall;
                     collidingBall.VelocityVectorOfTheBall = newVelocityVectorForCollidingBall;
-
-                    this.RepairCoordinates(dataBall);
-                    this.RepairCoordinates(collidingBall);
 
                     dataBall.DidBallCollide = true;
                     collidingBall.DidBallCollide = true;
