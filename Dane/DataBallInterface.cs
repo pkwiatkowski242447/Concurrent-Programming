@@ -6,7 +6,7 @@ namespace Data
     public abstract class DataBallInterface : IObservable<DataBallInterface>
     {
         public abstract double MassOfTheBall { get; set; }
-        public abstract DataPositionInterface CenterOfTheBall { get; set; }
+        public abstract DataPositionInterface CenterOfTheBall { get; }
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
         public abstract bool StopTask { get; set; }
         public abstract bool StartBallMovement { get; set; }
@@ -22,7 +22,7 @@ namespace Data
         private class Ball : DataBallInterface
         {
             public override double MassOfTheBall { get; set; }
-            public override DataPositionInterface CenterOfTheBall { get; set; }
+            public override DataPositionInterface CenterOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
             public override bool StartBallMovement { get; set; }
@@ -41,20 +41,20 @@ namespace Data
                 Task.Run(BallMovement);
             }
 
-            public void BallMovement()
+            public async void BallMovement()
             {
                 while (!this.StopTask)
                 {
-                    if (this.ObserverObject != null)
-                    {
-                        ObserverObject.OnNext(this);
-                    }
                     if (this.StartBallMovement)
                     {
-                        Move();
-                        this.DidBallCollide = false;
+                        this.Move();
                     }
-                    Task.Delay(1).Wait();
+                    if (this.ObserverObject != null)
+                    {
+                        this.ObserverObject.OnNext(this);
+                    }
+                    this.DidBallCollide = false;
+                    await Task.Delay(1);
                 }
             }
 
