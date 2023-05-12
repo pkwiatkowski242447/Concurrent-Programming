@@ -4,46 +4,49 @@ using System.Collections.Generic;
 
 namespace Model
 {
-    public abstract class ModelAbstractAPI : IObserver<int>, IObservable<BallInterface>
+    public abstract class ModelAbstractAPI : IObserver<int>, IObservable<ModelBallInterface>
     {
-        public static ModelAbstractAPI CreateModelApi()
+        public static ModelAbstractAPI CreateModelAPIInstance()
         {
             return new ModelAPI();
         }
-        public abstract void MoveBalls();
-        public abstract void CreateBalls(int howManyBalls);
+
+        public abstract void CreateBalls(int SelectedNumberOfBalls);
         public abstract void ClearPoolTable();
-
         public abstract void OnCompleted();
-
-        public abstract ModelBall GetModelBall(int value);
-
+        public abstract ModelBallInterface GetModelBall(int indexValue);
         public abstract void OnError(Exception error);
+        public abstract void OnNext(int indexValue);
+        public abstract void MoveBalls();
+        public abstract IDisposable Subscribe(IObserver<ModelBallInterface> ObserverObject);
 
-        public abstract void OnNext(int value);
-
-        public abstract IDisposable Subscribe(IObserver<BallInterface> observer);
         private class ModelAPI : ModelAbstractAPI
         {
-            private LogicAbstractAPI LogicAPI;
-            private IObserver<BallInterface>? BallObserver;
-            private IDisposable? ManagerOfObserver;
-            private List<ModelBall> ListOfModelBalls = new List<ModelBall>();
+            private readonly LogicAbstractAPI LogicAPI;
+            private IObserver<ModelBallInterface>? BallObserver;
+            private readonly IDisposable? ManagerOfObserver;
+            private readonly List<ModelBallInterface> ListOfModelBalls = new List<ModelBallInterface>();
             internal ModelAPI()
             {
-                LogicAPI = LogicAbstractAPI.CreateLogicApi();
+                LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
                 ManagerOfObserver = LogicAPI.Subscribe(this);
             }
 
             public override void CreateBalls(int SelectedNumberOfBalls)
             {
+                LogicAPI.CreatePlayingBoard();
                 LogicAPI.CreateSpecifiedNumerOfBalls(SelectedNumberOfBalls);
-                List<List<int>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
+                List<List<double>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
                 for (int i = 0; i < ListFromLogic.Count; i++)
                 {
-                    List<int> BallObjectCoordinates = ListFromLogic[i];
-                    ListOfModelBalls.Add(new ModelBall(BallObjectCoordinates[1], BallObjectCoordinates[0], BallObjectCoordinates[2]));
+                    List<double> BallObjectCoordinates = ListFromLogic[i];
+                    ListOfModelBalls.Add(ModelBallInterface.CreatModelBall(BallObjectCoordinates[1], BallObjectCoordinates[0], BallObjectCoordinates[2]));
                 }
+            }
+
+            public override void MoveBalls()
+            {
+                LogicAPI.MoveGeneratedBalls();
             }
 
             public override void ClearPoolTable()
@@ -51,6 +54,11 @@ namespace Model
                 LogicAPI.ClearPoolTable();
                 ListOfModelBalls.Clear();
                 ManagerOfObserver?.Dispose();
+            }
+
+            public override ModelBallInterface GetModelBall(int indexValue)
+            {
+                return ListOfModelBalls[indexValue];
             }
 
             public override void OnCompleted()
@@ -63,38 +71,27 @@ namespace Model
                 throw new NotImplementedException();
             }
 
-            public override void OnNext(int value)
+            public override void OnNext(int indexValue)
             {
-                if (value < ListOfModelBalls.Count)
+                if (indexValue < ListOfModelBalls.Count)
                 {
-                    ModelBall ball_model = ListOfModelBalls[value];
-                    List<int> ball = LogicAPI.GetAllBallsCoordinates()[value];
-                    ball_model.Move(ball[1] + ball[4], ball[0] + ball[3]);
+                    ModelBallInterface ball = ListOfModelBalls[indexValue];
+                    List<double> ballObjectCoordinates = LogicAPI.GetAllBallsCoordinates()[indexValue];
+                    ball.Move(ballObjectCoordinates[1] + ballObjectCoordinates[4], ballObjectCoordinates[0] + ballObjectCoordinates[3]);
                 }
-
             }
 
-            public override IDisposable Subscribe(IObserver<BallInterface> Observer)
+            public override IDisposable Subscribe(IObserver<ModelBallInterface> Observer)
             {
                 this.BallObserver = Observer;
                 return new ObserverManager(Observer);
             }
 
-            public override ModelBall GetModelBall(int value)
-            {
-                return ListOfModelBalls[value];
-            }
-
-            public override void MoveBalls()
-            {
-                LogicAPI.MoveBalls();
-            }
-
             private class ObserverManager : IDisposable
             {
-                public IObserver<BallInterface>? ObserverToBeManaged;
+                public IObserver<ModelBallInterface>? ObserverToBeManaged;
 
-                public ObserverManager(IObserver<BallInterface> ObserverObject)
+                public ObserverManager(IObserver<ModelBallInterface> ObserverObject)
                 {
                     ObserverToBeManaged = ObserverObject;
                 }
@@ -104,7 +101,6 @@ namespace Model
                     ObserverToBeManaged = null;
                 }
             }
-
         }
     }
 }

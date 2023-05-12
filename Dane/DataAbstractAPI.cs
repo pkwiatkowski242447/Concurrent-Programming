@@ -4,72 +4,83 @@ namespace Data
 {
     public abstract class DataAbstractAPI
     {
-        public static DataAbstractAPI CreateDataApi(int heightOfTheBoard, int widthOfTheBoard)
+        public static DataAbstractAPI CreateDataAPIInstance()
         {
-            return new DataAPI(heightOfTheBoard, widthOfTheBoard);
+            return new DataAPI();
         }
-        public abstract Ball CreateBall();
+
+        public abstract DataBallInterface CreateASingleBall();
+        public abstract void CreateBoard(int widthOfTheBoard, int heightOfTheBoard);
         public abstract double GetMassOfTheBall();
-        public abstract int GetRadiusOfTheBall();
+        public abstract double GetRadiusOfTheBall();
+        public abstract int GetWidthOfTheBoard();
+        public abstract int GetHeightOfTheBoard();
+
         private class DataAPI : DataAbstractAPI
         {
-            internal int mass;
-            internal int radius;
-            internal int boardHeight;
-            internal int boardWidth;
-            internal Random randomIntNumber = new Random();
+            internal double HardcodedMass = 10.0;
+            internal double HardcodedRadius = 10.0;
+            internal Random randomNumber = new Random();
+            internal DataBoardInterface? Board { get; set; }
 
-            public DataAPI(int boardHeight, int boardWidth)
+            public override void CreateBoard(int widthOfTheBoard, int heightOfTheBoard)
             {
-                this.mass = 10;
-                this.radius = 10;
-                this.boardHeight = boardHeight;
-                this.boardWidth = boardWidth;
+                this.Board = DataBoardInterface.CreateBoard(widthOfTheBoard, heightOfTheBoard);
             }
 
-            public override Ball CreateBall()
+            public override DataBallInterface CreateASingleBall()
             {
-                Position ball_center_position = RandomBallCenterCoordinates();
-                Position velocityVector;
+                DataPositionInterface centerOfTheBall = GetRandomPositionWithinTheMap();
+                DataPositionInterface velocityVector;
                 do
                 {
                     velocityVector = GetAppropriateVelocityVector();
                 }
-                while (velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
-                Ball ball = new Ball(mass, ball_center_position, radius, velocityVector);
-                return ball;
+                while(velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
+                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(HardcodedMass, HardcodedRadius, centerOfTheBall, velocityVector);
+                return NewlyCreatedBall;
             }
 
             public override double GetMassOfTheBall()
             {
-                return mass;
+                return HardcodedMass;
             }
-            public override int GetRadiusOfTheBall()
+            public override double GetRadiusOfTheBall()
             {
-                return radius;
-            }
-
-            internal Position GetAppropriateVelocityVector()
-            {
-                int Velocity_XValue = randomIntNumber.Next(-5, 5);
-                int Velocity_YValue = randomIntNumber.Next(-5, 5);
-                return new Position(Velocity_XValue, Velocity_YValue);
+                return HardcodedRadius;
             }
 
-            public Position RandomBallCenterCoordinates()
+            public override int GetWidthOfTheBoard()
             {
-                int CoordinateX = randomIntNumber.Next(radius, boardWidth - radius);
-                int CoordinateY = randomIntNumber.Next(radius, boardHeight - radius);
-                Position coordinates = new Position(CoordinateX, CoordinateY);
-                return coordinates;
+                return this.Board.WidthOfTheBoard;
             }
-            internal bool CheckIfBallCenterPostionIsCorrect(Position centerOfTheBall)
+
+            public override int GetHeightOfTheBoard()
             {
-                if (0 > (centerOfTheBall.XCoordinate - radius) || (centerOfTheBall.XCoordinate + radius) > boardWidth)
+                return this.Board.HeightOfTheBoard;
+            }
+
+            internal DataPositionInterface GetRandomPositionWithinTheMap()
+            {
+                double CoordinateX = randomNumber.NextDouble() * (GetWidthOfTheBoard() -  2 * HardcodedRadius) + HardcodedRadius;
+                double CoordinateY = randomNumber.NextDouble() * (GetHeightOfTheBoard() - 2 * HardcodedRadius) + HardcodedRadius;
+                return DataPositionInterface.CreatePosition(CoordinateX, CoordinateY);
+            }
+
+            internal DataPositionInterface GetAppropriateVelocityVector()
+            {
+                double Velocity_XValue = randomNumber.NextDouble() * 10 - 5;
+                double Velocity_YValue = randomNumber.NextDouble() * 10 - 5;
+                return DataPositionInterface.CreatePosition(Velocity_XValue, Velocity_YValue);
+            }
+
+            internal bool CheckIfBallCenterPostionIsCorrect(DataPositionInterface centerOfTheBall)
+            {
+                if (0 > (centerOfTheBall.XCoordinate - HardcodedRadius) || (centerOfTheBall.XCoordinate + HardcodedRadius) > GetWidthOfTheBoard())
                 {
                     return false;
                 }
-                if (0 > (centerOfTheBall.YCoordinate - radius) || (centerOfTheBall.YCoordinate + radius) > boardHeight)
+                if (0 > (centerOfTheBall.YCoordinate - HardcodedRadius) || (centerOfTheBall.YCoordinate + HardcodedRadius) > GetHeightOfTheBoard())
                 {
                     return false;
                 }
