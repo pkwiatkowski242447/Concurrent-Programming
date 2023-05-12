@@ -6,11 +6,17 @@ namespace DataTest
     public class DataTest
     {
         [TestMethod]
+        public void CreatingApiTest()
+        {
+            DataAbstractAPI test_api = DataAbstractAPI.CreateDataAPIInstance();
+            Assert.IsNotNull(test_api);
+        }
+
+        [TestMethod]
         public void CreateASingleBallTest()
         {
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(1000, 1000);
-
             DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall();
             Assert.AreNotEqual(null, NewlyCreatedBall);
         }
@@ -32,7 +38,6 @@ namespace DataTest
             double MassOfTheBall = 17.2;
 
             DataBallInterface NewBall = DataBallInterface.CreateBall(MassOfTheBall, RadiusOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall);
-
             Assert.AreEqual(XCoordinate, NewBall.CenterOfTheBall.XCoordinate);
             Assert.AreEqual(YCoordinate, NewBall.CenterOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityX, NewBall.VelocityVectorOfTheBall.YCoordinate);
@@ -74,12 +79,10 @@ namespace DataTest
         {
             int WidthOfTheTable = 910;
             int HeightOfTheTable = 678;
-
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(WidthOfTheTable, HeightOfTheTable);
 
             DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall();
-
             Assert.AreNotEqual(null, NewlyCreatedBall);
 
             bool correct = true;
@@ -121,7 +124,7 @@ namespace DataTest
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(740, 690);
             List<DataBallInterface> ListOfBalls = new List<DataBallInterface>();
-            for(int i = 0; i < 1000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 ListOfBalls.Add(DataAPI.CreateASingleBall());
             }
@@ -153,7 +156,6 @@ namespace DataTest
             int YCoordinate = 678;
 
             DataPositionInterface NewPosition = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
-
             Assert.AreEqual(XCoordinate, NewPosition.XCoordinate);
             Assert.AreEqual(YCoordinate, NewPosition.YCoordinate);
         }

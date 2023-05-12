@@ -1,4 +1,4 @@
-﻿using Model;
+using Model;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -18,7 +18,7 @@ namespace ViewModel
         public string? NumberOfBalls { get; set; }
         private bool StartButtonDisabled { get; set; }
         private bool EndButtonDisable { get; set; }
-        public bool Start 
+        public bool Start
         {
             get { return this.StartButtonDisabled; }
             set
