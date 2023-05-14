@@ -19,7 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataTest", "DataTest\DataTe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementy rozwiązania", "Elementy rozwiązania", "{1E4AFBBD-41B4-41D7-821E-D53822696D0F}"
 	ProjectSection(SolutionItems) = preProject
-		Graph1.dgml = Graph1.dgml
 		README.md = README.md
 	EndProjectSection
 EndProject
