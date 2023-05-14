@@ -16,7 +16,7 @@ namespace Logic
         public abstract void ClearPoolTable();
         public abstract void StartBallMovement();
         public abstract List<List<double>> GetAllBallsCoordinates();
-        public abstract void OnCompleted(); 
+        public abstract void OnCompleted();
         public abstract void OnError(Exception error);
         public abstract void OnNext(DataBallInterface dataBall);
         public abstract IDisposable Subscribe(IObserver<int> observer);
@@ -157,7 +157,7 @@ namespace Logic
                     distanceBetweenTheseBalls = dataBall.CenterOfTheBall.EuclideanDistance(ListOfManagedDataBalls[i].CenterOfTheBall);
                     DataPositionInterface NextLogicBallPosition = dataBall.CenterOfTheBall.Addition(dataBall.VelocityVectorOfTheBall);
                     DataPositionInterface NextPositionOfOtherBall = ListOfManagedDataBalls[i].CenterOfTheBall.Addition(ListOfManagedDataBalls[i].VelocityVectorOfTheBall);
-                    if (ListOfManagedDataBalls[i] != dataBall && distanceBetweenTheseBalls <= 2 * this.RadiusOfTheBall && 
+                    if (ListOfManagedDataBalls[i] != dataBall && distanceBetweenTheseBalls <= 2 * this.RadiusOfTheBall &&
                         distanceBetweenTheseBalls - NextLogicBallPosition.EuclideanDistance(NextPositionOfOtherBall) > 0)
                     {
                         ListOfCollidingBalls.Add(ListOfManagedDataBalls[i]);
@@ -214,7 +214,7 @@ namespace Logic
 
             private class ObserverManager : IDisposable
             {
-                IObserver<int>? SomeObserver; 
+                IObserver<int>? SomeObserver;
 
                 public ObserverManager(IObserver<int> observer)
                 {
