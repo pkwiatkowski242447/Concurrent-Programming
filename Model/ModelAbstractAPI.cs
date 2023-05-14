@@ -26,7 +26,7 @@ namespace Model
             private IObserver<ModelBallInterface>? BallObserver;
             private readonly IDisposable? ManagerOfObserver;
             private readonly List<ModelBallInterface> ListOfModelBalls = new List<ModelBallInterface>();
-            internal ModelAPI()
+            public ModelAPI()
             {
                 LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance();
                 ManagerOfObserver = LogicAPI.Subscribe(this);
