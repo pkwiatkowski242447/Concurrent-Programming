@@ -2,8 +2,8 @@
 {
     public abstract class DataBoardInterface
     {
-        public abstract int WidthOfTheBoard { get; set; }
-        public abstract int HeightOfTheBoard { get; set; }
+        public abstract int WidthOfTheBoard { get; }
+        public abstract int HeightOfTheBoard { get; }
 
         public static DataBoardInterface CreateBoard(int widthOfTheTable, int heightOfTheTable)
         {
@@ -12,8 +12,8 @@
 
         private class Board : DataBoardInterface
         {
-            public override int WidthOfTheBoard { get; set; }
-            public override int HeightOfTheBoard { get; set; }
+            public override int WidthOfTheBoard { get; }
+            public override int HeightOfTheBoard { get; }
 
             public Board(int widthOfTheTable, int heightOfTheTable)
             {

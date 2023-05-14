@@ -61,7 +61,6 @@ namespace Data
                 }
                 return 0;
             }
-
             internal DataPositionInterface GetRandomPositionWithinTheMap(double radiusOfTheBall)
             {
                 double CoordinateX = randomNumber.NextDouble() * (GetWidthOfTheBoard() - 2 * radiusOfTheBall) + radiusOfTheBall;
