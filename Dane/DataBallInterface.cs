@@ -1,35 +1,64 @@
-﻿namespace Data
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Data
 {
-    public abstract class DataBallInterface
+    public abstract class DataBallInterface : IObservable<DataBallInterface>
     {
-        public abstract double MassOfTheBall { get; set; }
-        public abstract double RadiusOfTheBall { get; set; }
-        public abstract DataPositionInterface CenterOfTheBall { get; set; }
+        public abstract double MassOfTheBall { get; }
+        public abstract DataPositionInterface CenterOfTheBall { get; }
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
+        public abstract bool StopTask { get; set; }
+        public abstract bool StartBallMovement { get; set; }
+        public abstract bool DidBallCollide { get; set; }
 
-        public static DataBallInterface CreateBall(double massOfTheBall, double radiusOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+        public static DataBallInterface CreateBall(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
         {
-            return new Ball(massOfTheBall, radiusOfTheBall, centerOfTheBall, velocityVectorOfTheBall);
+            return new Ball(massOfTheBall, centerOfTheBall, velocityVectorOfTheBall);
         }
+        public abstract IDisposable Subscribe(IObserver<DataBallInterface> observer);
 
-        public abstract void Move();
-
-        private class Ball : DataBallInterface 
+        private class Ball : DataBallInterface
         {
-            public override double MassOfTheBall { get; set; }
-            public override double RadiusOfTheBall { get; set; }
-            public override DataPositionInterface CenterOfTheBall { get; set; }
+            public override double MassOfTheBall { get; }
+            public override DataPositionInterface CenterOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
+            public override bool StopTask { get; set; }
+            public override bool StartBallMovement { get; set; }
+            public override bool DidBallCollide { get; set; }
 
-            public Ball(double massOfTheBall, double radiusOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+            internal IObserver<DataBallInterface>? ObserverObject { get; set; }
+
+            public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
             {
                 this.MassOfTheBall = massOfTheBall;
-                this.RadiusOfTheBall = radiusOfTheBall;
                 this.CenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
+                this.StopTask = false;
+                this.StartBallMovement = false;
+                this.DidBallCollide = false;
+                Task.Run(BallMovement);
             }
 
-            public override void Move()
+
+            public async void BallMovement()
+            {
+                while (!this.StopTask)
+                {
+                    if (this.StartBallMovement)
+                    {
+                        this.Move();
+                    }
+                    if (this.ObserverObject != null)
+                    {
+                        this.ObserverObject.OnNext(this);
+                    }
+                    this.DidBallCollide = false;
+                    await Task.Delay(1);
+                }
+            }
+
+            public void Move()
             {
                 /*
                  * Za logikę poruszania się odpowiedzialna będzie, jak sama nazwa wskazuje, Logika
@@ -45,6 +74,26 @@
 
                 this.CenterOfTheBall.XCoordinate += this.VelocityVectorOfTheBall.XCoordinate;
                 this.CenterOfTheBall.YCoordinate += this.VelocityVectorOfTheBall.YCoordinate;
+            }
+
+            public override IDisposable Subscribe(IObserver<DataBallInterface> observer)
+            {
+                this.ObserverObject = observer;
+                return new ObserverManager(observer);
+            }
+            private class ObserverManager : IDisposable
+            {
+                IObserver<DataBallInterface>? SomeObserver;
+
+                public ObserverManager(IObserver<DataBallInterface> observer)
+                {
+                    this.SomeObserver = observer;
+                }
+
+                public void Dispose()
+                {
+                    this.SomeObserver = null;
+                }
             }
         }
     }

@@ -7,7 +7,7 @@ namespace Model
     {
         public abstract double TopValue { get; set; }
         public abstract double LeftValue { get; set; }
-        public abstract double BallRadius { get; set; }
+        public abstract double BallRadius { get; }
 
         public static ModelBallInterface CreatModelBall(double topValue, double leftValue, double ballRadius)
         {
@@ -27,7 +27,6 @@ namespace Model
                 get { return _TopValue; }
                 set
                 {
-                    if (_TopValue == value) return;
                     _TopValue = value;
                     NotifyPropertyChanged();
                 }
@@ -38,12 +37,11 @@ namespace Model
                 get { return _LeftValue; }
                 set
                 {
-                    if (_LeftValue == value) return;
                     _LeftValue = value;
                     NotifyPropertyChanged();
                 }
             }
-            public override double BallRadius { get; set; }
+            public override double BallRadius { get; }
 
             public ModelBall(double topValue, double leftValue, double ballRadius)
             {
