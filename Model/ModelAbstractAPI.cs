@@ -35,7 +35,7 @@ namespace Model
             public override void CreateBalls(int SelectedNumberOfBalls)
             {
                 LogicAPI.CreatePlayingBoard();
-                LogicAPI.CreateSpecifiedNumerOfBalls(SelectedNumberOfBalls);
+                LogicAPI.CreateSpecifiedNumberOfBalls(SelectedNumberOfBalls);
                 List<List<double>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
                 for (int i = 0; i < ListFromLogic.Count; i++)
                 {
@@ -46,7 +46,7 @@ namespace Model
 
             public override void MoveBalls()
             {
-                LogicAPI.MoveGeneratedBalls();
+                LogicAPI.StartBallMovement();
             }
 
             public override void ClearPoolTable()
