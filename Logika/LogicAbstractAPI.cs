@@ -77,6 +77,10 @@ namespace Logic
 
             public override void StartBallMovement()
             {
+                for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
+                {
+                    ListOfManagedDataBalls[i].StartBallMovement = true;
+                }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
                 {
                     DataBall.StartBallMovement = true;
@@ -193,6 +197,7 @@ namespace Logic
                 }
             }
 
+
             private void RepairCoordinates(DataBallInterface dataBall)
             {
                 if (dataBall.CenterOfTheBall.XCoordinate > WidthOfTheBoard - this.RadiusOfTheBall)
@@ -234,6 +239,7 @@ namespace Logic
                     this.SomeObserver = null;
                 }
             }
+
         }
     }
 }

@@ -16,8 +16,7 @@ namespace Data
         {
             return new Ball(massOfTheBall, centerOfTheBall, velocityVectorOfTheBall);
         }
-
-        public abstract IDisposable Subscribe(IObserver<DataBallInterface> observerObject);
+        public abstract IDisposable Subscribe(IObserver<DataBallInterface> observer);
 
         private class Ball : DataBallInterface
         {
@@ -27,7 +26,7 @@ namespace Data
             public override bool StopTask { get; set; }
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
-            
+
             internal IObserver<DataBallInterface>? ObserverObject { get; set; }
 
             public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
@@ -40,6 +39,7 @@ namespace Data
                 this.DidBallCollide = false;
                 Task.Run(BallMovement);
             }
+
 
             public async void BallMovement()
             {
@@ -76,19 +76,18 @@ namespace Data
                 this.CenterOfTheBall.YCoordinate += this.VelocityVectorOfTheBall.YCoordinate;
             }
 
-            public override IDisposable Subscribe(IObserver<DataBallInterface> observerObject)
+            public override IDisposable Subscribe(IObserver<DataBallInterface> observer)
             {
-                this.ObserverObject = observerObject;
-                return new ObserverManager(observerObject);
+                this.ObserverObject = observer;
+                return new ObserverManager(observer);
             }
-
             private class ObserverManager : IDisposable
             {
                 IObserver<DataBallInterface>? SomeObserver;
 
-                public ObserverManager(IObserver<DataBallInterface> observerObject)
+                public ObserverManager(IObserver<DataBallInterface> observer)
                 {
-                    this.SomeObserver = observerObject;
+                    this.SomeObserver = observer;
                 }
 
                 public void Dispose()
