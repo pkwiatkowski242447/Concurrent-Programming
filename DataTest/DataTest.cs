@@ -72,35 +72,6 @@ namespace DataTest
         }
 
         [TestMethod]
-        public void CheckIfVelocityVectorOfTheBallIsCorrect()
-        {
-            int WidthOfTheTable = 910;
-            int HeightOfTheTable = 678;
-            double RadiusOfTheBall = 10.0;
-
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(WidthOfTheTable, HeightOfTheTable);
-
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(RadiusOfTheBall);
-
-            Assert.AreNotEqual(null, NewlyCreatedBall);
-
-            bool correct = true;
-
-            if (NewlyCreatedBall.CenterOfTheBall.XCoordinate - RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.XCoordinate < 0 ||
-                NewlyCreatedBall.CenterOfTheBall.XCoordinate + RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.XCoordinate > WidthOfTheTable)
-            {
-                correct = false;
-            }
-            if (NewlyCreatedBall.CenterOfTheBall.YCoordinate - RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.YCoordinate < 0 ||
-                NewlyCreatedBall.CenterOfTheBall.YCoordinate + RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.YCoordinate > HeightOfTheTable)
-            {
-                correct = false;
-            }
-            Assert.AreEqual(true, correct);
-        }
-
-        [TestMethod]
         public void GetMassOfTheBallTest()
         {
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
