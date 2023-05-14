@@ -9,7 +9,7 @@ namespace Data
             return new DataAPI();
         }
 
-        public abstract DataBallInterface CreateASingleBall(double ballRadius);
+        public abstract DataBallInterface CreateASingleBall(double radiusOfTheBall);
         public abstract void CreateBoard(int widthOfTheBoard, int heightOfTheBoard);
         public abstract double GetMassOfTheBall();
         public abstract int GetWidthOfTheBoard();
@@ -26,9 +26,9 @@ namespace Data
                 this.Board = DataBoardInterface.CreateBoard(widthOfTheBoard, heightOfTheBoard);
             }
 
-            public override DataBallInterface CreateASingleBall(double ballRadius)
+            public override DataBallInterface CreateASingleBall(double radiusOfTheBall)
             {
-                DataPositionInterface centerOfTheBall = GetRandomPositionWithinTheMap(ballRadius);
+                DataPositionInterface centerOfTheBall = GetRandomPositionWithinTheMap(radiusOfTheBall);
                 DataPositionInterface velocityVector;
                 do
                 {
@@ -61,11 +61,10 @@ namespace Data
                 }
                 return 0;
             }
-
-            internal DataPositionInterface GetRandomPositionWithinTheMap(double ballRadius)
+            internal DataPositionInterface GetRandomPositionWithinTheMap(double radiusOfTheBall)
             {
-                double CoordinateX = randomNumber.NextDouble() * (GetWidthOfTheBoard() - 2 * ballRadius) + ballRadius;
-                double CoordinateY = randomNumber.NextDouble() * (GetHeightOfTheBoard() - 2 * ballRadius) + ballRadius;
+                double CoordinateX = randomNumber.NextDouble() * (GetWidthOfTheBoard() -  2 * radiusOfTheBall) + radiusOfTheBall;
+                double CoordinateY = randomNumber.NextDouble() * (GetHeightOfTheBoard() - 2 * radiusOfTheBall) + radiusOfTheBall;
                 return DataPositionInterface.CreatePosition(CoordinateX, CoordinateY);
             }
 

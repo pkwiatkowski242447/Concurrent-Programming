@@ -53,7 +53,7 @@ namespace Model
 
             public override void StartBallMovement()
             {
-                LogicAPI.MoveGeneratedBalls();
+                LogicAPI.StartBallMovement();
             }
 
             public override ModelBallInterface GetModelBall(int indexValue)

@@ -5,11 +5,11 @@ namespace Data
 {
     public abstract class DataBallInterface : IObservable<DataBallInterface>
     {
-        public abstract double MassOfTheBall { get; set; }
+        public abstract double MassOfTheBall { get; }
         public abstract DataPositionInterface CenterOfTheBall { get; }
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
         public abstract bool StopTask { get; set; }
-        public abstract bool StartMovement { get; set; }
+        public abstract bool StartBallMovement { get; set; }
         public abstract bool DidBallCollide { get; set; }
 
         public static DataBallInterface CreateBall(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
@@ -20,13 +20,14 @@ namespace Data
 
         private class Ball : DataBallInterface
         {
-            public override double MassOfTheBall { get; set; }
+            public override double MassOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
-            public override bool StartMovement { get; set; }
+            public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
-            internal IObserver<DataBallInterface>? ObserverObject;
+
+            internal IObserver<DataBallInterface>? ObserverObject { get; set; }
 
             public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
             {
@@ -34,9 +35,27 @@ namespace Data
                 this.CenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
                 this.StopTask = false;
-                this.StartMovement = false;
+                this.StartBallMovement = false;
                 this.DidBallCollide = false;
-                Task.Run(StartTasks);
+                Task.Run(BallMovement);
+            }
+
+
+            public async void BallMovement()
+            {
+                while (!this.StopTask)
+                {
+                    if (this.StartBallMovement)
+                    {
+                        this.Move();
+                    }
+                    if (this.ObserverObject != null)
+                    {
+                        this.ObserverObject.OnNext(this);
+                    }
+                    this.DidBallCollide = false;
+                    await Task.Delay(1);
+                }
             }
 
             public void Move()
@@ -57,22 +76,6 @@ namespace Data
                 this.CenterOfTheBall.YCoordinate += this.VelocityVectorOfTheBall.YCoordinate;
             }
 
-            public async void StartTasks()
-            {
-                while (!StopTask)
-                {
-                    if (this.StartMovement != false)
-                    {
-                        this.Move();
-                    }
-                    if (ObserverObject != null)
-                    {
-                        ObserverObject.OnNext(this);
-                    }
-                    this.DidBallCollide = false;
-                    await Task.Delay(1);
-                }
-            }
             public override IDisposable Subscribe(IObserver<DataBallInterface> observer)
             {
                 this.ObserverObject = observer;

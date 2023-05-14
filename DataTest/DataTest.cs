@@ -4,6 +4,8 @@ namespace DataTest
     [TestClass]
     public class DataTest
     {
+        // Ball tests
+
         [TestMethod]
         public void CreateASingleBallTest()
         {
@@ -269,7 +271,5 @@ namespace DataTest
 
             Assert.AreEqual(ExpectedEuclideanDistance, EuclideanDistance);
         }
-
-
     }
 }

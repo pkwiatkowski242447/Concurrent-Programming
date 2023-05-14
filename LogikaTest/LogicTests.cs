@@ -50,12 +50,12 @@ namespace LogicTest
 
         internal class Ball : DataBallInterface
         {
-            public override double MassOfTheBall { get; set; }
+            public override double MassOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
             public override bool DidBallCollide { get; set; }
-            public override bool StartMovement { get; set; }
+            public override bool StartBallMovement { get; set; }
 
             internal IObserver<DataBallInterface>? ObserverObject;
 
@@ -204,7 +204,7 @@ namespace LogicTest
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance(FakeAPI);
             LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumberOfBalls(1);
-            LogicAPI.MoveGeneratedBalls();
+            LogicAPI.StartBallMovement();
             List<List<double>> originalListOfBallsCoordinatesNo1 = LogicAPI.GetAllBallsCoordinates();
             List<List<double>> originalListOfBallsCoordinatesNo2 = LogicAPI.GetAllBallsCoordinates();
             bool positionChanges = false;

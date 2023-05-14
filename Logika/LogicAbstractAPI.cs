@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Data;
 
 namespace Logic
@@ -15,21 +14,21 @@ namespace Logic
         public abstract void CreatePlayingBoard();
         public abstract void CreateSpecifiedNumberOfBalls(int numberOfBallsToAdd);
         public abstract void ClearPoolTable();
-        public abstract void MoveGeneratedBalls();
-        public abstract void OnNext(DataBallInterface currentBall);
+        public abstract void StartBallMovement();
+        public abstract List<List<double>> GetAllBallsCoordinates();
         public abstract void OnCompleted();
         public abstract void OnError(Exception error);
-        public abstract List<List<double>> GetAllBallsCoordinates();
+        public abstract void OnNext(DataBallInterface dataBall);
         public abstract IDisposable Subscribe(IObserver<int> observer);
 
         private class LogicAPI : LogicAbstractAPI
         {
             internal DataAbstractAPI DataAPI;
-            internal IObserver<int>? ObserverObject;
             internal int WidthOfTheBoard = 740;
             internal int HeightOfTheBoard = 690;
             internal double RadiusOfTheBall = 10.0;
             internal List<IDisposable>? ListOfDataBallObservers;
+            internal IObserver<int>? ObserverObject;
             internal List<DataBallInterface> ListOfManagedDataBalls { get; set; }
             internal object LockObject = new object();
 
@@ -65,15 +64,29 @@ namespace Logic
                 {
                     DataBall.StopTask = true;
                 }
+                if (ListOfDataBallObservers != null)
+                {
+                    foreach (IDisposable BallObserver in ListOfDataBallObservers)
+                    {
+                        BallObserver.Dispose();
+                    }
+                    ListOfDataBallObservers.Clear();
+                }
                 ListOfManagedDataBalls.Clear();
             }
-            public override void MoveGeneratedBalls()
+
+            public override void StartBallMovement()
             {
                 for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
                 {
-                    ListOfManagedDataBalls[i].StartMovement = true;
+                    ListOfManagedDataBalls[i].StartBallMovement = true;
+                }
+                foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
+                {
+                    DataBall.StartBallMovement = true;
                 }
             }
+
             public override List<List<double>> GetAllBallsCoordinates()
             {
                 List<List<double>> ListOfBallsCoordinates = new List<List<double>>();
@@ -97,24 +110,53 @@ namespace Logic
                 }
                 return ListOfBallsCoordinates;
             }
-            public override IDisposable Subscribe(IObserver<int> observerObject)
+
+            public override void OnCompleted()
             {
-                this.ObserverObject = observerObject;
-                return new ObserverManager(observerObject);
+                if (ListOfDataBallObservers != null)
+                {
+                    foreach (IDisposable ObserverObject in ListOfDataBallObservers)
+                    {
+                        ObserverObject.Dispose();
+                    }
+                }
             }
 
-            private void ManageCollisionsWithWalls(DataBallInterface SomeBall)
+            public override void OnError(Exception error)
             {
-                if (0 >= (SomeBall.CenterOfTheBall.XCoordinate - this.RadiusOfTheBall) ||
-                    (SomeBall.CenterOfTheBall.XCoordinate + this.RadiusOfTheBall) >= this.WidthOfTheBoard)
+                throw new NotImplementedException();
+            }
+
+            public override void OnNext(DataBallInterface dataBall)
+            {
+                int index = ListOfManagedDataBalls.IndexOf(dataBall);
+                lock (LockObject)
                 {
-                    SomeBall.VelocityVectorOfTheBall.XCoordinate = -SomeBall.VelocityVectorOfTheBall.XCoordinate;
+                    if (!dataBall.DidBallCollide)
+                    {
+                        ManageCollisionsWithWalls(ListOfManagedDataBalls[index]);
+                        ManageCollisionsWithOtherBalls(ListOfManagedDataBalls[index]);
+                    }
+                    this.RepairCoordinates(dataBall);
+                }
+                if (this.ObserverObject != null)
+                {
+                    this.ObserverObject.OnNext(index);
+                }
+            }
+
+            private void ManageCollisionsWithWalls(DataBallInterface dataBall)
+            {
+                if (0 >= (dataBall.CenterOfTheBall.XCoordinate - this.RadiusOfTheBall) ||
+                    (dataBall.CenterOfTheBall.XCoordinate + this.RadiusOfTheBall) >= this.WidthOfTheBoard)
+                {
+                    dataBall.VelocityVectorOfTheBall.XCoordinate = -dataBall.VelocityVectorOfTheBall.XCoordinate;
                 }
 
-                if (0 >= (SomeBall.CenterOfTheBall.YCoordinate - this.RadiusOfTheBall) ||
-                    (SomeBall.CenterOfTheBall.YCoordinate + this.RadiusOfTheBall) >= this.HeightOfTheBoard)
+                if (0 >= (dataBall.CenterOfTheBall.YCoordinate - this.RadiusOfTheBall) ||
+                    (dataBall.CenterOfTheBall.YCoordinate + this.RadiusOfTheBall) >= this.HeightOfTheBoard)
                 {
-                    SomeBall.VelocityVectorOfTheBall.YCoordinate = -SomeBall.VelocityVectorOfTheBall.YCoordinate;
+                    dataBall.VelocityVectorOfTheBall.YCoordinate = -dataBall.VelocityVectorOfTheBall.YCoordinate;
                 }
             }
 
@@ -155,54 +197,7 @@ namespace Logic
                 }
             }
 
-            public override void OnNext(DataBallInterface currentBall)
-            {
-                int index = ListOfManagedDataBalls.IndexOf(currentBall);
-                lock (LockObject)
-                {
-                    if (!currentBall.DidBallCollide)
-                    {
-                        ManageCollisionsWithWalls(ListOfManagedDataBalls[index]);
-                        ManageCollisionsWithOtherBalls(ListOfManagedDataBalls[index]);
-                    }
-                    this.RepairCoordinates(currentBall);
-                }
-                if (this.ObserverObject != null)
-                {
-                    this.ObserverObject.OnNext(index);
-                }
-            }
 
-            public override void OnCompleted()
-            {
-                if (ListOfDataBallObservers != null)
-                {
-                    foreach (IDisposable ObserverObject in ListOfDataBallObservers)
-                    {
-                        ObserverObject.Dispose();
-                    }
-                }
-            }
-
-            public override void OnError(Exception error)
-            {
-                throw new NotImplementedException();
-            }
-
-            private class ObserverManager : IDisposable
-            {
-                IObserver<int>? SomeObserver;
-
-                public ObserverManager(IObserver<int> observer)
-                {
-                    this.SomeObserver = observer;
-                }
-
-                public void Dispose()
-                {
-                    this.SomeObserver = null;
-                }
-            }
             private void RepairCoordinates(DataBallInterface dataBall)
             {
                 if (dataBall.CenterOfTheBall.XCoordinate > WidthOfTheBoard - this.RadiusOfTheBall)
@@ -223,6 +218,28 @@ namespace Logic
                     dataBall.CenterOfTheBall.YCoordinate = this.RadiusOfTheBall;
                 }
             }
+
+            public override IDisposable Subscribe(IObserver<int> observerObject)
+            {
+                this.ObserverObject = observerObject;
+                return new ObserverManager(observerObject);
+            }
+
+            private class ObserverManager : IDisposable
+            {
+                IObserver<int>? SomeObserver;
+
+                public ObserverManager(IObserver<int> observer)
+                {
+                    this.SomeObserver = observer;
+                }
+
+                public void Dispose()
+                {
+                    this.SomeObserver = null;
+                }
+            }
+
         }
     }
 }
