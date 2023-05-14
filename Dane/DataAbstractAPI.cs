@@ -9,17 +9,15 @@ namespace Data
             return new DataAPI();
         }
 
-        public abstract DataBallInterface CreateASingleBall();
+        public abstract DataBallInterface CreateASingleBall(double ballRadius);
         public abstract void CreateBoard(int widthOfTheBoard, int heightOfTheBoard);
         public abstract double GetMassOfTheBall();
-        public abstract double GetRadiusOfTheBall();
         public abstract int GetWidthOfTheBoard();
         public abstract int GetHeightOfTheBoard();
 
         private class DataAPI : DataAbstractAPI
         {
             internal double HardcodedMass = 10.0;
-            internal double HardcodedRadius = 10.0;
             internal Random randomNumber = new Random();
             internal DataBoardInterface? Board { get; set; }
 
@@ -28,16 +26,16 @@ namespace Data
                 this.Board = DataBoardInterface.CreateBoard(widthOfTheBoard, heightOfTheBoard);
             }
 
-            public override DataBallInterface CreateASingleBall()
+            public override DataBallInterface CreateASingleBall(double ballRadius)
             {
-                DataPositionInterface centerOfTheBall = GetRandomPositionWithinTheMap();
+                DataPositionInterface centerOfTheBall = GetRandomPositionWithinTheMap(ballRadius);
                 DataPositionInterface velocityVector;
                 do
                 {
                     velocityVector = GetAppropriateVelocityVector();
                 }
-                while(velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
-                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(HardcodedMass, HardcodedRadius, centerOfTheBall, velocityVector);
+                while (velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
+                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(HardcodedMass, centerOfTheBall, velocityVector);
                 return NewlyCreatedBall;
             }
 
@@ -45,25 +43,29 @@ namespace Data
             {
                 return HardcodedMass;
             }
-            public override double GetRadiusOfTheBall()
-            {
-                return HardcodedRadius;
-            }
 
             public override int GetWidthOfTheBoard()
             {
-                return this.Board.WidthOfTheBoard;
+                if (this.Board != null)
+                {
+                    return this.Board.WidthOfTheBoard;
+                }
+                return 0;
             }
 
             public override int GetHeightOfTheBoard()
             {
-                return this.Board.HeightOfTheBoard;
+                if (this.Board != null)
+                {
+                    return this.Board.HeightOfTheBoard;
+                }
+                return 0;
             }
 
-            internal DataPositionInterface GetRandomPositionWithinTheMap()
+            internal DataPositionInterface GetRandomPositionWithinTheMap(double ballRadius)
             {
-                double CoordinateX = randomNumber.NextDouble() * (GetWidthOfTheBoard() -  2 * HardcodedRadius) + HardcodedRadius;
-                double CoordinateY = randomNumber.NextDouble() * (GetHeightOfTheBoard() - 2 * HardcodedRadius) + HardcodedRadius;
+                double CoordinateX = randomNumber.NextDouble() * (GetWidthOfTheBoard() - 2 * ballRadius) + ballRadius;
+                double CoordinateY = randomNumber.NextDouble() * (GetHeightOfTheBoard() - 2 * ballRadius) + ballRadius;
                 return DataPositionInterface.CreatePosition(CoordinateX, CoordinateY);
             }
 
@@ -72,19 +74,6 @@ namespace Data
                 double Velocity_XValue = randomNumber.NextDouble() * 10 - 5;
                 double Velocity_YValue = randomNumber.NextDouble() * 10 - 5;
                 return DataPositionInterface.CreatePosition(Velocity_XValue, Velocity_YValue);
-            }
-
-            internal bool CheckIfBallCenterPostionIsCorrect(DataPositionInterface centerOfTheBall)
-            {
-                if (0 > (centerOfTheBall.XCoordinate - HardcodedRadius) || (centerOfTheBall.XCoordinate + HardcodedRadius) > GetWidthOfTheBoard())
-                {
-                    return false;
-                }
-                if (0 > (centerOfTheBall.YCoordinate - HardcodedRadius) || (centerOfTheBall.YCoordinate + HardcodedRadius) > GetHeightOfTheBoard())
-                {
-                    return false;
-                }
-                return true;
             }
         }
     }
