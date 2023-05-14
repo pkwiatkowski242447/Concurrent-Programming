@@ -5,7 +5,7 @@ namespace Data
 {
     public abstract class DataBallInterface : IObservable<DataBallInterface>
     {
-        public abstract double MassOfTheBall { get; set; }
+        public abstract double MassOfTheBall { get; }
         public abstract DataPositionInterface CenterOfTheBall { get; }
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
         public abstract bool StopTask { get; set; }
@@ -21,14 +21,14 @@ namespace Data
 
         private class Ball : DataBallInterface
         {
-            public override double MassOfTheBall { get; set; }
+            public override double MassOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
-
-            internal IObserver<DataBallInterface>? ObserverObject;
+            
+            internal IObserver<DataBallInterface>? ObserverObject { get; set; }
 
             public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
             {
