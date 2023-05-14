@@ -52,12 +52,20 @@ namespace Data
 
             public override int GetWidthOfTheBoard()
             {
-                return this.Board.WidthOfTheBoard;
+                if (this.Board != null)
+                {
+                    return this.Board.WidthOfTheBoard;
+                }
+                return 0;
             }
 
             public override int GetHeightOfTheBoard()
             {
-                return this.Board.HeightOfTheBoard;
+                if (this.Board != null)
+                {
+                    return this.Board.HeightOfTheBoard;
+                }
+                return 0;
             }
 
             internal DataPositionInterface GetRandomPositionWithinTheMap()
@@ -72,19 +80,6 @@ namespace Data
                 double Velocity_XValue = randomNumber.NextDouble() * 10 - 5;
                 double Velocity_YValue = randomNumber.NextDouble() * 10 - 5;
                 return DataPositionInterface.CreatePosition(Velocity_XValue, Velocity_YValue);
-            }
-
-            internal bool CheckIfBallCenterPostionIsCorrect(DataPositionInterface centerOfTheBall)
-            {
-                if (0 > (centerOfTheBall.XCoordinate - HardcodedRadius) || (centerOfTheBall.XCoordinate + HardcodedRadius) > GetWidthOfTheBoard())
-                {
-                    return false;
-                }
-                if (0 > (centerOfTheBall.YCoordinate - HardcodedRadius) || (centerOfTheBall.YCoordinate + HardcodedRadius) > GetHeightOfTheBoard())
-                {
-                    return false;
-                }
-                return true;
             }
         }
     }
