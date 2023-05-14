@@ -45,47 +45,18 @@ namespace Logic
             {
                 for (int i = 0; i < numberOfBallsToAdd; i++)
                 {
-                    int taskIdentfier = i;
                     DataBallInterface currentBall = DataAPI.CreateASingleBall();
                     ListOfManagedBalls.Add(currentBall);
-                    Task ballMovement = new Task(() =>
-                    {
-                        while (!stopTasks)
-                        {
-                            ManageCollisions(currentBall);
-                            currentBall.Move();
-                            if (ObserverObject != null)
-                            {
-                                ObserverObject.OnNext(taskIdentfier);
-                            }
-                            Task.Delay(1).Wait();
-                        }
-                    });
-                    ListOfManagedTasks.Add(ballMovement);
                 }
             }
 
             public override void ClearPoolTable()
             {
                 stopTasks = true;
-                bool isEveryTaskStopped = false;
-                while (!isEveryTaskStopped)
-                {
-                    isEveryTaskStopped = true;
-                    foreach (Task task in ListOfManagedTasks)
-                    {
-                        if (!task.IsCompleted)
-                        {
-                            isEveryTaskStopped = false;
-                            break;
-                        }
-                    }
-                }
                 for (int i = 0; i < ListOfManagedTasks.Count; i++)
                 {
                     ListOfManagedTasks[i].Dispose();
                 }
-                ListOfManagedTasks.Clear();
                 ListOfManagedBalls.Clear();
             }
             public override void MoveGeneratedBalls()
