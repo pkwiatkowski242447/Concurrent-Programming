@@ -64,6 +64,14 @@ namespace Logic
                 {
                     DataBall.StopTask = true;
                 }
+                if (ListOfDataBallObservers != null)
+                {
+                    foreach (IDisposable BallObserver in ListOfDataBallObservers)
+                    {
+                        BallObserver.Dispose();
+                    }
+                    ListOfDataBallObservers.Clear();
+                }
                 ListOfManagedDataBalls.Clear();
             }
 
