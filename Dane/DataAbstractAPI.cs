@@ -34,7 +34,7 @@ namespace Data
                 {
                     velocityVector = GetAppropriateVelocityVector();
                 }
-                while(velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
+                while (velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
                 DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(HardcodedMass, centerOfTheBall, velocityVector);
                 return NewlyCreatedBall;
             }
@@ -61,7 +61,6 @@ namespace Data
                 }
                 return 0;
             }
-
             internal DataPositionInterface GetRandomPositionWithinTheMap(double radiusOfTheBall)
             {
                 double CoordinateX = randomNumber.NextDouble() * (GetWidthOfTheBoard() -  2 * radiusOfTheBall) + radiusOfTheBall;

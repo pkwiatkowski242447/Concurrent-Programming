@@ -11,7 +11,6 @@ namespace Data
         {
             return new Position(xCoordinate, yCoordinate);
         }
-
         public abstract DataPositionInterface Addition(DataPositionInterface otherPosition);
         public abstract DataPositionInterface Multiplication(double someDouble);
         public abstract DataPositionInterface Subtraction(DataPositionInterface otherPosition);
@@ -28,6 +27,10 @@ namespace Data
             {
                 this.XCoordinate = xCoordinate;
                 this.YCoordinate = yCoordinate;
+            }
+            public override double EuclideanDistance(DataPositionInterface otherPosition)
+            {
+                return Math.Sqrt(Math.Pow(this.XCoordinate - otherPosition.XCoordinate, 2) + Math.Pow(this.YCoordinate - otherPosition.YCoordinate, 2));
             }
 
             public override DataPositionInterface Addition(DataPositionInterface otherPosition)
@@ -59,11 +62,6 @@ namespace Data
             public override double VectorLength()
             {
                 return Math.Sqrt(Math.Pow(this.XCoordinate, 2) + Math.Pow(this.YCoordinate, 2));
-            }
-
-            public override double EuclideanDistance(DataPositionInterface otherPosition)
-            {
-                return Math.Sqrt(Math.Pow(this.XCoordinate - otherPosition.XCoordinate, 2) + Math.Pow(this.YCoordinate - otherPosition.YCoordinate, 2));
             }
         }
     }
