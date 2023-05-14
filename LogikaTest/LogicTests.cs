@@ -50,7 +50,7 @@ namespace LogicTest
 
         internal class Ball : DataBallInterface
         {
-            public override double MassOfTheBall { get; set; }
+            public override double MassOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
