@@ -152,23 +152,23 @@ namespace Logic
             {
                 LogicBallInterface logicBall = ListOfManagedLogicBalls[index];
 
-                double XCoordinate = logicBall.BallVelocity.XCoordinate;
-                double YCoordinate = logicBall.BallVelocity.YCoordinate;
+                double XCoordinateVelocity = logicBall.BallVelocity.XCoordinate;
+                double YCoordinateVelocity = logicBall.BallVelocity.YCoordinate;
 
-                if (0 >= (logicBall.BallCenter.XCoordinate - this.RadiusOfTheBall) ||
-                    (logicBall.BallCenter.XCoordinate + this.RadiusOfTheBall) >= this.WidthOfTheBoard)
+                if (logicBall.BallCenter.XCoordinate - this.RadiusOfTheBall <= 0 && XCoordinateVelocity <= 0 ||
+                    logicBall.BallCenter.XCoordinate + this.RadiusOfTheBall >= this.WidthOfTheBoard && XCoordinateVelocity >= 0)
                 {
-                    XCoordinate = -XCoordinate;
+                    XCoordinateVelocity = -XCoordinateVelocity;
+                }
+                
+                if(logicBall.BallCenter.YCoordinate - this.RadiusOfTheBall <= 0 && YCoordinateVelocity <= 0 ||
+                   logicBall.BallCenter.YCoordinate + this.RadiusOfTheBall >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
+                {
+                    YCoordinateVelocity = -YCoordinateVelocity;
                 }
 
-                if (0 >= (logicBall.BallCenter.YCoordinate - this.RadiusOfTheBall) ||
-                    (logicBall.BallCenter.YCoordinate + this.RadiusOfTheBall) >= this.HeightOfTheBoard)
-                {
-                    YCoordinate = -YCoordinate;
-                }
-
-                logicBall.BallVelocity = LogicPositionInterface.CreateLogicPosition(XCoordinate, YCoordinate);
-                ListOfManagedDataBalls[index].VelocityVectorOfTheBall = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
+                logicBall.BallVelocity = LogicPositionInterface.CreateLogicPosition(XCoordinateVelocity, YCoordinateVelocity);
+                ListOfManagedDataBalls[index].VelocityVectorOfTheBall = DataPositionInterface.CreatePosition(XCoordinateVelocity, YCoordinateVelocity);
             }
 
             private void ManageCollisionsWithOtherBalls(int index)
