@@ -159,88 +159,15 @@ namespace DataTest
         // LogicPosition tests
 
         [TestMethod]
-        public void PositionAdditionMethodTest()
+        public void DataPositionFactoryTest()
         {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            DataPositionInterface ResultPosition = PositionNumber1.Addition(PositionNumber2);
+            double XCoordinate = 127;
+            double YCoordinate = 421;
 
-            Assert.AreEqual(XCoordinateFirst + XCoordinateSecond, ResultPosition.XCoordinate);
-            Assert.AreEqual(YCoordinateFirst + YCoordinateSecond, ResultPosition.YCoordinate);
-        }
-
-        [TestMethod]
-        public void PositionMultiplicationMethodTest()
-        {
-            double someDouble = 2.1;
-            double XCoordinate = 123;
-            double YCoordinate = 678;
             DataPositionInterface Position = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
-            DataPositionInterface ResultPosition = Position.Multiplication(someDouble);
 
-            Assert.AreEqual(XCoordinate * someDouble, ResultPosition.XCoordinate);
-            Assert.AreEqual(YCoordinate * someDouble, ResultPosition.YCoordinate);
-        }
-
-        [TestMethod]
-        public void PositionSubtractionMethodTest()
-        {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            DataPositionInterface ResultPosition = PositionNumber1.Subtraction(PositionNumber2);
-
-            Assert.AreEqual(XCoordinateFirst - XCoordinateSecond, ResultPosition.XCoordinate);
-            Assert.AreEqual(YCoordinateFirst - YCoordinateSecond, ResultPosition.YCoordinate);
-        }
-
-        [TestMethod]
-        public void PositionDotOperationMethodTest()
-        {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            double ResultOfDotOperation = PositionNumber1.DotOperator(PositionNumber2);
-            double ExpectedResult = XCoordinateFirst * XCoordinateSecond + YCoordinateFirst * YCoordinateSecond;
-
-            Assert.AreEqual(ExpectedResult, ResultOfDotOperation);
-        }
-
-        [TestMethod]
-        public void PositionVectorLengthMethodTest()
-        {
-            double XCoordinate = 123;
-            double YCoordinate = 678;
-            DataPositionInterface Position = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
-            double ActualVectorLength = Position.VectorLength();
-            double ExpectedVectorLength = Math.Sqrt(Math.Pow(XCoordinate, 2) + Math.Pow(YCoordinate, 2));
-
-            Assert.AreEqual(ExpectedVectorLength, ActualVectorLength);
-        }
-
-        [TestMethod]
-        public void PositionEuclideanDistanceMethodTest()
-        {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            double EuclideanDistance = PositionNumber1.EuclideanDistance(PositionNumber2);
-            double ExpectedEuclideanDistance = Math.Sqrt(Math.Pow(PositionNumber1.XCoordinate - PositionNumber2.XCoordinate, 2) + Math.Pow(PositionNumber1.YCoordinate - PositionNumber2.YCoordinate, 2));
-
-            Assert.AreEqual(ExpectedEuclideanDistance, EuclideanDistance);
+            Assert.AreEqual(XCoordinate, Position.XCoordinate);
+            Assert.AreEqual(YCoordinate, Position.YCoordinate);
         }
     }
 }

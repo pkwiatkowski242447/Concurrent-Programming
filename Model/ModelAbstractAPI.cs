@@ -36,11 +36,10 @@ namespace Model
             {
                 LogicAPI.CreatePlayingBoard();
                 LogicAPI.CreateSpecifiedNumberOfBalls(SelectedNumberOfBalls);
-                List<List<double>> ListFromLogic = LogicAPI.GetAllBallsCoordinates();
-                for (int i = 0; i < ListFromLogic.Count; i++)
+                List<LogicBallInterface> ListOfLogicBalls = LogicAPI.GetListOfAllLogicBalls();
+                for (int i = 0; i < ListOfLogicBalls.Count; i++)
                 {
-                    List<double> BallObjectCoordinates = ListFromLogic[i];
-                    ListOfModelBalls.Add(ModelBallInterface.CreatModelBall(BallObjectCoordinates[1], BallObjectCoordinates[0], BallObjectCoordinates[2]));
+                    ListOfModelBalls.Add(ModelBallInterface.CreatModelBall(ListOfLogicBalls[i].BallCenter.YCoordinate, ListOfLogicBalls[i].BallCenter.XCoordinate, ListOfLogicBalls[i].BallRadius));
                 }
             }
 
@@ -82,8 +81,8 @@ namespace Model
                 if (ballIndex < ListOfModelBalls.Count)
                 {
                     ModelBallInterface ModelBall = ListOfModelBalls[ballIndex];
-                    List<double> ModelBallObjectCoordinates = LogicAPI.GetAllBallsCoordinates()[ballIndex];
-                    ModelBall.Move(ModelBallObjectCoordinates[1], ModelBallObjectCoordinates[0]);
+                    LogicBallInterface LogicBall = LogicAPI.GetCertainLogicBall(ballIndex);
+                    ModelBall.Move(LogicBall.BallCenter.YCoordinate, LogicBall.BallCenter.XCoordinate);
                 }
             }
 

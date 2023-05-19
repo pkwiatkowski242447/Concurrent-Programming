@@ -43,7 +43,7 @@ namespace Model
             }
             public override double BallRadius { get; }
 
-            public ModelBall(double topValue, double leftValue, double ballRadius)
+            internal ModelBall(double topValue, double leftValue, double ballRadius)
             {
                 this._TopValue = topValue;
                 this._LeftValue = leftValue;
