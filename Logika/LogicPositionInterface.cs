@@ -1,61 +1,62 @@
 ﻿using System;
 
-namespace Data
+namespace Logic
 {
-    public abstract class DataPositionInterface
+    public abstract class LogicPositionInterface
     {
         public abstract double XCoordinate { get; }
         public abstract double YCoordinate { get; }
 
-        public static DataPositionInterface CreatePosition(double xCoordinate, double yCoordinate)
+        public static LogicPositionInterface CreateLogicPosition(double xCoordinate, double yCoordinate)
         {
-            return new Position(xCoordinate, yCoordinate);
+            return new LogicPosition(xCoordinate, yCoordinate);
         }
-        public abstract DataPositionInterface Addition(DataPositionInterface otherPosition);
-        public abstract DataPositionInterface Multiplication(double someDouble);
-        public abstract DataPositionInterface Subtraction(DataPositionInterface otherPosition);
-        public abstract double DotOperator(DataPositionInterface otherPosition);
-        public abstract double VectorLength();
-        public abstract double EuclideanDistance(DataPositionInterface otherPosition);
 
-        private class Position : DataPositionInterface
+        public abstract LogicPositionInterface Addition(LogicPositionInterface otherPosition);
+        public abstract LogicPositionInterface Multiplication(double someDouble);
+        public abstract LogicPositionInterface Subtraction(LogicPositionInterface otherPosition);
+        public abstract double DotOperator(LogicPositionInterface otherPosition);
+        public abstract double VectorLength();
+        public abstract double EuclideanDistance(LogicPositionInterface otherPosition);
+
+        private class LogicPosition : LogicPositionInterface
         {
             public override double XCoordinate { get; }
             public override double YCoordinate { get; }
 
-            internal Position(double xCoordinate, double yCoordinate)
+            internal LogicPosition(double xCoordinate, double yCoordinate)
             {
                 this.XCoordinate = xCoordinate;
                 this.YCoordinate = yCoordinate;
             }
 
-            public override double EuclideanDistance(DataPositionInterface otherPosition)
+            public override double EuclideanDistance(LogicPositionInterface otherPosition)
             {
                 return Math.Sqrt(Math.Pow(this.XCoordinate - otherPosition.XCoordinate, 2) + Math.Pow(this.YCoordinate - otherPosition.YCoordinate, 2));
             }
 
-            public override DataPositionInterface Addition(DataPositionInterface otherPosition)
+            public override LogicPositionInterface Addition(LogicPositionInterface otherPosition)
             {
                 double XCoordinate = this.XCoordinate + otherPosition.XCoordinate;
                 double YCoordinate = this.YCoordinate + otherPosition.YCoordinate;
-                return CreatePosition(XCoordinate, YCoordinate);
+                return CreateLogicPosition(XCoordinate, YCoordinate);
             }
 
-            public override DataPositionInterface Multiplication(double someDouble)
+            public override LogicPositionInterface Multiplication(double someDouble)
             {
                 double XCoordinate = this.XCoordinate * someDouble;
                 double YCoordinate = this.YCoordinate * someDouble;
-                return CreatePosition(XCoordinate, YCoordinate);
+                return CreateLogicPosition(XCoordinate, YCoordinate);
             }
 
-            public override DataPositionInterface Subtraction(DataPositionInterface otherPosition)
+            public override LogicPositionInterface Subtraction(LogicPositionInterface otherPosition)
             {
                 double XCoordinate = this.XCoordinate - otherPosition.XCoordinate;
                 double YCoordinate = this.YCoordinate - otherPosition.YCoordinate;
-                return CreatePosition(XCoordinate, YCoordinate);
+                return CreateLogicPosition(XCoordinate, YCoordinate);
             }
 
-            public override double DotOperator(DataPositionInterface otherPosition)
+            public override double DotOperator(LogicPositionInterface otherPosition)
             {
                 return this.XCoordinate * otherPosition.XCoordinate + this.YCoordinate * otherPosition.YCoordinate;
             }

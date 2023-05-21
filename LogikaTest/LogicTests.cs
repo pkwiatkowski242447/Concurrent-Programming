@@ -51,18 +51,19 @@ namespace LogicTest
         internal class Ball : DataBallInterface
         {
             public override double MassOfTheBall { get; }
-            public override DataPositionInterface CenterOfTheBall { get; }
+            public override DataPositionInterface CenterOfTheBall { get => ActualCenterOfTheBall; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
             public override bool DidBallCollide { get; set; }
             public override bool StartBallMovement { get; set; }
 
             internal IObserver<DataBallInterface>? ObserverObject;
+            private DataPositionInterface ActualCenterOfTheBall;
 
             public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
             {
                 this.MassOfTheBall = massOfTheBall;
-                this.CenterOfTheBall = centerOfTheBall;
+                this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
                 this.StopTask = false;
                 this.DidBallCollide = false;
@@ -83,8 +84,15 @@ namespace LogicTest
 
             public void Move()
             {
-                this.CenterOfTheBall.XCoordinate += this.VelocityVectorOfTheBall.XCoordinate;
-                this.CenterOfTheBall.YCoordinate += this.VelocityVectorOfTheBall.YCoordinate;
+                double XCoordinate = this.CenterOfTheBall.XCoordinate + this.VelocityVectorOfTheBall.XCoordinate;
+                double YCoordinate = this.CenterOfTheBall.YCoordinate + this.VelocityVectorOfTheBall.YCoordinate;
+                DataPositionInterface NewCenterOfTheBall = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
+                this.SetCenterOfTheBall(NewCenterOfTheBall);
+            }
+
+            private void SetCenterOfTheBall(DataPositionInterface someOtherPosition)
+            {
+                this.ActualCenterOfTheBall = someOtherPosition;
             }
 
             public override IDisposable Subscribe(IObserver<DataBallInterface> observerObject)
@@ -111,8 +119,8 @@ namespace LogicTest
 
         internal class Position : DataPositionInterface
         {
-            public override double XCoordinate { get; set; }
-            public override double YCoordinate { get; set; }
+            public override double XCoordinate { get; }
+            public override double YCoordinate { get; }
 
             public Position(double xCoordinate, double yCoordinate)
             {
@@ -184,7 +192,7 @@ namespace LogicTest
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance(FakeAPI);
             LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumberOfBalls(10);
-            List<List<double>> listOfBallsCoordinates = LogicAPI.GetAllBallsCoordinates();
+            List<LogicBallInterface> listOfBallsCoordinates = LogicAPI.GetListOfAllLogicBalls();
             Assert.AreEqual(10, listOfBallsCoordinates.Count);
             bool correct = true;
             for (int i = 0; i < listOfBallsCoordinates.Count; i++)
@@ -198,39 +206,16 @@ namespace LogicTest
         }
 
         [TestMethod]
-        public void MoveGeneratedBallsTest()
-        {
-            FakeDataAPI FakeAPI = new FakeDataAPI();
-            LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance(FakeAPI);
-            LogicAPI.CreatePlayingBoard();
-            LogicAPI.CreateSpecifiedNumberOfBalls(1);
-            LogicAPI.StartBallMovement();
-            List<List<double>> originalListOfBallsCoordinatesNo1 = LogicAPI.GetAllBallsCoordinates();
-            List<List<double>> originalListOfBallsCoordinatesNo2 = LogicAPI.GetAllBallsCoordinates();
-            bool positionChanges = false;
-            for (int i = 0; i < originalListOfBallsCoordinatesNo1.Count; i++)
-            {
-                if (originalListOfBallsCoordinatesNo1[i][0] == originalListOfBallsCoordinatesNo2[i][0] ||
-                    originalListOfBallsCoordinatesNo1[i][1] == originalListOfBallsCoordinatesNo2[i][1])
-                {
-                    positionChanges = true;
-                    break;
-                }
-            }
-            Assert.AreEqual(true, positionChanges);
-        }
-
-        [TestMethod]
         public void ClearPoolTableTest()
         {
             FakeDataAPI FakeAPI = new FakeDataAPI();
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance(FakeAPI);
             LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumberOfBalls(10);
-            List<List<double>> listOfBalls = LogicAPI.GetAllBallsCoordinates();
+            List<LogicBallInterface> listOfBalls = LogicAPI.GetListOfAllLogicBalls();
             Assert.AreEqual(10, listOfBalls.Count);
             LogicAPI.ClearPoolTable();
-            listOfBalls = LogicAPI.GetAllBallsCoordinates();
+            listOfBalls = LogicAPI.GetListOfAllLogicBalls();
             Assert.AreEqual(0, listOfBalls.Count);
         }
 
@@ -242,8 +227,107 @@ namespace LogicTest
             LogicAbstractAPI LogicAPI = LogicAbstractAPI.CreateLogicAPIInstance(FakeAPI);
             LogicAPI.CreatePlayingBoard();
             LogicAPI.CreateSpecifiedNumberOfBalls(NumberOfBallsToCreate);
-            List<List<double>> listOfBallsCoordinates = LogicAPI.GetAllBallsCoordinates();
-            Assert.AreEqual(NumberOfBallsToCreate, listOfBallsCoordinates.Count);
+            List<LogicBallInterface> listOfLogicBalls = LogicAPI.GetListOfAllLogicBalls();
+            Assert.AreEqual(NumberOfBallsToCreate, listOfLogicBalls.Count);
+        }
+
+        // LogicPosition tests
+
+        [TestMethod]
+        public void LogicPositionFacotryTest()
+        {
+            double XCoordinate = 127;
+            double YCoordinate = 421;
+
+            LogicPositionInterface Position = LogicPositionInterface.CreateLogicPosition(XCoordinate, YCoordinate);
+
+            Assert.AreEqual(XCoordinate, Position.XCoordinate);
+            Assert.AreEqual(YCoordinate, Position.YCoordinate);
+        }
+
+        [TestMethod]
+        public void LogicPositionAdditionMethodTest()
+        {
+            double XCoordinateFirst = 123;
+            double XCoordinateSecond = 678;
+            double YCoordinateFirst = 321;
+            double YCoordinateSecond = 896;
+            LogicPositionInterface PositionNumber1 = LogicPositionInterface.CreateLogicPosition(XCoordinateFirst, YCoordinateFirst);
+            LogicPositionInterface PositionNumber2 = LogicPositionInterface.CreateLogicPosition(XCoordinateSecond, YCoordinateSecond);
+            LogicPositionInterface ResultPosition = PositionNumber1.Addition(PositionNumber2);
+
+            Assert.AreEqual(XCoordinateFirst + XCoordinateSecond, ResultPosition.XCoordinate);
+            Assert.AreEqual(YCoordinateFirst + YCoordinateSecond, ResultPosition.YCoordinate);
+        }
+
+        [TestMethod]
+        public void LogicPositionMultiplicationMethodTest()
+        {
+            double someDouble = 2.1;
+            double XCoordinate = 123;
+            double YCoordinate = 678;
+            LogicPositionInterface Position = LogicPositionInterface.CreateLogicPosition(XCoordinate, YCoordinate);
+            LogicPositionInterface ResultPosition = Position.Multiplication(someDouble);
+
+            Assert.AreEqual(XCoordinate * someDouble, ResultPosition.XCoordinate);
+            Assert.AreEqual(YCoordinate * someDouble, ResultPosition.YCoordinate);
+        }
+
+        [TestMethod]
+        public void LogicPositionSubtractionMethodTest()
+        {
+            double XCoordinateFirst = 123;
+            double XCoordinateSecond = 678;
+            double YCoordinateFirst = 321;
+            double YCoordinateSecond = 896;
+            LogicPositionInterface PositionNumber1 = LogicPositionInterface.CreateLogicPosition(XCoordinateFirst, YCoordinateFirst);
+            LogicPositionInterface PositionNumber2 = LogicPositionInterface.CreateLogicPosition(XCoordinateSecond, YCoordinateSecond);
+            LogicPositionInterface ResultPosition = PositionNumber1.Subtraction(PositionNumber2);
+
+            Assert.AreEqual(XCoordinateFirst - XCoordinateSecond, ResultPosition.XCoordinate);
+            Assert.AreEqual(YCoordinateFirst - YCoordinateSecond, ResultPosition.YCoordinate);
+        }
+
+        [TestMethod]
+        public void LogicPositionDotOperationMethodTest()
+        {
+            double XCoordinateFirst = 123;
+            double XCoordinateSecond = 678;
+            double YCoordinateFirst = 321;
+            double YCoordinateSecond = 896;
+            LogicPositionInterface PositionNumber1 = LogicPositionInterface.CreateLogicPosition(XCoordinateFirst, YCoordinateFirst);
+            LogicPositionInterface PositionNumber2 = LogicPositionInterface.CreateLogicPosition(XCoordinateSecond, YCoordinateSecond);
+            double ResultOfDotOperation = PositionNumber1.DotOperator(PositionNumber2);
+            double ExpectedResult = XCoordinateFirst * XCoordinateSecond + YCoordinateFirst * YCoordinateSecond;
+
+            Assert.AreEqual(ExpectedResult, ResultOfDotOperation);
+        }
+
+        [TestMethod]
+        public void LogicPositionVectorLengthMethodTest()
+        {
+            double XCoordinate = 123;
+            double YCoordinate = 678;
+            LogicPositionInterface Position = LogicPositionInterface.CreateLogicPosition(XCoordinate, YCoordinate);
+            double ActualVectorLength = Position.VectorLength();
+            double ExpectedVectorLength = Math.Sqrt(Math.Pow(XCoordinate, 2) + Math.Pow(YCoordinate, 2));
+
+            Assert.AreEqual(ExpectedVectorLength, ActualVectorLength);
+        }
+
+        [TestMethod]
+        public void LogicPositionEuclideanDistanceMethodTest()
+        {
+            double XCoordinateFirst = 123;
+            double XCoordinateSecond = 678;
+            double YCoordinateFirst = 321;
+            double YCoordinateSecond = 896;
+            LogicPositionInterface PositionNumber1 = LogicPositionInterface.CreateLogicPosition(XCoordinateFirst, YCoordinateFirst);
+            LogicPositionInterface PositionNumber2 = LogicPositionInterface.CreateLogicPosition(XCoordinateSecond, YCoordinateSecond);
+            double EuclideanDistance = PositionNumber1.EuclideanDistance(PositionNumber2);
+            double ExpectedEuclideanDistance = Math.Sqrt(Math.Pow(PositionNumber1.XCoordinate - PositionNumber2.XCoordinate, 2) + Math.Pow(PositionNumber1.YCoordinate - PositionNumber2.YCoordinate, 2));
+
+            Assert.AreEqual(ExpectedEuclideanDistance, EuclideanDistance);
         }
     }
 }

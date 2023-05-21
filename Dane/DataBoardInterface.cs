@@ -15,7 +15,7 @@
             public override int WidthOfTheBoard { get; }
             public override int HeightOfTheBoard { get; }
 
-            public Board(int widthOfTheTable, int heightOfTheTable)
+            internal Board(int widthOfTheTable, int heightOfTheTable)
             {
                 this.WidthOfTheBoard = widthOfTheTable;
                 this.HeightOfTheBoard = heightOfTheTable;

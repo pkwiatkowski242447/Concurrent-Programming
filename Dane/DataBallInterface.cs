@@ -21,18 +21,23 @@ namespace Data
         private class Ball : DataBallInterface
         {
             public override double MassOfTheBall { get; }
-            public override DataPositionInterface CenterOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
 
-            internal IObserver<DataBallInterface>? ObserverObject { get; set; }
+            public override DataPositionInterface CenterOfTheBall
+            {
+                get { return this.ActualCenterOfTheBall; }
+            }
 
-            public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+            internal IObserver<DataBallInterface>? ObserverObject;
+            private DataPositionInterface ActualCenterOfTheBall;
+
+            internal Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
             {
                 this.MassOfTheBall = massOfTheBall;
-                this.CenterOfTheBall = centerOfTheBall;
+                this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
                 this.StopTask = false;
                 this.StartBallMovement = false;
@@ -41,24 +46,24 @@ namespace Data
             }
 
 
-            public async void BallMovement()
+            private async void BallMovement()
             {
                 while (!this.StopTask)
                 {
                     if (this.StartBallMovement)
                     {
                         this.Move();
+                        if (this.ObserverObject != null)
+                        {
+                            this.ObserverObject.OnNext(this);
+                        }
+                        this.DidBallCollide = false;
                     }
-                    if (this.ObserverObject != null)
-                    {
-                        this.ObserverObject.OnNext(this);
-                    }
-                    this.DidBallCollide = false;
                     await Task.Delay(1);
                 }
             }
 
-            public void Move()
+            private void Move()
             {
                 /*
                  * Za logikę poruszania się odpowiedzialna będzie, jak sama nazwa wskazuje, Logika
@@ -72,8 +77,16 @@ namespace Data
                  * wektora prędkości (w przypadku ektremalnym: obie - przy trafieniu w sam róg).
                  */
 
-                this.CenterOfTheBall.XCoordinate += this.VelocityVectorOfTheBall.XCoordinate;
-                this.CenterOfTheBall.YCoordinate += this.VelocityVectorOfTheBall.YCoordinate;
+                double newXCoordinate = this.CenterOfTheBall.XCoordinate + this.VelocityVectorOfTheBall.XCoordinate;
+                double newYCoordinate = this.CenterOfTheBall.YCoordinate + this.VelocityVectorOfTheBall.YCoordinate;
+
+                DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
+                this.SetCenterOfTheBall(NewCenterOfTheBallPosition);
+            }
+
+            private void SetCenterOfTheBall(DataPositionInterface someOtherPosition)
+            {
+                this.ActualCenterOfTheBall = someOtherPosition;
             }
 
             public override IDisposable Subscribe(IObserver<DataBallInterface> observer)
