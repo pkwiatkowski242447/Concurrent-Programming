@@ -127,42 +127,6 @@ namespace LogicTest
                 this.XCoordinate = xCoordinate;
                 this.YCoordinate = yCoordinate;
             }
-
-            public override DataPositionInterface Addition(DataPositionInterface otherPosition)
-            {
-                double XCoordinate = this.XCoordinate + otherPosition.XCoordinate;
-                double YCoordinate = this.YCoordinate + otherPosition.YCoordinate;
-                return CreatePosition(XCoordinate, YCoordinate);
-            }
-
-            public override DataPositionInterface Multiplication(double someDouble)
-            {
-                double XCoordinate = this.XCoordinate * someDouble;
-                double YCoordinate = this.YCoordinate * someDouble;
-                return CreatePosition(XCoordinate, YCoordinate);
-            }
-
-            public override DataPositionInterface Subtraction(DataPositionInterface otherPosition)
-            {
-                double XCoordinate = this.XCoordinate - otherPosition.XCoordinate;
-                double YCoordinate = this.YCoordinate - otherPosition.YCoordinate;
-                return CreatePosition(XCoordinate, YCoordinate);
-            }
-
-            public override double DotOperator(DataPositionInterface otherPosition)
-            {
-                return this.XCoordinate * otherPosition.XCoordinate + this.YCoordinate * otherPosition.YCoordinate;
-            }
-
-            public override double VectorLength()
-            {
-                return Math.Sqrt(Math.Pow(this.XCoordinate, 2) + Math.Pow(this.YCoordinate, 2));
-            }
-
-            public override double EuclideanDistance(DataPositionInterface otherPosition)
-            {
-                return Math.Sqrt(Math.Pow(this.XCoordinate - otherPosition.XCoordinate, 2) + Math.Pow(this.YCoordinate - otherPosition.YCoordinate, 2));
-            }
         }
 
         [TestMethod]

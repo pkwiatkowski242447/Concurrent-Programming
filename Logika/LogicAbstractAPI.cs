@@ -157,14 +157,14 @@ namespace Logic
                 double XCoordinateVelocity = logicBall.BallVelocity.XCoordinate;
                 double YCoordinateVelocity = logicBall.BallVelocity.YCoordinate;
 
-                if (logicBall.BallCenter.XCoordinate - this.RadiusOfTheBall <= 0 && XCoordinateVelocity <= 0 ||
-                    logicBall.BallCenter.XCoordinate + this.RadiusOfTheBall >= this.WidthOfTheBoard && XCoordinateVelocity >= 0)
+                if (logicBall.BallCenter.XCoordinate - logicBall.BallRadius <= 0 && XCoordinateVelocity <= 0 ||
+                    logicBall.BallCenter.XCoordinate + logicBall.BallRadius >= this.WidthOfTheBoard && XCoordinateVelocity >= 0)
                 {
                     XCoordinateVelocity = -XCoordinateVelocity;
                 }
                 
-                if(logicBall.BallCenter.YCoordinate - this.RadiusOfTheBall <= 0 && YCoordinateVelocity <= 0 ||
-                   logicBall.BallCenter.YCoordinate + this.RadiusOfTheBall >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
+                if(logicBall.BallCenter.YCoordinate - logicBall.BallRadius <= 0 && YCoordinateVelocity <= 0 ||
+                   logicBall.BallCenter.YCoordinate + logicBall.BallRadius >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
                 {
                     YCoordinateVelocity = -YCoordinateVelocity;
                 }
@@ -209,7 +209,7 @@ namespace Logic
                     logicBall.BallVelocity = newVelocityVectorForLogicBall;
                     collidingBall.BallVelocity = newVelocityVectorForCollidingBall;
 
-                    // Converting logic velocity vectors to one used in Data Layer
+                    // Converting logic velocity vectors to ones used in Data Layer
 
                     DataPositionInterface dataBallNewVelocity = DataPositionInterface.CreatePosition(newVelocityVectorForLogicBall.XCoordinate, newVelocityVectorForLogicBall.YCoordinate);
                     DataPositionInterface collidingBallNewVelocity = DataPositionInterface.CreatePosition(newVelocityVectorForCollidingBall.XCoordinate, newVelocityVectorForCollidingBall.YCoordinate);
