@@ -152,14 +152,14 @@ namespace Logic
                 double XCoordinateVelocity = logicBall.BallVelocity.XCoordinate;
                 double YCoordinateVelocity = logicBall.BallVelocity.YCoordinate;
 
-                if (logicBall.BallCenter.XCoordinate - this.RadiusOfTheBall <= 0 && XCoordinateVelocity <= 0 ||
-                    logicBall.BallCenter.XCoordinate + this.RadiusOfTheBall >= this.WidthOfTheBoard && XCoordinateVelocity >= 0)
+                if (logicBall.BallCenter.XCoordinate - logicBall.BallRadius <= 0 && XCoordinateVelocity <= 0 ||
+                    logicBall.BallCenter.XCoordinate + logicBall.BallRadius >= this.WidthOfTheBoard && XCoordinateVelocity >= 0)
                 {
                     XCoordinateVelocity = -XCoordinateVelocity;
                 }
                 
-                if(logicBall.BallCenter.YCoordinate - this.RadiusOfTheBall <= 0 && YCoordinateVelocity <= 0 ||
-                   logicBall.BallCenter.YCoordinate + this.RadiusOfTheBall >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
+                if(logicBall.BallCenter.YCoordinate - logicBall.BallRadius <= 0 && YCoordinateVelocity <= 0 ||
+                   logicBall.BallCenter.YCoordinate + logicBall.BallRadius >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
                 {
                     YCoordinateVelocity = -YCoordinateVelocity;
                 }
