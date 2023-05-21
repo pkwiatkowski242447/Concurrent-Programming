@@ -9,11 +9,6 @@ namespace Logic
         public abstract LogicPositionInterface BallCenter { get; }
         public abstract LogicPositionInterface BallVelocity { get; set; }
 
-        public static LogicBallInterface CreateLogicBall(double ballMass, double ballRadius, LogicPositionInterface ballCenter, LogicPositionInterface ballVelocity)
-        {
-            return new LogicBall(ballMass, ballRadius, ballCenter, ballVelocity);
-        }
-
         public static LogicBallInterface CreateLogicBall(DataBallInterface dataBall, double ballRadius)
         {
             LogicPositionInterface ballCenter = LogicPositionInterface.CreateLogicPosition(dataBall.CenterOfTheBall.XCoordinate, dataBall.CenterOfTheBall.YCoordinate);
