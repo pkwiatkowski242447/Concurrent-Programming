@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using Data;
 
@@ -85,10 +84,6 @@ namespace Logic
 
             public override void StartBallMovement()
             {
-                for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
-                {
-                    ListOfManagedDataBalls[i].StartBallMovement = true;
-                }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
                 {
                     DataBall.StartBallMovement = true;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Data
+﻿namespace Data
 {
     public abstract class DataPositionInterface
     {
