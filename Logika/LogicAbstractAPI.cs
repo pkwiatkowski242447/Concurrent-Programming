@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using Data;
 
@@ -122,29 +123,30 @@ namespace Logic
 
             public override void OnNext(DataBallInterface dataBall)
             {
+                int index = ListOfManagedDataBalls.IndexOf(dataBall);
+
                 try
                 {
                     Monitor.Enter(LockObject);
 
-                    int index = ListOfManagedDataBalls.IndexOf(dataBall);
                     LogicBallInterface logicBall = ListOfManagedLogicBalls[index];
                     logicBall.UpdateLogicBall(dataBall);
-
-                    ManageCollisionsWithWalls(index);
 
                     if (!dataBall.DidBallCollide)
                     {
                         ManageCollisionsWithOtherBalls(index);
                     }
-
-                    if (this.ObserverObject != null)
-                    {
-                        this.ObserverObject.OnNext(index);
-                    }
                 }
                 finally
                 {
                     Monitor.Exit(LockObject);
+                }
+
+                ManageCollisionsWithWalls(index);
+
+                if (this.ObserverObject != null)
+                {
+                    this.ObserverObject.OnNext(index);
                 }
             }
 
