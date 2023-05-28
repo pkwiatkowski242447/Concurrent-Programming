@@ -1,26 +1,44 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Data
 {
-    public abstract class DataBallInterface : IObservable<DataBallInterface>
+    public abstract class DataBallInterface : IObservable<DataBallInterface>, ISerializable
     {
+        public abstract int IdOfTheBall { get; }
         public abstract double MassOfTheBall { get; }
+        public abstract double RadiusOfTheBall { get; }
         public abstract DataPositionInterface CenterOfTheBall { get; }
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
+        [JsonIgnore]
         public abstract bool StopTask { get; set; }
+        [JsonIgnore]
         public abstract bool StartBallMovement { get; set; }
+        [JsonIgnore]
         public abstract bool DidBallCollide { get; set; }
 
-        public static DataBallInterface CreateBall(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+        public static DataBallInterface CreateBall(int idOfTheBall, double massOfTheBall, double radiusOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer serializer)
         {
-            return new Ball(massOfTheBall, centerOfTheBall, velocityVectorOfTheBall);
+            return new Ball(idOfTheBall, massOfTheBall, radiusOfTheBall, centerOfTheBall, velocityVectorOfTheBall, serializer);
         }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Mass of the ball: ", this.MassOfTheBall);
+            info.AddValue("Radius of the ball: ", this.RadiusOfTheBall);
+            info.AddValue("Center of the ball: ", this.CenterOfTheBall);
+            info.AddValue("Velocity vector of the ball: ", this.VelocityVectorOfTheBall);
+        }
+
         public abstract IDisposable Subscribe(IObserver<DataBallInterface> observer);
 
         private class Ball : DataBallInterface
         {
+            public override int IdOfTheBall { get; }
             public override double MassOfTheBall { get; }
+            public override double RadiusOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
             public override bool StartBallMovement { get; set; }
@@ -33,12 +51,16 @@ namespace Data
 
             internal IObserver<DataBallInterface>? ObserverObject;
             private DataPositionInterface ActualCenterOfTheBall;
+            private DataBallSerializer? SerializerObject;
 
-            internal Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+            internal Ball(int idOfTheBall, double massOfTheBall, double radiusOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
+                this.IdOfTheBall = idOfTheBall;
                 this.MassOfTheBall = massOfTheBall;
+                this.RadiusOfTheBall = radiusOfTheBall;
                 this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
+                this.SerializerObject = serializer;
                 this.StopTask = false;
                 this.StartBallMovement = false;
                 this.DidBallCollide = false;
@@ -58,6 +80,10 @@ namespace Data
                             this.ObserverObject.OnNext(this);
                         }
                         this.DidBallCollide = false;
+                    }
+                    if (this.SerializerObject != null)
+                    {
+                        SerializerObject.AddDataBallToSerializationQueue(this);
                     }
                     await Task.Delay(1);
                 }
@@ -94,6 +120,7 @@ namespace Data
                 this.ObserverObject = observer;
                 return new ObserverManager(observer);
             }
+
             private class ObserverManager : IDisposable
             {
                 IObserver<DataBallInterface>? SomeObserver;

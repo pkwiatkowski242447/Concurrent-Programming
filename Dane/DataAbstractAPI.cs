@@ -9,7 +9,7 @@ namespace Data
             return new DataAPI();
         }
 
-        public abstract DataBallInterface CreateASingleBall(double radiusOfTheBall);
+        public abstract DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall, DataBallSerializer serializer);
         public abstract void CreateBoard(int widthOfTheBoard, int heightOfTheBoard);
         public abstract double GetMassOfTheBall();
         public abstract int GetWidthOfTheBoard();
@@ -26,7 +26,7 @@ namespace Data
                 this.Board = DataBoardInterface.CreateBoard(widthOfTheBoard, heightOfTheBoard);
             }
 
-            public override DataBallInterface CreateASingleBall(double radiusOfTheBall)
+            public override DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall, DataBallSerializer serializer)
             {
                 DataPositionInterface centerOfTheBall = GetRandomPositionWithinTheMap(radiusOfTheBall);
                 DataPositionInterface velocityVector;
@@ -35,7 +35,7 @@ namespace Data
                     velocityVector = GetAppropriateVelocityVector();
                 }
                 while (velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
-                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(HardcodedMass, centerOfTheBall, velocityVector);
+                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(idOfTheBall, HardcodedMass, radiusOfTheBall, centerOfTheBall, velocityVector, serializer);
                 return NewlyCreatedBall;
             }
 

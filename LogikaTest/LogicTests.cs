@@ -14,7 +14,7 @@ namespace LogicTest
             public bool CreateBoardCalled { get; set; }
             public Random randomNumber = new Random();
 
-            public override DataBallInterface CreateASingleBall(double radiusOfTheBall)
+            public override DataBallInterface CreateASingleBall(int id, double radiusOfTheBall, DataBallSerializer serializer)
             {
                 double XCoordinate = randomNumber.NextDouble() * (WidthOfTheBoard - 2 * radiusOfTheBall);
                 double YCoordinate = randomNumber.NextDouble() * (HeightOfTheBoard - 2 * radiusOfTheBall);
@@ -22,7 +22,7 @@ namespace LogicTest
                 XCoordinate = randomNumber.NextDouble() * 10 - 5;
                 YCoordinate = randomNumber.NextDouble() * 10 - 5;
                 DataPositionInterface VelocityVectorOfTheBall = new Position(XCoordinate, YCoordinate);
-                return new Ball(MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall);
+                return new Ball(id, MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall, serializer);
             }
 
             public override void CreateBoard(int widthOfTheBoard, int heightOfTheBoard)
@@ -50,7 +50,9 @@ namespace LogicTest
 
         internal class Ball : DataBallInterface
         {
+            public override int IdOfTheBall { get; }
             public override double MassOfTheBall { get; }
+            public override double RadiusOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get => ActualCenterOfTheBall; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StopTask { get; set; }
@@ -59,14 +61,17 @@ namespace LogicTest
 
             internal IObserver<DataBallInterface>? ObserverObject;
             private DataPositionInterface ActualCenterOfTheBall;
+            private DataBallSerializer? SerializerObject;
 
-            public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+            public Ball(int id, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer serializer)
             {
+                this.IdOfTheBall = id;
                 this.MassOfTheBall = massOfTheBall;
                 this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
                 this.StopTask = false;
                 this.DidBallCollide = false;
+                this.SerializerObject = serializer;
                 Task.Run(BallMovement);
             }
 

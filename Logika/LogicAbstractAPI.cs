@@ -34,6 +34,7 @@ namespace Logic
             internal List<DataBallInterface> ListOfManagedDataBalls { get; set; }
             internal List<LogicBallInterface> ListOfManagedLogicBalls { get; set; }
             internal object LockObject = new object();
+            internal DataBallSerializer Serializer = DataBallSerializer.CreateJSONSerializer();
 
             internal LogicAPI(DataAbstractAPI DataAPI)
             {
@@ -52,9 +53,9 @@ namespace Logic
             {
                 for (int i = 0; i < numberOfBallsToAdd; i++)
                 {
-                    DataBallInterface currentBall = DataAPI.CreateASingleBall(this.RadiusOfTheBall);
+                    DataBallInterface currentBall = DataAPI.CreateASingleBall(i, this.RadiusOfTheBall, Serializer);
                     ListOfManagedDataBalls.Add(currentBall);
-                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall, this.RadiusOfTheBall);
+                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall);
                     ListOfManagedLogicBalls.Add(newLogicBall);
                 }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
