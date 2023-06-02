@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Data
 {
@@ -11,6 +12,8 @@ namespace Data
         {
             return new Position(xCoordinate, yCoordinate);
         }
+
+        public abstract double VectorLength();
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -27,6 +30,11 @@ namespace Data
             {
                 this.XCoordinate = xCoordinate;
                 this.YCoordinate = yCoordinate;
+            }
+
+            public override double VectorLength()
+            {
+                return Math.Sqrt(Math.Pow(this.XCoordinate, 2) + Math.Pow(this.YCoordinate, 2));
             }
         }
     }

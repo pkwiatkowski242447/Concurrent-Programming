@@ -2,32 +2,35 @@
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace Data
 {
-    public abstract class DataBallInterface : IObservable<DataBallInterface>, ISerializable
+    public abstract class DataBallInterface : IObservable<DataBallInterface>, ISerializable, IDisposable
     {
         public abstract int IdOfTheBall { get; }
+        [JsonIgnore] 
         public abstract double MassOfTheBall { get; }
-        public abstract double RadiusOfTheBall { get; }
         public abstract DataPositionInterface CenterOfTheBall { get; }
+        [JsonIgnore] 
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
-        [JsonIgnore]
-        public abstract bool StopTask { get; set; }
         [JsonIgnore]
         public abstract bool StartBallMovement { get; set; }
         [JsonIgnore]
         public abstract bool DidBallCollide { get; set; }
+        [JsonIgnore]
+        public abstract CancellationTokenSource CancelDelay { get; set; }
 
-        public static DataBallInterface CreateBall(int idOfTheBall, double massOfTheBall, double radiusOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer serializer)
+        public static DataBallInterface CreateBall(int idOfTheBall, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
         {
-            return new Ball(idOfTheBall, massOfTheBall, radiusOfTheBall, centerOfTheBall, velocityVectorOfTheBall, serializer);
+            return new Ball(idOfTheBall, massOfTheBall, centerOfTheBall, velocityVectorOfTheBall, serializer);
         }
+
+        public abstract void Dispose();
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Mass of the ball: ", this.MassOfTheBall);
-            info.AddValue("Radius of the ball: ", this.RadiusOfTheBall);
             info.AddValue("Center of the ball: ", this.CenterOfTheBall);
             info.AddValue("Velocity vector of the ball: ", this.VelocityVectorOfTheBall);
         }
@@ -38,32 +41,35 @@ namespace Data
         {
             public override int IdOfTheBall { get; }
             public override double MassOfTheBall { get; }
-            public override double RadiusOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
-            public override bool StopTask { get; set; }
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
+            public override CancellationTokenSource CancelDelay { get; set; }
 
             public override DataPositionInterface CenterOfTheBall
             {
                 get { return this.ActualCenterOfTheBall; }
             }
 
-            internal IObserver<DataBallInterface>? ObserverObject;
+            private IObserver<DataBallInterface>? ObserverObject;
             private DataPositionInterface ActualCenterOfTheBall;
             private DataBallSerializer? SerializerObject;
+            private bool StopTask = false;
+            private int BaseTime = 50;
+            private int TimeToWait = 0;
+            private int ConstantCoefficient = 1000;
+            private int BallCoefficient = 0;
 
-            internal Ball(int idOfTheBall, double massOfTheBall, double radiusOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
+            internal Ball(int idOfTheBall, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
                 this.IdOfTheBall = idOfTheBall;
                 this.MassOfTheBall = massOfTheBall;
-                this.RadiusOfTheBall = radiusOfTheBall;
                 this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
                 this.SerializerObject = serializer;
-                this.StopTask = false;
                 this.StartBallMovement = false;
                 this.DidBallCollide = false;
+                this.CancelDelay = new CancellationTokenSource();
                 Task.Run(BallMovement);
             }
 
@@ -72,6 +78,12 @@ namespace Data
             {
                 while (!this.StopTask)
                 {
+                    this.BallCoefficient = (int)((double)(this.ConstantCoefficient) / this.VelocityVectorOfTheBall.VectorLength());
+                    this.TimeToWait = (int)((double)(this.BaseTime) / this.BallCoefficient);
+                    if (this.TimeToWait == 0)
+                    {
+                        this.TimeToWait = 1;
+                    }
                     if (this.StartBallMovement)
                     {
                         this.Move();
@@ -85,7 +97,7 @@ namespace Data
                     {
                         SerializerObject.AddDataBallToSerializationQueue(this);
                     }
-                    await Task.Delay(1);
+                    await Task.Delay(this.TimeToWait);
                 }
             }
 
@@ -103,11 +115,16 @@ namespace Data
                  * wektora prędkości (w przypadku ektremalnym: obie - przy trafieniu w sam róg).
                  */
 
-                double newXCoordinate = this.CenterOfTheBall.XCoordinate + this.VelocityVectorOfTheBall.XCoordinate;
-                double newYCoordinate = this.CenterOfTheBall.YCoordinate + this.VelocityVectorOfTheBall.YCoordinate;
+                double newXCoordinate = this.CenterOfTheBall.XCoordinate + ((this.VelocityVectorOfTheBall.XCoordinate / this.BallCoefficient) * this.TimeToWait);
+                double newYCoordinate = this.CenterOfTheBall.YCoordinate + ((this.VelocityVectorOfTheBall.YCoordinate / this.BallCoefficient) * this.TimeToWait);
 
                 DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
                 this.SetCenterOfTheBall(NewCenterOfTheBallPosition);
+            }
+
+            public override void Dispose()
+            {
+                this.StopTask = true;
             }
 
             private void SetCenterOfTheBall(DataPositionInterface someOtherPosition)

@@ -13,8 +13,8 @@ namespace Data
         private readonly string PathToLogFile;
         private Task? LoggingTask;
         private readonly ConcurrentQueue<JObject> SerializationQueue;
-        private readonly Mutex LogFileMutex = new Mutex();
-        private readonly Mutex BallsMutex = new Mutex();
+        private readonly object LogFileLockObject = new object();
+        private readonly object BufferLockObject = new object();
         private readonly JArray LoggedBallsArray;
 
         public JSONSerializer()
@@ -43,7 +43,7 @@ namespace Data
 
         public override void AddDataBallToSerializationQueue(DataBallInterface dataBall)
         {
-            BallsMutex.WaitOne();
+            Monitor.Enter(BufferLockObject);
             try
             {
                 JObject serilizedObject = JObject.FromObject(dataBall);
@@ -53,39 +53,54 @@ namespace Data
 
                 if (LoggingTask == null || LoggingTask.IsCompleted)
                 {
-                    LoggingTask = Task.Factory.StartNew(WriteBallDataToFile);
+                    LoggingTask = Task.Factory.StartNew(WriteSerializedDataToFile);
                 }
             }
             finally
             {
-                BallsMutex.ReleaseMutex();
+                Monitor.Exit(BufferLockObject);
             }
         }
 
-        private void WriteBallDataToFile()
+        public override void AddBoardDataToSerializationQueue(DataBoardInterface dataBoard)
         {
-            while (SerializationQueue.TryDequeue(out JObject serializedBall))
+            Monitor.Enter(BufferLockObject);
+            try
             {
-                LoggedBallsArray.Add(serializedBall);
+                JObject serializedBoard = JObject.FromObject(dataBoard);
+                serializedBoard["Time"] = DateTime.Now.ToString("HH:mm:ss");
+
+                SerializationQueue.Enqueue(serializedBoard);
+
+                if (LoggingTask == null || LoggingTask.IsCompleted)
+                {
+                    LoggingTask = Task.Factory.StartNew(WriteSerializedDataToFile);
+                }
+            }
+            finally
+            {
+                Monitor.Exit(BufferLockObject);
+            }
+        }
+
+        private void WriteSerializedDataToFile()
+        {
+            while (SerializationQueue.TryDequeue(out JObject serilizedObject))
+            {
+                LoggedBallsArray.Add(serilizedObject);
             }
 
             string jsonString = JsonConvert.SerializeObject(LoggedBallsArray, Formatting.Indented);
 
-            LogFileMutex.WaitOne();
+            Monitor.Enter(LogFileLockObject);
             try
             {
                 File.WriteAllText(PathToLogFile, jsonString);
             }
             finally
             {
-                LogFileMutex.ReleaseMutex();
+                Monitor.Exit(LogFileLockObject);
             }
-        }
-
-        ~JSONSerializer()
-        {
-            LogFileMutex.WaitOne();
-            LogFileMutex.ReleaseMutex();
         }
     }
 }

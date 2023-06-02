@@ -9,7 +9,8 @@ namespace Data
             return new DataAPI();
         }
 
-        public abstract DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall, DataBallSerializer serializer);
+        public abstract DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall);
+        public abstract void CreateSerializerObject();
         public abstract void CreateBoard(int widthOfTheBoard, int heightOfTheBoard);
         public abstract double GetMassOfTheBall();
         public abstract int GetWidthOfTheBoard();
@@ -20,13 +21,20 @@ namespace Data
             internal double HardcodedMass = 10.0;
             internal Random randomNumber = new Random();
             internal DataBoardInterface? Board { get; set; }
+            internal DataBallSerializer? ballSerializer = null;
+
+            public override void CreateSerializerObject()
+            {
+                this.ballSerializer = DataBallSerializer.CreateJSONSerializer();
+            }
 
             public override void CreateBoard(int widthOfTheBoard, int heightOfTheBoard)
             {
                 this.Board = DataBoardInterface.CreateBoard(widthOfTheBoard, heightOfTheBoard);
+                ballSerializer?.AddBoardDataToSerializationQueue(this.Board);
             }
 
-            public override DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall, DataBallSerializer serializer)
+            public override DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall)
             {
                 DataPositionInterface centerOfTheBall = GetRandomPositionWithinTheMap(radiusOfTheBall);
                 DataPositionInterface velocityVector;
@@ -35,7 +43,7 @@ namespace Data
                     velocityVector = GetAppropriateVelocityVector();
                 }
                 while (velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
-                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(idOfTheBall, HardcodedMass, radiusOfTheBall, centerOfTheBall, velocityVector, serializer);
+                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(idOfTheBall, HardcodedMass, centerOfTheBall, velocityVector, this.ballSerializer);
                 return NewlyCreatedBall;
             }
 
@@ -70,8 +78,8 @@ namespace Data
 
             internal DataPositionInterface GetAppropriateVelocityVector()
             {
-                double Velocity_XValue = randomNumber.NextDouble() * 10 - 5;
-                double Velocity_YValue = randomNumber.NextDouble() * 10 - 5;
+                double Velocity_XValue = randomNumber.NextDouble() * 100 - 50;
+                double Velocity_YValue = randomNumber.NextDouble() * 100 - 50;
                 return DataPositionInterface.CreatePosition(Velocity_XValue, Velocity_YValue);
             }
         }

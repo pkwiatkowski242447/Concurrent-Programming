@@ -34,7 +34,6 @@ namespace Logic
             internal List<DataBallInterface> ListOfManagedDataBalls { get; set; }
             internal List<LogicBallInterface> ListOfManagedLogicBalls { get; set; }
             internal object LockObject = new object();
-            internal DataBallSerializer Serializer = DataBallSerializer.CreateJSONSerializer();
 
             internal LogicAPI(DataAbstractAPI DataAPI)
             {
@@ -42,6 +41,7 @@ namespace Logic
                 ListOfManagedDataBalls = new List<DataBallInterface>();
                 ListOfManagedLogicBalls = new List<LogicBallInterface>();
                 ListOfDataBallObservers = new List<IDisposable>();
+                DataAPI.CreateSerializerObject();
             }
 
             public override void CreatePlayingBoard()
@@ -53,9 +53,9 @@ namespace Logic
             {
                 for (int i = 0; i < numberOfBallsToAdd; i++)
                 {
-                    DataBallInterface currentBall = DataAPI.CreateASingleBall(i, this.RadiusOfTheBall, Serializer);
+                    DataBallInterface currentBall = DataAPI.CreateASingleBall(i, this.RadiusOfTheBall);
                     ListOfManagedDataBalls.Add(currentBall);
-                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall);
+                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall, this.RadiusOfTheBall);
                     ListOfManagedLogicBalls.Add(newLogicBall);
                 }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
@@ -69,7 +69,7 @@ namespace Logic
             {
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
                 {
-                    DataBall.StopTask = true;
+                    DataBall.Dispose();
                 }
                 if (ListOfDataBallObservers != null)
                 {
@@ -224,6 +224,8 @@ namespace Logic
 
                     dataBall.DidBallCollide = true;
                     collidingBallFromData.DidBallCollide = true;
+
+                    // collidingBallFromData.CancelDelay.Cancel();
                 }
             }
 

@@ -14,7 +14,7 @@ namespace DataTest
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(1000, 1000);
 
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall, null);
+            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall);
             Assert.AreNotEqual(null, NewlyCreatedBall);
         }
 
@@ -32,16 +32,14 @@ namespace DataTest
             DataPositionInterface VelocityVectorOfTheBall = DataPositionInterface.CreatePosition(VelocityX, VelocityY);
 
             double MassOfTheBall = 17.2;
-            double RadiusOfTheBall = 15.1;
 
-            DataBallInterface NewBall = DataBallInterface.CreateBall(0, MassOfTheBall, RadiusOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall, null);
+            DataBallInterface NewBall = DataBallInterface.CreateBall(0, MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall, null);
 
             Assert.AreEqual(XCoordinate, NewBall.CenterOfTheBall.XCoordinate);
             Assert.AreEqual(YCoordinate, NewBall.CenterOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityX, NewBall.VelocityVectorOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityY, NewBall.VelocityVectorOfTheBall.YCoordinate);
             Assert.AreEqual(MassOfTheBall, NewBall.MassOfTheBall);
-            Assert.AreEqual(RadiusOfTheBall, NewBall.RadiusOfTheBall);
         }
 
         [TestMethod]
@@ -54,7 +52,7 @@ namespace DataTest
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(WidthOfTheTable, HeightOfTheTable);
 
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall, null);
+            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall);
 
             Assert.AreNotEqual(null, NewlyCreatedBall);
 
@@ -92,7 +90,7 @@ namespace DataTest
             List<DataBallInterface> ListOfBalls = new List<DataBallInterface>();
             for (int i = 0; i < 1000; i++)
             {
-                ListOfBalls.Add(DataAPI.CreateASingleBall(i, RadiusOfTheBall, null));
+                ListOfBalls.Add(DataAPI.CreateASingleBall(i, RadiusOfTheBall));
             }
             bool correct = true;
             for (int i = 0; i < 1000; i++)
