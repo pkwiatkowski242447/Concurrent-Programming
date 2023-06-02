@@ -63,6 +63,8 @@ namespace LogicTest
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool DidBallCollide { get; set; }
             public override bool StartBallMovement { get; set; }
+            public override double TimeToWait { get; set; }
+            public override CancellationTokenSource CancelDelay { get; set; }
 
             private IObserver<DataBallInterface>? ObserverObject;
             private DataPositionInterface ActualCenterOfTheBall;
@@ -141,6 +143,11 @@ namespace LogicTest
             {
                 this.XCoordinate = xCoordinate;
                 this.YCoordinate = yCoordinate;
+            }
+
+            public override double VectorLength()
+            {
+                return Math.Sqrt(Math.Pow(this.XCoordinate, 2) + Math.Pow(this.YCoordinate, 2));
             }
         }
 

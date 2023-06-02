@@ -20,6 +20,8 @@ namespace Data
         public abstract bool DidBallCollide { get; set; }
         [JsonIgnore]
         public abstract CancellationTokenSource CancelDelay { get; set; }
+        [JsonIgnore]
+        public abstract double TimeToWait { get; set; }
 
         public static DataBallInterface CreateBall(int idOfTheBall, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
         {
@@ -45,6 +47,7 @@ namespace Data
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
             public override CancellationTokenSource CancelDelay { get; set; }
+            public override double TimeToWait { get; set; }
 
             public override DataPositionInterface CenterOfTheBall
             {
@@ -55,10 +58,6 @@ namespace Data
             private DataPositionInterface ActualCenterOfTheBall;
             private DataBallSerializer? SerializerObject;
             private bool StopTask = false;
-            private int BaseTime = 50;
-            private int TimeToWait = 0;
-            private int ConstantCoefficient = 1000;
-            private int BallCoefficient = 0;
 
             internal Ball(int idOfTheBall, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
@@ -69,6 +68,7 @@ namespace Data
                 this.SerializerObject = serializer;
                 this.StartBallMovement = false;
                 this.DidBallCollide = false;
+                this.TimeToWait = 1;
                 this.CancelDelay = new CancellationTokenSource();
                 Task.Run(BallMovement);
             }
@@ -78,12 +78,6 @@ namespace Data
             {
                 while (!this.StopTask)
                 {
-                    this.BallCoefficient = (int)((double)(this.ConstantCoefficient) / this.VelocityVectorOfTheBall.VectorLength());
-                    this.TimeToWait = (int)((double)(this.BaseTime) / this.BallCoefficient);
-                    if (this.TimeToWait == 0)
-                    {
-                        this.TimeToWait = 1;
-                    }
                     if (this.StartBallMovement)
                     {
                         this.Move();
@@ -97,7 +91,7 @@ namespace Data
                     {
                         SerializerObject.AddDataBallToSerializationQueue(this);
                     }
-                    await Task.Delay(this.TimeToWait);
+                    await Task.Delay((int)this.TimeToWait, CancelDelay.Token).ContinueWith(_ => { });
                 }
             }
 
@@ -115,8 +109,8 @@ namespace Data
                  * wektora prędkości (w przypadku ektremalnym: obie - przy trafieniu w sam róg).
                  */
 
-                double newXCoordinate = this.CenterOfTheBall.XCoordinate + ((this.VelocityVectorOfTheBall.XCoordinate / this.BallCoefficient) * this.TimeToWait);
-                double newYCoordinate = this.CenterOfTheBall.YCoordinate + ((this.VelocityVectorOfTheBall.YCoordinate / this.BallCoefficient) * this.TimeToWait);
+                double newXCoordinate = this.CenterOfTheBall.XCoordinate + (this.VelocityVectorOfTheBall.XCoordinate * this.TimeToWait);
+                double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * this.TimeToWait);
 
                 DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
                 this.SetCenterOfTheBall(NewCenterOfTheBallPosition);

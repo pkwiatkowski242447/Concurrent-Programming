@@ -102,5 +102,11 @@ namespace Data
                 Monitor.Exit(LogFileLockObject);
             }
         }
+
+        ~JSONSerializer()
+        {
+            Monitor.Enter(LogFileLockObject);
+            Monitor.Exit(LogFileLockObject);
+        }
     }
 }

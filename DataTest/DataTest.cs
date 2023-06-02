@@ -156,7 +156,7 @@ namespace DataTest
             Assert.AreEqual(HeightOfTheBoard, DataAPI.GetHeightOfTheBoard());
         }
 
-        // LogicPosition tests
+        // DataPosition tests
 
         [TestMethod]
         public void DataPositionFactoryTest()
@@ -168,6 +168,18 @@ namespace DataTest
 
             Assert.AreEqual(XCoordinate, Position.XCoordinate);
             Assert.AreEqual(YCoordinate, Position.YCoordinate);
+        }
+
+        [TestMethod]
+        public void VectorLengthTestMethod()
+        {
+            double XCoordinate = 127;
+            double YCoordinate = 237;
+            double ExpectedResult = Math.Sqrt(Math.Pow(XCoordinate, 2) + Math.Pow(YCoordinate, 2));
+            DataPositionInterface position = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
+            double ActualResult = position.VectorLength();
+
+            Assert.AreEqual(ExpectedResult, ActualResult);
         }
     }
 }

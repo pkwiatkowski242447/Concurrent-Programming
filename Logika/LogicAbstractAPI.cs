@@ -177,10 +177,11 @@ namespace Logic
                 double distanceBetweenTheseBalls;
                 for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
                 {
-                    distanceBetweenTheseBalls = logicBall.BallCenter.EuclideanDistance(ListOfManagedLogicBalls[i].BallCenter);
-                    LogicPositionInterface NextLogicBallPosition = logicBall.BallCenter.Addition(logicBall.BallVelocity);
-                    LogicPositionInterface NextPositionOfOtherBall = ListOfManagedLogicBalls[i].BallCenter.Addition(ListOfManagedLogicBalls[i].BallVelocity);
-                    if (ListOfManagedLogicBalls[i] != logicBall && distanceBetweenTheseBalls <= logicBall.BallRadius + ListOfManagedLogicBalls[i].BallRadius &&
+                    LogicBallInterface otherLogicBall = ListOfManagedLogicBalls[i];
+                    distanceBetweenTheseBalls = logicBall.BallCenter.EuclideanDistance(otherLogicBall.BallCenter);
+                    LogicPositionInterface NextLogicBallPosition = logicBall.BallCenter.Addition(logicBall.BallVelocity.Multiplication(logicBall.TimeToWait));
+                    LogicPositionInterface NextPositionOfOtherBall = otherLogicBall.BallCenter.Addition(otherLogicBall.BallVelocity.Multiplication(otherLogicBall.TimeToWait));
+                    if (ListOfManagedLogicBalls[i] != logicBall && distanceBetweenTheseBalls <= logicBall.BallRadius + otherLogicBall.BallRadius &&
                         distanceBetweenTheseBalls - NextLogicBallPosition.EuclideanDistance(NextPositionOfOtherBall) > 0)
                     {
                         ListOfCollidingBalls.Add(ListOfManagedLogicBalls[i]);
