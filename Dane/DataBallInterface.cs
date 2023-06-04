@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Data
 {
@@ -48,6 +49,8 @@ namespace Data
             private bool StopTask = false;
             private int BaseWaitTime = 5;
             private object LockObject = new object();
+            private Stopwatch StopWatch = new Stopwatch();
+            double MoveTime = 0;
 
             public override DataPositionInterface VelocityVectorOfTheBall
             {
@@ -83,6 +86,9 @@ namespace Data
             {
                 while (!this.StopTask)
                 {
+                    this.MoveTime = StopWatch.ElapsedMilliseconds / 2.5;
+                    StopWatch.Restart();
+                    StopWatch.Start();
                     if (this.StartBallMovement)
                     {
                         this.TimeToWait = (double)(this.BaseWaitTime / this.VelocityVectorOfTheBall.VectorLength());
@@ -91,7 +97,7 @@ namespace Data
                             this.TimeToWait = 10;
                         }
 
-                        this.Move();
+                        this.Move(this.MoveTime);
 
                         if (this.SerializerObject != null)
                         {
@@ -111,16 +117,17 @@ namespace Data
                             CancelDelay = new CancellationTokenSource();
                         }
                     }
+                    StopWatch.Stop();
                 }
             }
 
-            private void Move()
+            private void Move(double MoveTime)
             {
                 Monitor.Enter(LockObject);
                 try
                 {
-                    double newXCoordinate = this.CenterOfTheBall.XCoordinate + (this.VelocityVectorOfTheBall.XCoordinate * this.TimeToWait);
-                    double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * this.TimeToWait);
+                    double newXCoordinate = this.CenterOfTheBall.XCoordinate + (this.VelocityVectorOfTheBall.XCoordinate * MoveTime);
+                    double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * MoveTime);
                     DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
                     this.SetCenterOfTheBall(NewCenterOfTheBallPosition);
                 }
