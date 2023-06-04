@@ -1,79 +1,150 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Data
 {
-    public abstract class DataBallInterface : IObservable<DataBallInterface>
+    public abstract class DataBallInterface : IObservable<DataBallInterface>, IDisposable
     {
-        public abstract double MassOfTheBall { get; }
-        public abstract DataPositionInterface CenterOfTheBall { get; }
+        public abstract int IdOfTheBall { get; }
+        public abstract DataPositionInterface CenterOfTheBall { get; } 
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
-        public abstract bool StopTask { get; set; }
+        [JsonIgnore]
         public abstract bool StartBallMovement { get; set; }
+        [JsonIgnore]
         public abstract bool DidBallCollide { get; set; }
+        [JsonIgnore]
+        public abstract CancellationTokenSource CancelDelay { get; set; }
+        [JsonIgnore]
+        public abstract double TimeToWait { get; set; }
 
-        public static DataBallInterface CreateBall(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+        public static DataBallInterface CreateBall(int idOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
         {
-            return new Ball(massOfTheBall, centerOfTheBall, velocityVectorOfTheBall);
+            return new Ball(idOfTheBall, centerOfTheBall, velocityVectorOfTheBall, serializer);
         }
+
+        public abstract void Dispose();
+
         public abstract IDisposable Subscribe(IObserver<DataBallInterface> observer);
 
         private class Ball : DataBallInterface
         {
-            public override double MassOfTheBall { get; }
-            public override DataPositionInterface CenterOfTheBall { get; }
-            public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
-            public override bool StopTask { get; set; }
+            public override int IdOfTheBall { get; }
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
+            public override CancellationTokenSource CancelDelay { get; set; }
+            public override double TimeToWait { get; set; }
 
-            internal IObserver<DataBallInterface>? ObserverObject { get; set; }
-
-            public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+            public override DataPositionInterface CenterOfTheBall
             {
-                this.MassOfTheBall = massOfTheBall;
-                this.CenterOfTheBall = centerOfTheBall;
-                this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
-                this.StopTask = false;
+                get { return this.ActualCenterOfTheBall; }
+            }
+
+            private IObserver<DataBallInterface>? ObserverObject;
+            private DataPositionInterface ActualCenterOfTheBall;
+            private DataPositionInterface ActualVelocityVector;
+            private DataBallSerializer? SerializerObject;
+            private bool StopTask = false;
+            private int BaseWaitTime = 5;
+            private object LockObject = new object();
+            private Stopwatch StopWatch = new Stopwatch();
+            double MoveTime = 0;
+
+            public override DataPositionInterface VelocityVectorOfTheBall
+            {
+                get => this.ActualVelocityVector;
+                set
+                {
+                    Monitor.Enter(LockObject);
+                    try
+                    {
+                        this.ActualVelocityVector = value;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(LockObject);
+                    }
+                }
+            }
+
+            internal Ball(int idOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
+            {
+                this.IdOfTheBall = idOfTheBall;
+                this.ActualCenterOfTheBall = centerOfTheBall;
+                this.ActualVelocityVector = velocityVectorOfTheBall;
+                this.SerializerObject = serializer;
                 this.StartBallMovement = false;
                 this.DidBallCollide = false;
+                this.CancelDelay = new CancellationTokenSource();
                 Task.Run(BallMovement);
             }
 
 
-            public async void BallMovement()
+            private async void BallMovement()
             {
                 while (!this.StopTask)
                 {
+                    this.MoveTime = StopWatch.ElapsedMilliseconds / 2.5;
+                    StopWatch.Restart();
+                    StopWatch.Start();
                     if (this.StartBallMovement)
                     {
-                        this.Move();
+                        this.TimeToWait = (double)(this.BaseWaitTime / this.VelocityVectorOfTheBall.VectorLength());
+                        if (this.TimeToWait > 10)
+                        {
+                            this.TimeToWait = 10;
+                        }
+
+                        this.Move(this.MoveTime);
+
+                        if (this.SerializerObject != null)
+                        {
+                            SerializerObject.AddDataBallToSerializationQueue(this);
+                        }
+                        if (this.ObserverObject != null)
+                        {
+                            this.ObserverObject.OnNext(this);
+                        }
+
+                        this.DidBallCollide = false;
+                        await Task.Delay((int)this.TimeToWait, CancelDelay.Token).ContinueWith(_ => { });
+
+                        if (CancelDelay.IsCancellationRequested)
+                        {
+                            CancelDelay.Dispose();
+                            CancelDelay = new CancellationTokenSource();
+                        }
                     }
-                    if (this.ObserverObject != null)
-                    {
-                        this.ObserverObject.OnNext(this);
-                    }
-                    this.DidBallCollide = false;
-                    await Task.Delay(1);
+                    StopWatch.Stop();
                 }
             }
 
-            public void Move()
+            private void Move(double MoveTime)
             {
-                /*
-                 * Za logikę poruszania się odpowiedzialna będzie, jak sama nazwa wskazuje, Logika
-                 * czyli w warstwie wyżej dokonywać będziemy korekt VelocityVectora - w wyniku tego 
-                 * w tej metodzie wystarczy tylko zmieniać położenie.
-                 * 
-                 * Sam pomysł polega na tym: Dla każdej kulki generujemy losową pozycję na mapie, i następnie
-                 * generowany jest wektor prędkości, który sprawia, że kulka po ruchu znajduje się w mapie. I dalej
-                 * opierać się to będzie na okresowym sprawdzaniu położenia i jeżeli pozycja kulki, a dokładnie centrum
-                 * + promień = 0 lub równa się wysokość / szerokość to trzeba odwrócić jedynie odpowiednią współrzędną
-                 * wektora prędkości (w przypadku ektremalnym: obie - przy trafieniu w sam róg).
-                 */
+                Monitor.Enter(LockObject);
+                try
+                {
+                    double newXCoordinate = this.CenterOfTheBall.XCoordinate + (this.VelocityVectorOfTheBall.XCoordinate * MoveTime);
+                    double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * MoveTime);
+                    DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
+                    this.SetCenterOfTheBall(NewCenterOfTheBallPosition);
+                }
+                finally
+                {
+                    Monitor.Exit(LockObject);
+                }
+            }
 
-                this.CenterOfTheBall.XCoordinate += this.VelocityVectorOfTheBall.XCoordinate;
-                this.CenterOfTheBall.YCoordinate += this.VelocityVectorOfTheBall.YCoordinate;
+            public override void Dispose()
+            {
+                this.StopTask = true;
+            }
+
+            private void SetCenterOfTheBall(DataPositionInterface someOtherPosition)
+            {
+                this.ActualCenterOfTheBall = someOtherPosition;
             }
 
             public override IDisposable Subscribe(IObserver<DataBallInterface> observer)
@@ -81,6 +152,7 @@ namespace Data
                 this.ObserverObject = observer;
                 return new ObserverManager(observer);
             }
+
             private class ObserverManager : IDisposable
             {
                 IObserver<DataBallInterface>? SomeObserver;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Data;
 
 namespace Logic
@@ -15,7 +16,8 @@ namespace Logic
         public abstract void CreateSpecifiedNumberOfBalls(int numberOfBallsToAdd);
         public abstract void ClearPoolTable();
         public abstract void StartBallMovement();
-        public abstract List<List<double>> GetAllBallsCoordinates();
+        public abstract LogicBallInterface GetCertainLogicBall(int index);
+        public abstract List<LogicBallInterface> GetListOfAllLogicBalls();
         public abstract void OnCompleted();
         public abstract void OnError(Exception error);
         public abstract void OnNext(DataBallInterface dataBall);
@@ -27,16 +29,20 @@ namespace Logic
             internal int WidthOfTheBoard = 740;
             internal int HeightOfTheBoard = 690;
             internal double RadiusOfTheBall = 10.0;
+            internal double MassOfTheBall = 10.0;
             internal List<IDisposable>? ListOfDataBallObservers;
             internal IObserver<int>? ObserverObject;
             internal List<DataBallInterface> ListOfManagedDataBalls { get; set; }
+            internal List<LogicBallInterface> ListOfManagedLogicBalls { get; set; }
             internal object LockObject = new object();
 
-            public LogicAPI(DataAbstractAPI DataAPI)
+            internal LogicAPI(DataAbstractAPI DataAPI)
             {
                 this.DataAPI = DataAPI;
                 ListOfManagedDataBalls = new List<DataBallInterface>();
+                ListOfManagedLogicBalls = new List<LogicBallInterface>();
                 ListOfDataBallObservers = new List<IDisposable>();
+                DataAPI.CreateSerializerObject();
             }
 
             public override void CreatePlayingBoard()
@@ -48,8 +54,10 @@ namespace Logic
             {
                 for (int i = 0; i < numberOfBallsToAdd; i++)
                 {
-                    DataBallInterface currentBall = DataAPI.CreateASingleBall(this.RadiusOfTheBall);
+                    DataBallInterface currentBall = DataAPI.CreateASingleBall(i, this.RadiusOfTheBall);
                     ListOfManagedDataBalls.Add(currentBall);
+                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall, this.MassOfTheBall, this.RadiusOfTheBall);
+                    ListOfManagedLogicBalls.Add(newLogicBall);
                 }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
                 {
@@ -62,7 +70,7 @@ namespace Logic
             {
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
                 {
-                    DataBall.StopTask = true;
+                    DataBall.Dispose();
                 }
                 if (ListOfDataBallObservers != null)
                 {
@@ -72,43 +80,26 @@ namespace Logic
                     }
                     ListOfDataBallObservers.Clear();
                 }
+                ListOfManagedLogicBalls.Clear();
                 ListOfManagedDataBalls.Clear();
             }
 
             public override void StartBallMovement()
             {
-                for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
-                {
-                    ListOfManagedDataBalls[i].StartBallMovement = true;
-                }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
                 {
                     DataBall.StartBallMovement = true;
                 }
             }
 
-            public override List<List<double>> GetAllBallsCoordinates()
+            public override LogicBallInterface GetCertainLogicBall(int index)
             {
-                List<List<double>> ListOfBallsCoordinates = new List<List<double>>();
-                for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
-                {
-                    double XCoordinate = ListOfManagedDataBalls[i].CenterOfTheBall.XCoordinate;
-                    double YCoordinate = ListOfManagedDataBalls[i].CenterOfTheBall.YCoordinate;
-                    double BallRadius = this.RadiusOfTheBall;
-                    double VelocityX = ListOfManagedDataBalls[i].VelocityVectorOfTheBall.XCoordinate;
-                    double VelocityY = ListOfManagedDataBalls[i].VelocityVectorOfTheBall.YCoordinate;
+                return ListOfManagedLogicBalls[index];
+            }
 
-                    List<double> Coords = new List<double>()
-                    {
-                        XCoordinate,
-                        YCoordinate,
-                        BallRadius,
-                        VelocityX,
-                        VelocityY
-                    };
-                    ListOfBallsCoordinates.Add(Coords);
-                }
-                return ListOfBallsCoordinates;
+            public override List<LogicBallInterface> GetListOfAllLogicBalls()
+            {
+                return ListOfManagedLogicBalls;
             }
 
             public override void OnCompleted()
@@ -130,92 +121,113 @@ namespace Logic
             public override void OnNext(DataBallInterface dataBall)
             {
                 int index = ListOfManagedDataBalls.IndexOf(dataBall);
-                lock (LockObject)
+
+                try
                 {
+                    Monitor.Enter(LockObject);
+
+                    LogicBallInterface logicBall = ListOfManagedLogicBalls[index];
+                    logicBall.UpdateLogicBall(dataBall);
+
                     if (!dataBall.DidBallCollide)
                     {
-                        ManageCollisionsWithWalls(ListOfManagedDataBalls[index]);
-                        ManageCollisionsWithOtherBalls(ListOfManagedDataBalls[index]);
+                        ManageCollisionsWithOtherBalls(index);
                     }
-                    this.RepairCoordinates(dataBall);
                 }
+                finally
+                {
+                    Monitor.Exit(LockObject);
+                }
+
+                ManageCollisionsWithWalls(index);
+
                 if (this.ObserverObject != null)
                 {
                     this.ObserverObject.OnNext(index);
                 }
             }
 
-            private void ManageCollisionsWithWalls(DataBallInterface dataBall)
+            private void ManageCollisionsWithWalls(int index)
             {
-                if (0 >= (dataBall.CenterOfTheBall.XCoordinate - this.RadiusOfTheBall) ||
-                    (dataBall.CenterOfTheBall.XCoordinate + this.RadiusOfTheBall) >= this.WidthOfTheBoard)
+                LogicBallInterface logicBall = ListOfManagedLogicBalls[index];
+
+                double XCoordinateVelocity = logicBall.BallVelocity.XCoordinate;
+                double YCoordinateVelocity = logicBall.BallVelocity.YCoordinate;
+
+                if (logicBall.BallCenter.XCoordinate - logicBall.BallRadius <= 0 && XCoordinateVelocity <= 0 ||
+                    logicBall.BallCenter.XCoordinate + logicBall.BallRadius >= this.WidthOfTheBoard && XCoordinateVelocity >= 0)
                 {
-                    dataBall.VelocityVectorOfTheBall.XCoordinate = -dataBall.VelocityVectorOfTheBall.XCoordinate;
+                    XCoordinateVelocity = -XCoordinateVelocity;
+                }
+                
+                if(logicBall.BallCenter.YCoordinate - logicBall.BallRadius <= 0 && YCoordinateVelocity <= 0 ||
+                   logicBall.BallCenter.YCoordinate + logicBall.BallRadius >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
+                {
+                    YCoordinateVelocity = -YCoordinateVelocity;
                 }
 
-                if (0 >= (dataBall.CenterOfTheBall.YCoordinate - this.RadiusOfTheBall) ||
-                    (dataBall.CenterOfTheBall.YCoordinate + this.RadiusOfTheBall) >= this.HeightOfTheBoard)
-                {
-                    dataBall.VelocityVectorOfTheBall.YCoordinate = -dataBall.VelocityVectorOfTheBall.YCoordinate;
-                }
+                logicBall.BallVelocity = LogicPositionInterface.CreateLogicPosition(XCoordinateVelocity, YCoordinateVelocity);
+                ListOfManagedDataBalls[index].VelocityVectorOfTheBall = DataPositionInterface.CreatePosition(XCoordinateVelocity, YCoordinateVelocity);
             }
 
-            private void ManageCollisionsWithOtherBalls(DataBallInterface dataBall)
+            private void ManageCollisionsWithOtherBalls(int index)
             {
-                List<DataBallInterface> ListOfCollidingBalls = new List<DataBallInterface>();
+                LogicBallInterface logicBall = ListOfManagedLogicBalls[index];
+
+                List<LogicBallInterface> ListOfCollidingBalls = new List<LogicBallInterface>();
                 double distanceBetweenTheseBalls;
                 for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
                 {
-                    distanceBetweenTheseBalls = dataBall.CenterOfTheBall.EuclideanDistance(ListOfManagedDataBalls[i].CenterOfTheBall);
-                    DataPositionInterface NextLogicBallPosition = dataBall.CenterOfTheBall.Addition(dataBall.VelocityVectorOfTheBall);
-                    DataPositionInterface NextPositionOfOtherBall = ListOfManagedDataBalls[i].CenterOfTheBall.Addition(ListOfManagedDataBalls[i].VelocityVectorOfTheBall);
-                    if (ListOfManagedDataBalls[i] != dataBall && distanceBetweenTheseBalls <= 2 * this.RadiusOfTheBall &&
+                    LogicBallInterface otherLogicBall = ListOfManagedLogicBalls[i];
+                    distanceBetweenTheseBalls = logicBall.BallCenter.EuclideanDistance(otherLogicBall.BallCenter);
+                    LogicPositionInterface NextLogicBallPosition = logicBall.BallCenter.Addition(logicBall.BallVelocity.Multiplication(logicBall.TimeToWait));
+                    LogicPositionInterface NextPositionOfOtherBall = otherLogicBall.BallCenter.Addition(otherLogicBall.BallVelocity.Multiplication(otherLogicBall.TimeToWait));
+                    if (ListOfManagedLogicBalls[i] != logicBall && distanceBetweenTheseBalls <= logicBall.BallRadius + otherLogicBall.BallRadius &&
                         distanceBetweenTheseBalls - NextLogicBallPosition.EuclideanDistance(NextPositionOfOtherBall) > 0)
                     {
-                        ListOfCollidingBalls.Add(ListOfManagedDataBalls[i]);
+                        ListOfCollidingBalls.Add(ListOfManagedLogicBalls[i]);
                     }
                 }
 
-                foreach (DataBallInterface collidingBall in ListOfCollidingBalls)
+                foreach (LogicBallInterface collidingBall in ListOfCollidingBalls)
                 {
-                    DataPositionInterface DiffBetweenCenters = dataBall.CenterOfTheBall.Subtraction(collidingBall.CenterOfTheBall);
-                    DataPositionInterface DiffBetweenVelocities = dataBall.VelocityVectorOfTheBall.Subtraction(collidingBall.VelocityVectorOfTheBall);
+                    LogicPositionInterface DiffBetweenCenters = logicBall.BallCenter.Subtraction(collidingBall.BallCenter);
+                    LogicPositionInterface DiffBetweenVelocities = logicBall.BallVelocity.Subtraction(collidingBall.BallVelocity);
 
-                    DataPositionInterface secondPart = DiffBetweenCenters.Multiplication(DiffBetweenVelocities.DotOperator(DiffBetweenCenters) / Math.Pow(DiffBetweenCenters.VectorLength(), 2));
-                    DataPositionInterface newVelocityVectorForLogicBall = dataBall.VelocityVectorOfTheBall.Subtraction(secondPart.Multiplication(2f * collidingBall.MassOfTheBall / (dataBall.MassOfTheBall + collidingBall.MassOfTheBall)));
-                    DiffBetweenCenters = collidingBall.CenterOfTheBall.Subtraction(dataBall.CenterOfTheBall);
-                    DiffBetweenVelocities = collidingBall.VelocityVectorOfTheBall.Subtraction(dataBall.VelocityVectorOfTheBall);
+                    LogicPositionInterface secondPart = DiffBetweenCenters.Multiplication(DiffBetweenVelocities.DotOperator(DiffBetweenCenters) / Math.Pow(DiffBetweenCenters.VectorLength(), 2));
+                    LogicPositionInterface newVelocityVectorForLogicBall = logicBall.BallVelocity.Subtraction(secondPart.Multiplication(2f * collidingBall.BallMass / (logicBall.BallMass + collidingBall.BallMass)));
+                    DiffBetweenCenters = collidingBall.BallCenter.Subtraction(logicBall.BallCenter);
+                    DiffBetweenVelocities = collidingBall.BallVelocity.Subtraction(logicBall.BallVelocity);
                     secondPart = DiffBetweenCenters.Multiplication(DiffBetweenVelocities.DotOperator(DiffBetweenCenters) / Math.Pow(DiffBetweenCenters.VectorLength(), 2));
 
-                    DataPositionInterface newVelocityVectorForCollidingBall = collidingBall.VelocityVectorOfTheBall.Subtraction(secondPart.Multiplication(2f * dataBall.MassOfTheBall / (dataBall.MassOfTheBall + collidingBall.MassOfTheBall)));
+                    LogicPositionInterface newVelocityVectorForCollidingBall = collidingBall.BallVelocity.Subtraction(secondPart.Multiplication(2f * logicBall.BallMass / (logicBall.BallMass + collidingBall.BallMass)));
 
-                    dataBall.VelocityVectorOfTheBall = newVelocityVectorForLogicBall;
-                    collidingBall.VelocityVectorOfTheBall = newVelocityVectorForCollidingBall;
+                    // Updating ballVelocity in LogicBalls
+
+                    logicBall.BallVelocity = newVelocityVectorForLogicBall;
+                    collidingBall.BallVelocity = newVelocityVectorForCollidingBall;
+
+                    // Converting logic velocity vectors to one used in Data Layer
+
+                    DataPositionInterface dataBallNewVelocity = DataPositionInterface.CreatePosition(newVelocityVectorForLogicBall.XCoordinate, newVelocityVectorForLogicBall.YCoordinate);
+                    DataPositionInterface collidingBallNewVelocity = DataPositionInterface.CreatePosition(newVelocityVectorForCollidingBall.XCoordinate, newVelocityVectorForCollidingBall.YCoordinate);
+
+                    // Getting both balls from Data (that is from the ListOfManagedDataBalls)
+
+                    DataBallInterface dataBall = ListOfManagedDataBalls[index];
+                    DataBallInterface collidingBallFromData = ListOfManagedDataBalls[ListOfManagedLogicBalls.IndexOf(collidingBall)];
+
+                    // Updating VelocityOfTheBall in balls from Data Layer
+
+                    dataBall.VelocityVectorOfTheBall = dataBallNewVelocity;
+                    collidingBallFromData.VelocityVectorOfTheBall = collidingBallNewVelocity;
+
+                    // Marking that the collision between balls occured
 
                     dataBall.DidBallCollide = true;
-                    collidingBall.DidBallCollide = true;
-                }
-            }
+                    collidingBallFromData.DidBallCollide = true;
 
-
-            private void RepairCoordinates(DataBallInterface dataBall)
-            {
-                if (dataBall.CenterOfTheBall.XCoordinate > WidthOfTheBoard - this.RadiusOfTheBall)
-                {
-                    dataBall.CenterOfTheBall.XCoordinate = WidthOfTheBoard - this.RadiusOfTheBall;
-                }
-                else if (dataBall.CenterOfTheBall.XCoordinate < this.RadiusOfTheBall)
-                {
-                    dataBall.CenterOfTheBall.XCoordinate = this.RadiusOfTheBall;
-                }
-
-                if (dataBall.CenterOfTheBall.YCoordinate > HeightOfTheBoard - this.RadiusOfTheBall)
-                {
-                    dataBall.CenterOfTheBall.YCoordinate = HeightOfTheBoard - this.RadiusOfTheBall;
-                }
-                else if (dataBall.CenterOfTheBall.YCoordinate < this.RadiusOfTheBall)
-                {
-                    dataBall.CenterOfTheBall.YCoordinate = this.RadiusOfTheBall;
+                    collidingBallFromData.CancelDelay.Cancel();
                 }
             }
 

@@ -14,7 +14,7 @@ namespace DataTest
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(1000, 1000);
 
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(RadiusOfTheBall);
+            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall);
             Assert.AreNotEqual(null, NewlyCreatedBall);
         }
 
@@ -31,15 +31,12 @@ namespace DataTest
 
             DataPositionInterface VelocityVectorOfTheBall = DataPositionInterface.CreatePosition(VelocityX, VelocityY);
 
-            double MassOfTheBall = 17.2;
-
-            DataBallInterface NewBall = DataBallInterface.CreateBall(MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall);
+            DataBallInterface NewBall = DataBallInterface.CreateBall(0, CenterOfTheBall, VelocityVectorOfTheBall, null);
 
             Assert.AreEqual(XCoordinate, NewBall.CenterOfTheBall.XCoordinate);
             Assert.AreEqual(YCoordinate, NewBall.CenterOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityX, NewBall.VelocityVectorOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityY, NewBall.VelocityVectorOfTheBall.YCoordinate);
-            Assert.AreEqual(MassOfTheBall, NewBall.MassOfTheBall);
         }
 
         [TestMethod]
@@ -52,7 +49,7 @@ namespace DataTest
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(WidthOfTheTable, HeightOfTheTable);
 
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(RadiusOfTheBall);
+            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall);
 
             Assert.AreNotEqual(null, NewlyCreatedBall);
 
@@ -72,44 +69,6 @@ namespace DataTest
         }
 
         [TestMethod]
-        public void CheckIfVelocityVectorOfTheBallIsCorrect()
-        {
-            int WidthOfTheTable = 910;
-            int HeightOfTheTable = 678;
-            double RadiusOfTheBall = 10.0;
-
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(WidthOfTheTable, HeightOfTheTable);
-
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(RadiusOfTheBall);
-
-            Assert.AreNotEqual(null, NewlyCreatedBall);
-
-            bool correct = true;
-
-            if (NewlyCreatedBall.CenterOfTheBall.XCoordinate - RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.XCoordinate < 0 ||
-                NewlyCreatedBall.CenterOfTheBall.XCoordinate + RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.XCoordinate > WidthOfTheTable)
-            {
-                correct = false;
-            }
-            if (NewlyCreatedBall.CenterOfTheBall.YCoordinate - RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.YCoordinate < 0 ||
-                NewlyCreatedBall.CenterOfTheBall.YCoordinate + RadiusOfTheBall + NewlyCreatedBall.VelocityVectorOfTheBall.YCoordinate > HeightOfTheTable)
-            {
-                correct = false;
-            }
-            Assert.AreEqual(true, correct);
-        }
-
-        [TestMethod]
-        public void GetMassOfTheBallTest()
-        {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(700, 700);
-            double MassOfTheBall = DataAPI.GetMassOfTheBall();
-            Assert.AreEqual(10.0, MassOfTheBall);
-        }
-
-        [TestMethod]
         public void CenterOfTheBallValidityTestFor1000Balls()
         {
             double RadiusOfTheBall = 10.0;
@@ -119,7 +78,7 @@ namespace DataTest
             List<DataBallInterface> ListOfBalls = new List<DataBallInterface>();
             for (int i = 0; i < 1000; i++)
             {
-                ListOfBalls.Add(DataAPI.CreateASingleBall(RadiusOfTheBall));
+                ListOfBalls.Add(DataAPI.CreateASingleBall(i, RadiusOfTheBall));
             }
             bool correct = true;
             for (int i = 0; i < 1000; i++)
@@ -185,91 +144,30 @@ namespace DataTest
             Assert.AreEqual(HeightOfTheBoard, DataAPI.GetHeightOfTheBoard());
         }
 
-        // LogicPosition tests
+        // DataPosition tests
 
         [TestMethod]
-        public void PositionAdditionMethodTest()
+        public void DataPositionFactoryTest()
         {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            DataPositionInterface ResultPosition = PositionNumber1.Addition(PositionNumber2);
+            double XCoordinate = 127;
+            double YCoordinate = 421;
 
-            Assert.AreEqual(XCoordinateFirst + XCoordinateSecond, ResultPosition.XCoordinate);
-            Assert.AreEqual(YCoordinateFirst + YCoordinateSecond, ResultPosition.YCoordinate);
-        }
-
-        [TestMethod]
-        public void PositionMultiplicationMethodTest()
-        {
-            double someDouble = 2.1;
-            double XCoordinate = 123;
-            double YCoordinate = 678;
             DataPositionInterface Position = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
-            DataPositionInterface ResultPosition = Position.Multiplication(someDouble);
 
-            Assert.AreEqual(XCoordinate * someDouble, ResultPosition.XCoordinate);
-            Assert.AreEqual(YCoordinate * someDouble, ResultPosition.YCoordinate);
+            Assert.AreEqual(XCoordinate, Position.XCoordinate);
+            Assert.AreEqual(YCoordinate, Position.YCoordinate);
         }
 
         [TestMethod]
-        public void PositionSubtractionMethodTest()
+        public void VectorLengthTestMethod()
         {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            DataPositionInterface ResultPosition = PositionNumber1.Subtraction(PositionNumber2);
+            double XCoordinate = 127;
+            double YCoordinate = 237;
+            double ExpectedResult = Math.Sqrt(Math.Pow(XCoordinate, 2) + Math.Pow(YCoordinate, 2));
+            DataPositionInterface position = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
+            double ActualResult = position.VectorLength();
 
-            Assert.AreEqual(XCoordinateFirst - XCoordinateSecond, ResultPosition.XCoordinate);
-            Assert.AreEqual(YCoordinateFirst - YCoordinateSecond, ResultPosition.YCoordinate);
-        }
-
-        [TestMethod]
-        public void PositionDotOperationMethodTest()
-        {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            double ResultOfDotOperation = PositionNumber1.DotOperator(PositionNumber2);
-            double ExpectedResult = XCoordinateFirst * XCoordinateSecond + YCoordinateFirst * YCoordinateSecond;
-
-            Assert.AreEqual(ExpectedResult, ResultOfDotOperation);
-        }
-
-        [TestMethod]
-        public void PositionVectorLengthMethodTest()
-        {
-            double XCoordinate = 123;
-            double YCoordinate = 678;
-            DataPositionInterface Position = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
-            double ActualVectorLength = Position.VectorLength();
-            double ExpectedVectorLength = Math.Sqrt(Math.Pow(XCoordinate, 2) + Math.Pow(YCoordinate, 2));
-
-            Assert.AreEqual(ExpectedVectorLength, ActualVectorLength);
-        }
-
-        [TestMethod]
-        public void PositionEuclideanDistanceMethodTest()
-        {
-            double XCoordinateFirst = 123;
-            double XCoordinateSecond = 678;
-            double YCoordinateFirst = 321;
-            double YCoordinateSecond = 896;
-            DataPositionInterface PositionNumber1 = DataPositionInterface.CreatePosition(XCoordinateFirst, YCoordinateFirst);
-            DataPositionInterface PositionNumber2 = DataPositionInterface.CreatePosition(XCoordinateSecond, YCoordinateSecond);
-            double EuclideanDistance = PositionNumber1.EuclideanDistance(PositionNumber2);
-            double ExpectedEuclideanDistance = Math.Sqrt(Math.Pow(PositionNumber1.XCoordinate - PositionNumber2.XCoordinate, 2) + Math.Pow(PositionNumber1.YCoordinate - PositionNumber2.YCoordinate, 2));
-
-            Assert.AreEqual(ExpectedEuclideanDistance, EuclideanDistance);
+            Assert.AreEqual(ExpectedResult, ActualResult);
         }
     }
 }
