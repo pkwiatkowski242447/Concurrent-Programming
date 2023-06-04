@@ -31,7 +31,6 @@ namespace Data
         private class Ball : DataBallInterface
         {
             public override int IdOfTheBall { get; }
-            public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
             public override CancellationTokenSource CancelDelay { get; set; }
@@ -44,15 +43,34 @@ namespace Data
 
             private IObserver<DataBallInterface>? ObserverObject;
             private DataPositionInterface ActualCenterOfTheBall;
+            private DataPositionInterface ActualVelocityVector;
             private DataBallSerializer? SerializerObject;
             private bool StopTask = false;
             private int BaseWaitTime = 5;
+            private object LockObject = new object();
+
+            public override DataPositionInterface VelocityVectorOfTheBall
+            {
+                get => this.ActualVelocityVector;
+                set
+                {
+                    Monitor.Enter(LockObject);
+                    try
+                    {
+                        this.ActualVelocityVector = value;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(LockObject);
+                    }
+                }
+            }
 
             internal Ball(int idOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
                 this.IdOfTheBall = idOfTheBall;
                 this.ActualCenterOfTheBall = centerOfTheBall;
-                this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
+                this.ActualVelocityVector = velocityVectorOfTheBall;
                 this.SerializerObject = serializer;
                 this.StartBallMovement = false;
                 this.DidBallCollide = false;
@@ -98,11 +116,18 @@ namespace Data
 
             private void Move()
             {
-                double newXCoordinate = this.CenterOfTheBall.XCoordinate + (this.VelocityVectorOfTheBall.XCoordinate * this.TimeToWait);
-                double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * this.TimeToWait);
-
-                DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
-                this.SetCenterOfTheBall(NewCenterOfTheBallPosition);
+                Monitor.Enter(LockObject);
+                try
+                {
+                    double newXCoordinate = this.CenterOfTheBall.XCoordinate + (this.VelocityVectorOfTheBall.XCoordinate * this.TimeToWait);
+                    double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * this.TimeToWait);
+                    DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
+                    this.SetCenterOfTheBall(NewCenterOfTheBallPosition);
+                }
+                finally
+                {
+                    Monitor.Exit(LockObject);
+                }
             }
 
             public override void Dispose()
