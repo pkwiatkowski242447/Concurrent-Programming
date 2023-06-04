@@ -14,7 +14,7 @@ namespace DataTest
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(1000, 1000);
 
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(RadiusOfTheBall);
+            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall);
             Assert.AreNotEqual(null, NewlyCreatedBall);
         }
 
@@ -31,15 +31,12 @@ namespace DataTest
 
             DataPositionInterface VelocityVectorOfTheBall = DataPositionInterface.CreatePosition(VelocityX, VelocityY);
 
-            double MassOfTheBall = 17.2;
-
-            DataBallInterface NewBall = DataBallInterface.CreateBall(MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall);
+            DataBallInterface NewBall = DataBallInterface.CreateBall(0, CenterOfTheBall, VelocityVectorOfTheBall, null);
 
             Assert.AreEqual(XCoordinate, NewBall.CenterOfTheBall.XCoordinate);
             Assert.AreEqual(YCoordinate, NewBall.CenterOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityX, NewBall.VelocityVectorOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityY, NewBall.VelocityVectorOfTheBall.YCoordinate);
-            Assert.AreEqual(MassOfTheBall, NewBall.MassOfTheBall);
         }
 
         [TestMethod]
@@ -52,7 +49,7 @@ namespace DataTest
             DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
             DataAPI.CreateBoard(WidthOfTheTable, HeightOfTheTable);
 
-            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(RadiusOfTheBall);
+            DataBallInterface NewlyCreatedBall = DataAPI.CreateASingleBall(0, RadiusOfTheBall);
 
             Assert.AreNotEqual(null, NewlyCreatedBall);
 
@@ -72,15 +69,6 @@ namespace DataTest
         }
 
         [TestMethod]
-        public void GetMassOfTheBallTest()
-        {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(700, 700);
-            double MassOfTheBall = DataAPI.GetMassOfTheBall();
-            Assert.AreEqual(10.0, MassOfTheBall);
-        }
-
-        [TestMethod]
         public void CenterOfTheBallValidityTestFor1000Balls()
         {
             double RadiusOfTheBall = 10.0;
@@ -90,7 +78,7 @@ namespace DataTest
             List<DataBallInterface> ListOfBalls = new List<DataBallInterface>();
             for (int i = 0; i < 1000; i++)
             {
-                ListOfBalls.Add(DataAPI.CreateASingleBall(RadiusOfTheBall));
+                ListOfBalls.Add(DataAPI.CreateASingleBall(i, RadiusOfTheBall));
             }
             bool correct = true;
             for (int i = 0; i < 1000; i++)
@@ -156,7 +144,7 @@ namespace DataTest
             Assert.AreEqual(HeightOfTheBoard, DataAPI.GetHeightOfTheBoard());
         }
 
-        // LogicPosition tests
+        // DataPosition tests
 
         [TestMethod]
         public void DataPositionFactoryTest()
@@ -168,6 +156,18 @@ namespace DataTest
 
             Assert.AreEqual(XCoordinate, Position.XCoordinate);
             Assert.AreEqual(YCoordinate, Position.YCoordinate);
+        }
+
+        [TestMethod]
+        public void VectorLengthTestMethod()
+        {
+            double XCoordinate = 127;
+            double YCoordinate = 237;
+            double ExpectedResult = Math.Sqrt(Math.Pow(XCoordinate, 2) + Math.Pow(YCoordinate, 2));
+            DataPositionInterface position = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
+            double ActualResult = position.VectorLength();
+
+            Assert.AreEqual(ExpectedResult, ActualResult);
         }
     }
 }

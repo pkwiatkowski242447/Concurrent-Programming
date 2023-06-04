@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Logic;
 
 namespace LogicTest
@@ -12,9 +12,15 @@ namespace LogicTest
             public int WidthOfTheBoard { get; set; }
             public int HeightOfTheBoard { get; set; }
             public bool CreateBoardCalled { get; set; }
-            public Random randomNumber = new Random();
+            private Random randomNumber = new Random();
+            private DataBallSerializer? serializer = null;
 
-            public override DataBallInterface CreateASingleBall(double radiusOfTheBall)
+            public override void CreateSerializerObject()
+            {
+                serializer = null;
+            }
+
+            public override DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall)
             {
                 double XCoordinate = randomNumber.NextDouble() * (WidthOfTheBoard - 2 * radiusOfTheBall);
                 double YCoordinate = randomNumber.NextDouble() * (HeightOfTheBoard - 2 * radiusOfTheBall);
@@ -22,8 +28,9 @@ namespace LogicTest
                 XCoordinate = randomNumber.NextDouble() * 10 - 5;
                 YCoordinate = randomNumber.NextDouble() * 10 - 5;
                 DataPositionInterface VelocityVectorOfTheBall = new Position(XCoordinate, YCoordinate);
-                return new Ball(MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall);
+                return new Ball(idOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall, serializer);
             }
+
 
             public override void CreateBoard(int widthOfTheBoard, int heightOfTheBoard)
             {
@@ -37,11 +44,6 @@ namespace LogicTest
                 return this.HeightOfTheBoard;
             }
 
-            public override double GetMassOfTheBall()
-            {
-                return this.MassOfTheBall;
-            }
-
             public override int GetWidthOfTheBoard()
             {
                 return this.WidthOfTheBoard;
@@ -50,35 +52,60 @@ namespace LogicTest
 
         internal class Ball : DataBallInterface
         {
-            public override double MassOfTheBall { get; }
+            public override int IdOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get => ActualCenterOfTheBall; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
-            public override bool StopTask { get; set; }
             public override bool DidBallCollide { get; set; }
             public override bool StartBallMovement { get; set; }
+            public override double TimeToWait { get; set; }
+            public override CancellationTokenSource CancelDelay { get; set; }
 
-            internal IObserver<DataBallInterface>? ObserverObject;
+            private IObserver<DataBallInterface>? ObserverObject;
             private DataPositionInterface ActualCenterOfTheBall;
+            private DataBallSerializer? SerializerObject;
+            private bool StopTask = false;
+            private int BaseWaitTime = 5;
 
-            public Ball(double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall)
+            public Ball(int id, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
-                this.MassOfTheBall = massOfTheBall;
+                this.IdOfTheBall = id;
                 this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
-                this.StopTask = false;
                 this.DidBallCollide = false;
+                this.SerializerObject = serializer;
+                this.CancelDelay = new CancellationTokenSource();
                 Task.Run(BallMovement);
             }
 
-            public void BallMovement()
+            private async void BallMovement()
             {
                 while (!this.StopTask)
                 {
-                    if (this.ObserverObject != null)
+                    if (this.StartBallMovement)
                     {
-                        this.ObserverObject.OnNext(this);
+                        this.TimeToWait = (double)(this.BaseWaitTime / this.VelocityVectorOfTheBall.VectorLength());
+                        if (this.TimeToWait > 10)
+                        {
+                            this.TimeToWait = 10;
+                        }
+
+                        this.Move();
+                        if (this.SerializerObject != null)
+                        {
+                            SerializerObject.AddDataBallToSerializationQueue(this);
+                        }
+                        if (this.ObserverObject != null)
+                        {
+                            this.ObserverObject.OnNext(this);
+                        }
+                        this.DidBallCollide = false;
+                        await Task.Delay((int)this.TimeToWait, CancelDelay.Token).ContinueWith(_ => { });
+                        if (CancelDelay.IsCancellationRequested)
+                        {
+                            CancelDelay.Dispose();
+                            CancelDelay = new CancellationTokenSource();
+                        }
                     }
-                    this.Move();
                 }
             }
 
@@ -88,6 +115,11 @@ namespace LogicTest
                 double YCoordinate = this.CenterOfTheBall.YCoordinate + this.VelocityVectorOfTheBall.YCoordinate;
                 DataPositionInterface NewCenterOfTheBall = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
                 this.SetCenterOfTheBall(NewCenterOfTheBall);
+            }
+
+            public override void Dispose()
+            {
+                this.StopTask = true;
             }
 
             private void SetCenterOfTheBall(DataPositionInterface someOtherPosition)
@@ -126,6 +158,11 @@ namespace LogicTest
             {
                 this.XCoordinate = xCoordinate;
                 this.YCoordinate = yCoordinate;
+            }
+
+            public override double VectorLength()
+            {
+                return Math.Sqrt(Math.Pow(this.XCoordinate, 2) + Math.Pow(this.YCoordinate, 2));
             }
         }
 

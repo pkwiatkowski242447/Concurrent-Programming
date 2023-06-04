@@ -29,6 +29,7 @@ namespace Logic
             internal int WidthOfTheBoard = 740;
             internal int HeightOfTheBoard = 690;
             internal double RadiusOfTheBall = 10.0;
+            internal double MassOfTheBall = 10.0;
             internal List<IDisposable>? ListOfDataBallObservers;
             internal IObserver<int>? ObserverObject;
             internal List<DataBallInterface> ListOfManagedDataBalls { get; set; }
@@ -41,6 +42,7 @@ namespace Logic
                 ListOfManagedDataBalls = new List<DataBallInterface>();
                 ListOfManagedLogicBalls = new List<LogicBallInterface>();
                 ListOfDataBallObservers = new List<IDisposable>();
+                DataAPI.CreateSerializerObject();
             }
 
             public override void CreatePlayingBoard()
@@ -52,9 +54,9 @@ namespace Logic
             {
                 for (int i = 0; i < numberOfBallsToAdd; i++)
                 {
-                    DataBallInterface currentBall = DataAPI.CreateASingleBall(this.RadiusOfTheBall);
+                    DataBallInterface currentBall = DataAPI.CreateASingleBall(i, this.RadiusOfTheBall);
                     ListOfManagedDataBalls.Add(currentBall);
-                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall, this.RadiusOfTheBall);
+                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall, this.MassOfTheBall, this.RadiusOfTheBall);
                     ListOfManagedLogicBalls.Add(newLogicBall);
                 }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
@@ -68,7 +70,7 @@ namespace Logic
             {
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)
                 {
-                    DataBall.StopTask = true;
+                    DataBall.Dispose();
                 }
                 if (ListOfDataBallObservers != null)
                 {
@@ -157,8 +159,8 @@ namespace Logic
                 {
                     XCoordinateVelocity = -XCoordinateVelocity;
                 }
-                
-                if(logicBall.BallCenter.YCoordinate - logicBall.BallRadius <= 0 && YCoordinateVelocity <= 0 ||
+
+                if (logicBall.BallCenter.YCoordinate - logicBall.BallRadius <= 0 && YCoordinateVelocity <= 0 ||
                    logicBall.BallCenter.YCoordinate + logicBall.BallRadius >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
                 {
                     YCoordinateVelocity = -YCoordinateVelocity;
@@ -176,10 +178,11 @@ namespace Logic
                 double distanceBetweenTheseBalls;
                 for (int i = 0; i < ListOfManagedDataBalls.Count; i++)
                 {
-                    distanceBetweenTheseBalls = logicBall.BallCenter.EuclideanDistance(ListOfManagedLogicBalls[i].BallCenter);
-                    LogicPositionInterface NextLogicBallPosition = logicBall.BallCenter.Addition(logicBall.BallVelocity);
-                    LogicPositionInterface NextPositionOfOtherBall = ListOfManagedLogicBalls[i].BallCenter.Addition(ListOfManagedLogicBalls[i].BallVelocity);
-                    if (ListOfManagedLogicBalls[i] != logicBall && distanceBetweenTheseBalls <= logicBall.BallRadius + ListOfManagedLogicBalls[i].BallRadius &&
+                    LogicBallInterface otherLogicBall = ListOfManagedLogicBalls[i];
+                    distanceBetweenTheseBalls = logicBall.BallCenter.EuclideanDistance(otherLogicBall.BallCenter);
+                    LogicPositionInterface NextLogicBallPosition = logicBall.BallCenter.Addition(logicBall.BallVelocity.Multiplication(logicBall.TimeToWait));
+                    LogicPositionInterface NextPositionOfOtherBall = otherLogicBall.BallCenter.Addition(otherLogicBall.BallVelocity.Multiplication(otherLogicBall.TimeToWait));
+                    if (ListOfManagedLogicBalls[i] != logicBall && distanceBetweenTheseBalls <= logicBall.BallRadius + otherLogicBall.BallRadius &&
                         distanceBetweenTheseBalls - NextLogicBallPosition.EuclideanDistance(NextPositionOfOtherBall) > 0)
                     {
                         ListOfCollidingBalls.Add(ListOfManagedLogicBalls[i]);
@@ -223,6 +226,8 @@ namespace Logic
 
                     dataBall.DidBallCollide = true;
                     collidingBallFromData.DidBallCollide = true;
+
+                    collidingBallFromData.CancelDelay.Cancel();
                 }
             }
 

@@ -1,4 +1,6 @@
-﻿namespace Data
+﻿using System;
+
+namespace Data
 {
     public abstract class DataPositionInterface
     {
@@ -10,6 +12,8 @@
             return new Position(xCoordinate, yCoordinate);
         }
 
+        public abstract double VectorLength();
+
         private class Position : DataPositionInterface
         {
             public override double XCoordinate { get; }
@@ -19,6 +23,11 @@
             {
                 this.XCoordinate = xCoordinate;
                 this.YCoordinate = yCoordinate;
+            }
+
+            public override double VectorLength()
+            {
+                return Math.Sqrt(Math.Pow(this.XCoordinate, 2) + Math.Pow(this.YCoordinate, 2));
             }
         }
     }
