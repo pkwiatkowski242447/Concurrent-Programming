@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
@@ -21,7 +22,7 @@ namespace Data
             string PathToTempFolder = Path.GetTempPath();
             PathToLogFile = PathToTempFolder + "BallLogFile.json";
             SerializationQueue = new ConcurrentQueue<JObject>();
-
+            
             FileStream LogFile = File.Create(PathToLogFile);
             LogFile.Close();
 

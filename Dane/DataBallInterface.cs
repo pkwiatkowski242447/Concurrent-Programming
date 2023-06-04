@@ -9,7 +9,7 @@ namespace Data
     public abstract class DataBallInterface : IObservable<DataBallInterface>, IDisposable
     {
         public abstract int IdOfTheBall { get; }
-        public abstract DataPositionInterface CenterOfTheBall { get; }
+        public abstract DataPositionInterface CenterOfTheBall { get; } 
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
         [JsonIgnore]
         public abstract bool StartBallMovement { get; set; }
