@@ -86,11 +86,12 @@ namespace Data
             {
                 while (!this.StopTask)
                 {
-                    this.MoveTime = StopWatch.ElapsedMilliseconds / 2.5;
-                    StopWatch.Restart();
-                    StopWatch.Start();
                     if (this.StartBallMovement)
                     {
+                        this.MoveTime = StopWatch.ElapsedMilliseconds / 2.5;
+                        StopWatch.Restart();
+                        StopWatch.Start();
+
                         this.TimeToWait = (double)(this.BaseWaitTime / this.VelocityVectorOfTheBall.VectorLength());
                         if (this.TimeToWait > 10)
                         {
@@ -116,8 +117,9 @@ namespace Data
                             CancelDelay.Dispose();
                             CancelDelay = new CancellationTokenSource();
                         }
+
+                        StopWatch.Stop();
                     }
-                    StopWatch.Stop();
                 }
             }
 
