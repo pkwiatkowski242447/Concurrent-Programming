@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Logic;
 
 namespace LogicTest

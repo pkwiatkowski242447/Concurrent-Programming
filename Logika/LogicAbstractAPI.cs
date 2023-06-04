@@ -159,8 +159,8 @@ namespace Logic
                 {
                     XCoordinateVelocity = -XCoordinateVelocity;
                 }
-                
-                if(logicBall.BallCenter.YCoordinate - logicBall.BallRadius <= 0 && YCoordinateVelocity <= 0 ||
+
+                if (logicBall.BallCenter.YCoordinate - logicBall.BallRadius <= 0 && YCoordinateVelocity <= 0 ||
                    logicBall.BallCenter.YCoordinate + logicBall.BallRadius >= this.HeightOfTheBoard && YCoordinateVelocity >= 0)
                 {
                     YCoordinateVelocity = -YCoordinateVelocity;
