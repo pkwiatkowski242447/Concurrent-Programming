@@ -2,7 +2,7 @@
 
 namespace Data
 {
-    public abstract class DataBoardInterface : ISerializable
+    public abstract class DataBoardInterface
     {
         public abstract int WidthOfTheBoard { get; }
         public abstract int HeightOfTheBoard { get; }
@@ -10,12 +10,6 @@ namespace Data
         public static DataBoardInterface CreateBoard(int widthOfTheTable, int heightOfTheTable)
         {
             return new Board(widthOfTheTable, heightOfTheTable);
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Width of the board: ", WidthOfTheBoard);
-            info.AddValue("Height of the board: " , HeightOfTheBoard);
         }
 
         private class Board : DataBoardInterface

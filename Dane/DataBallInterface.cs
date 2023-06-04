@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Data
 {
-    public abstract class DataBallInterface : IObservable<DataBallInterface>, ISerializable, IDisposable
+    public abstract class DataBallInterface : IObservable<DataBallInterface>, IDisposable
     {
         public abstract int IdOfTheBall { get; }
         [JsonIgnore] 
@@ -29,13 +29,6 @@ namespace Data
         }
 
         public abstract void Dispose();
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Mass of the ball: ", this.MassOfTheBall);
-            info.AddValue("Center of the ball: ", this.CenterOfTheBall);
-            info.AddValue("Velocity vector of the ball: ", this.VelocityVectorOfTheBall);
-        }
 
         public abstract IDisposable Subscribe(IObserver<DataBallInterface> observer);
 
