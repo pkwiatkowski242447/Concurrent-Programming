@@ -227,7 +227,7 @@ namespace Logic
                     dataBall.DidBallCollide = true;
                     collidingBallFromData.DidBallCollide = true;
 
-                    // collidingBallFromData.CancelDelay.Cancel();
+                    collidingBallFromData.CancelDelay.Cancel();
                 }
             }
 

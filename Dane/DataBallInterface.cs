@@ -46,6 +46,7 @@ namespace Data
             private DataPositionInterface ActualCenterOfTheBall;
             private DataBallSerializer? SerializerObject;
             private bool StopTask = false;
+            private int BaseWaitTime = 5;
 
             internal Ball(int idOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
@@ -55,7 +56,6 @@ namespace Data
                 this.SerializerObject = serializer;
                 this.StartBallMovement = false;
                 this.DidBallCollide = false;
-                this.TimeToWait = 1;
                 this.CancelDelay = new CancellationTokenSource();
                 Task.Run(BallMovement);
             }
@@ -67,35 +67,37 @@ namespace Data
                 {
                     if (this.StartBallMovement)
                     {
+                        this.TimeToWait = (double)(this.BaseWaitTime / this.VelocityVectorOfTheBall.VectorLength());
+                        if (this.TimeToWait > 10)
+                        {
+                            this.TimeToWait = 10;
+                        }
+
                         this.Move();
+
+                        if (this.SerializerObject != null)
+                        {
+                            SerializerObject.AddDataBallToSerializationQueue(this);
+                        }
                         if (this.ObserverObject != null)
                         {
                             this.ObserverObject.OnNext(this);
                         }
+
                         this.DidBallCollide = false;
+                        await Task.Delay((int)this.TimeToWait, CancelDelay.Token).ContinueWith(_ => { });
+
+                        if (CancelDelay.IsCancellationRequested)
+                        {
+                            CancelDelay.Dispose();
+                            CancelDelay = new CancellationTokenSource();
+                        }
                     }
-                    if (this.SerializerObject != null)
-                    {
-                        SerializerObject.AddDataBallToSerializationQueue(this);
-                    }
-                    await Task.Delay((int)this.TimeToWait, CancelDelay.Token).ContinueWith(_ => { });
                 }
             }
 
             private void Move()
             {
-                /*
-                 * Za logikę poruszania się odpowiedzialna będzie, jak sama nazwa wskazuje, Logika
-                 * czyli w warstwie wyżej dokonywać będziemy korekt VelocityVectora - w wyniku tego 
-                 * w tej metodzie wystarczy tylko zmieniać położenie.
-                 * 
-                 * Sam pomysł polega na tym: Dla każdej kulki generujemy losową pozycję na mapie, i następnie
-                 * generowany jest wektor prędkości, który sprawia, że kulka po ruchu znajduje się w mapie. I dalej
-                 * opierać się to będzie na okresowym sprawdzaniu położenia i jeżeli pozycja kulki, a dokładnie centrum
-                 * + promień = 0 lub równa się wysokość / szerokość to trzeba odwrócić jedynie odpowiednią współrzędną
-                 * wektora prędkości (w przypadku ektremalnym: obie - przy trafieniu w sam róg).
-                 */
-
                 double newXCoordinate = this.CenterOfTheBall.XCoordinate + (this.VelocityVectorOfTheBall.XCoordinate * this.TimeToWait);
                 double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * this.TimeToWait);
 

@@ -2,8 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +11,6 @@ namespace Data
     internal class JSONSerializer : DataBallSerializer
     {
         private readonly string PathToLogFile;
-        private Task? LoggingTask;
         private readonly ConcurrentQueue<JObject> SerializationQueue;
         private readonly object BufferLockObject = new object();
         private readonly JArray LoggedBallsArray;

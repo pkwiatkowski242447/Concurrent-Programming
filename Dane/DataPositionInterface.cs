@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace Data
 {
-    public abstract class DataPositionInterface : ISerializable
+    public abstract class DataPositionInterface
     {
         public abstract double XCoordinate { get; }
         public abstract double YCoordinate { get; }
@@ -14,12 +13,6 @@ namespace Data
         }
 
         public abstract double VectorLength();
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("X Coordinate value: ", XCoordinate);
-            info.AddValue("Y Coordinate value: ", YCoordinate);
-        }
 
         private class Position : DataPositionInterface
         {

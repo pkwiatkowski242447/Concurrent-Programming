@@ -31,15 +31,12 @@ namespace DataTest
 
             DataPositionInterface VelocityVectorOfTheBall = DataPositionInterface.CreatePosition(VelocityX, VelocityY);
 
-            double MassOfTheBall = 17.2;
-
-            DataBallInterface NewBall = DataBallInterface.CreateBall(0, MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall, null);
+            DataBallInterface NewBall = DataBallInterface.CreateBall(0, CenterOfTheBall, VelocityVectorOfTheBall, null);
 
             Assert.AreEqual(XCoordinate, NewBall.CenterOfTheBall.XCoordinate);
             Assert.AreEqual(YCoordinate, NewBall.CenterOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityX, NewBall.VelocityVectorOfTheBall.YCoordinate);
             Assert.AreEqual(VelocityY, NewBall.VelocityVectorOfTheBall.YCoordinate);
-            Assert.AreEqual(MassOfTheBall, NewBall.MassOfTheBall);
         }
 
         [TestMethod]
@@ -69,15 +66,6 @@ namespace DataTest
                 correct = false;
             }
             Assert.AreEqual(true, correct);
-        }
-
-        [TestMethod]
-        public void GetMassOfTheBallTest()
-        {
-            DataAbstractAPI DataAPI = DataAbstractAPI.CreateDataAPIInstance();
-            DataAPI.CreateBoard(700, 700);
-            double MassOfTheBall = DataAPI.GetMassOfTheBall();
-            Assert.AreEqual(10.0, MassOfTheBall);
         }
 
         [TestMethod]

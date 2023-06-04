@@ -71,8 +71,8 @@ namespace Data
 
             internal DataPositionInterface GetAppropriateVelocityVector()
             {
-                double Velocity_XValue = randomNumber.NextDouble() * 10 - 5;
-                double Velocity_YValue = randomNumber.NextDouble() * 10 - 5;
+                double Velocity_XValue = randomNumber.NextDouble() * 2 - 1;
+                double Velocity_YValue = randomNumber.NextDouble() * 2 - 1;
                 return DataPositionInterface.CreatePosition(Velocity_XValue, Velocity_YValue);
             }
         }

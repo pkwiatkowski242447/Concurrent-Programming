@@ -28,7 +28,7 @@ namespace LogicTest
                 XCoordinate = randomNumber.NextDouble() * 10 - 5;
                 YCoordinate = randomNumber.NextDouble() * 10 - 5;
                 DataPositionInterface VelocityVectorOfTheBall = new Position(XCoordinate, YCoordinate);
-                return new Ball(idOfTheBall, MassOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall, serializer);
+                return new Ball(idOfTheBall, CenterOfTheBall, VelocityVectorOfTheBall, serializer);
             }
 
 
@@ -44,11 +44,6 @@ namespace LogicTest
                 return this.HeightOfTheBoard;
             }
 
-            public override double GetMassOfTheBall()
-            {
-                return this.MassOfTheBall;
-            }
-
             public override int GetWidthOfTheBoard()
             {
                 return this.WidthOfTheBoard;
@@ -58,7 +53,6 @@ namespace LogicTest
         internal class Ball : DataBallInterface
         {
             public override int IdOfTheBall { get; }
-            public override double MassOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get => ActualCenterOfTheBall; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool DidBallCollide { get; set; }
@@ -70,27 +64,48 @@ namespace LogicTest
             private DataPositionInterface ActualCenterOfTheBall;
             private DataBallSerializer? SerializerObject;
             private bool StopTask = false;
+            private int BaseWaitTime = 5;
 
-            public Ball(int id, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer serializer)
+            public Ball(int id, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
                 this.IdOfTheBall = id;
-                this.MassOfTheBall = massOfTheBall;
                 this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
                 this.DidBallCollide = false;
                 this.SerializerObject = serializer;
+                this.CancelDelay = new CancellationTokenSource();
                 Task.Run(BallMovement);
             }
 
-            public void BallMovement()
+            private async void BallMovement()
             {
                 while (!this.StopTask)
                 {
-                    if (this.ObserverObject != null)
+                    if (this.StartBallMovement)
                     {
-                        this.ObserverObject.OnNext(this);
+                        this.TimeToWait = (double)(this.BaseWaitTime / this.VelocityVectorOfTheBall.VectorLength());
+                        if (this.TimeToWait > 10)
+                        {
+                            this.TimeToWait = 10;
+                        }
+
+                        this.Move();
+                        if (this.SerializerObject != null)
+                        {
+                            SerializerObject.AddDataBallToSerializationQueue(this);
+                        }
+                        if (this.ObserverObject != null)
+                        {
+                            this.ObserverObject.OnNext(this);
+                        }
+                        this.DidBallCollide = false;
+                        await Task.Delay((int)this.TimeToWait, CancelDelay.Token).ContinueWith(_ => { });
+                        if (CancelDelay.IsCancellationRequested)
+                        {
+                            CancelDelay.Dispose();
+                            CancelDelay = new CancellationTokenSource();
+                        }
                     }
-                    this.Move();
                 }
             }
 

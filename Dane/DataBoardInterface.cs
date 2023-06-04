@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Data
+﻿namespace Data
 {
     public abstract class DataBoardInterface
     {
