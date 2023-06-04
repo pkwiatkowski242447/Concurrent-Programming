@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
+using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,32 +15,22 @@ namespace Data
         private readonly string PathToLogFile;
         private Task? LoggingTask;
         private readonly ConcurrentQueue<JObject> SerializationQueue;
-        private readonly object LogFileLockObject = new object();
         private readonly object BufferLockObject = new object();
         private readonly JArray LoggedBallsArray;
+        private bool StopTask;
 
         public JSONSerializer()
         {
             string PathToTempFolder = Path.GetTempPath();
             PathToLogFile = PathToTempFolder + "BallLogFile.json";
             SerializationQueue = new ConcurrentQueue<JObject>();
-            if (File.Exists(PathToLogFile))
-            {
-                try
-                {
-                    string inputLogFile = File.ReadAllText(PathToLogFile);
-                    LoggedBallsArray = JArray.Parse(inputLogFile);
-                    return;
-                }
-                catch (JsonReaderException)
-                {
-                    LoggedBallsArray = new JArray();
-                }
-            }
-
-            LoggedBallsArray = new JArray();
+            
             FileStream LogFile = File.Create(PathToLogFile);
             LogFile.Close();
+
+            LoggedBallsArray = new JArray();
+            this.StopTask = false;
+            Task.Run(WriteSerializedDataToFile);
         }
 
         public override void AddDataBallToSerializationQueue(DataBallInterface dataBall)
@@ -50,11 +42,6 @@ namespace Data
                 serilizedObject["Time"] = DateTime.Now.ToString("HH:mm:ss");
 
                 SerializationQueue.Enqueue(serilizedObject);
-
-                if (LoggingTask == null || LoggingTask.IsCompleted)
-                {
-                    LoggingTask = Task.Factory.StartNew(WriteSerializedDataToFile);
-                }
             }
             finally
             {
@@ -71,11 +58,6 @@ namespace Data
                 serializedBoard["Time"] = DateTime.Now.ToString("HH:mm:ss");
 
                 SerializationQueue.Enqueue(serializedBoard);
-
-                if (LoggingTask == null || LoggingTask.IsCompleted)
-                {
-                    LoggingTask = Task.Factory.StartNew(WriteSerializedDataToFile);
-                }
             }
             finally
             {
@@ -83,30 +65,36 @@ namespace Data
             }
         }
 
-        private void WriteSerializedDataToFile()
+        private async void WriteSerializedDataToFile()
         {
-            while (SerializationQueue.TryDequeue(out JObject serilizedObject))
+            string jsonString;
+            while (!this.StopTask)
             {
-                LoggedBallsArray.Add(serilizedObject);
-            }
+                if (!SerializationQueue.IsEmpty)
+                {
+                    while (SerializationQueue.TryDequeue(out JObject serilizedObject))
+                    {
+                        LoggedBallsArray.Add(serilizedObject);
+                    }
 
-            string jsonString = JsonConvert.SerializeObject(LoggedBallsArray, Formatting.Indented);
+                    jsonString = JsonConvert.SerializeObject(LoggedBallsArray, Formatting.Indented);
+                    LoggedBallsArray.Clear();
 
-            Monitor.Enter(LogFileLockObject);
-            try
-            {
-                File.WriteAllText(PathToLogFile, jsonString);
+                    await File.AppendAllTextAsync(PathToLogFile, jsonString);
+                }
             }
-            finally
-            {
-                Monitor.Exit(LogFileLockObject);
-            }
+        }
+
+        public override void Dispose()
+        {
+            this.StopTask = true;
         }
 
         ~JSONSerializer()
         {
-            Monitor.Enter(LogFileLockObject);
-            Monitor.Exit(LogFileLockObject);
+            Monitor.Enter(BufferLockObject);
+            Monitor.Exit(BufferLockObject);
+            this.Dispose();
         }
     }
 }

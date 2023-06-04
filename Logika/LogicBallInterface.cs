@@ -10,11 +10,11 @@ namespace Logic
         public abstract LogicPositionInterface BallVelocity { get; set; }
         public abstract double TimeToWait { get; set; }
 
-        public static LogicBallInterface CreateLogicBall(DataBallInterface dataBall, double RadiusOfTheBall)
+        public static LogicBallInterface CreateLogicBall(DataBallInterface dataBall, double MassOfTheBall, double RadiusOfTheBall)
         {
             LogicPositionInterface ballCenter = LogicPositionInterface.CreateLogicPosition(dataBall.CenterOfTheBall.XCoordinate, dataBall.CenterOfTheBall.YCoordinate);
             LogicPositionInterface ballVelocity = LogicPositionInterface.CreateLogicPosition(dataBall.VelocityVectorOfTheBall.XCoordinate, dataBall.VelocityVectorOfTheBall.YCoordinate);
-            return new LogicBall(dataBall.MassOfTheBall, RadiusOfTheBall, ballCenter, ballVelocity, dataBall.TimeToWait);
+            return new LogicBall(MassOfTheBall, RadiusOfTheBall, ballCenter, ballVelocity, dataBall.TimeToWait);
         }
 
         public abstract void UpdateLogicBall(DataBallInterface dataBall);

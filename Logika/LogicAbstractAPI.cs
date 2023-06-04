@@ -29,6 +29,7 @@ namespace Logic
             internal int WidthOfTheBoard = 740;
             internal int HeightOfTheBoard = 690;
             internal double RadiusOfTheBall = 10.0;
+            internal double MassOfTheBall = 10.0;
             internal List<IDisposable>? ListOfDataBallObservers;
             internal IObserver<int>? ObserverObject;
             internal List<DataBallInterface> ListOfManagedDataBalls { get; set; }
@@ -55,7 +56,7 @@ namespace Logic
                 {
                     DataBallInterface currentBall = DataAPI.CreateASingleBall(i, this.RadiusOfTheBall);
                     ListOfManagedDataBalls.Add(currentBall);
-                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall, this.RadiusOfTheBall);
+                    LogicBallInterface newLogicBall = LogicBallInterface.CreateLogicBall(currentBall, this.MassOfTheBall, this.RadiusOfTheBall);
                     ListOfManagedLogicBalls.Add(newLogicBall);
                 }
                 foreach (DataBallInterface DataBall in ListOfManagedDataBalls)

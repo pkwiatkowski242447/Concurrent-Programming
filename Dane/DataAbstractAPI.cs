@@ -12,13 +12,11 @@ namespace Data
         public abstract DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall);
         public abstract void CreateSerializerObject();
         public abstract void CreateBoard(int widthOfTheBoard, int heightOfTheBoard);
-        public abstract double GetMassOfTheBall();
         public abstract int GetWidthOfTheBoard();
         public abstract int GetHeightOfTheBoard();
 
         private class DataAPI : DataAbstractAPI
         {
-            internal double HardcodedMass = 10.0;
             internal Random randomNumber = new Random();
             internal DataBoardInterface? Board { get; set; }
             internal DataBallSerializer? ballSerializer = null;
@@ -43,13 +41,8 @@ namespace Data
                     velocityVector = GetAppropriateVelocityVector();
                 }
                 while (velocityVector.XCoordinate == 0 && velocityVector.YCoordinate == 0);
-                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(idOfTheBall, HardcodedMass, centerOfTheBall, velocityVector, this.ballSerializer);
+                DataBallInterface NewlyCreatedBall = DataBallInterface.CreateBall(idOfTheBall, centerOfTheBall, velocityVector, this.ballSerializer);
                 return NewlyCreatedBall;
-            }
-
-            public override double GetMassOfTheBall()
-            {
-                return HardcodedMass;
             }
 
             public override int GetWidthOfTheBoard()

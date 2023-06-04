@@ -1,6 +1,8 @@
-﻿namespace Data
+﻿using System;
+
+namespace Data
 {
-    public abstract class DataBallSerializer
+    public abstract class DataBallSerializer : IDisposable
     {
         public abstract void AddDataBallToSerializationQueue(DataBallInterface dataBall);
         public abstract void AddBoardDataToSerializationQueue(DataBoardInterface dataBoard);
@@ -9,5 +11,7 @@
         {
             return new JSONSerializer();
         }
+
+        public abstract void Dispose();
     }
 }

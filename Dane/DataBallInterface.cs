@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using System.Threading;
 
@@ -9,10 +8,7 @@ namespace Data
     public abstract class DataBallInterface : IObservable<DataBallInterface>, IDisposable
     {
         public abstract int IdOfTheBall { get; }
-        [JsonIgnore] 
-        public abstract double MassOfTheBall { get; }
-        public abstract DataPositionInterface CenterOfTheBall { get; }
-        [JsonIgnore] 
+        public abstract DataPositionInterface CenterOfTheBall { get; } 
         public abstract DataPositionInterface VelocityVectorOfTheBall { get; set; }
         [JsonIgnore]
         public abstract bool StartBallMovement { get; set; }
@@ -23,9 +19,9 @@ namespace Data
         [JsonIgnore]
         public abstract double TimeToWait { get; set; }
 
-        public static DataBallInterface CreateBall(int idOfTheBall, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
+        public static DataBallInterface CreateBall(int idOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
         {
-            return new Ball(idOfTheBall, massOfTheBall, centerOfTheBall, velocityVectorOfTheBall, serializer);
+            return new Ball(idOfTheBall, centerOfTheBall, velocityVectorOfTheBall, serializer);
         }
 
         public abstract void Dispose();
@@ -35,7 +31,6 @@ namespace Data
         private class Ball : DataBallInterface
         {
             public override int IdOfTheBall { get; }
-            public override double MassOfTheBall { get; }
             public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool StartBallMovement { get; set; }
             public override bool DidBallCollide { get; set; }
@@ -52,10 +47,9 @@ namespace Data
             private DataBallSerializer? SerializerObject;
             private bool StopTask = false;
 
-            internal Ball(int idOfTheBall, double massOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
+            internal Ball(int idOfTheBall, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
                 this.IdOfTheBall = idOfTheBall;
-                this.MassOfTheBall = massOfTheBall;
                 this.ActualCenterOfTheBall = centerOfTheBall;
                 this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
                 this.SerializerObject = serializer;
