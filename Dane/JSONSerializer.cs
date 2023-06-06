@@ -23,9 +23,11 @@ namespace Data
             string PathToTempFolder = Path.GetTempPath();
             PathToLogFile = PathToTempFolder + "SimulationLogFile.json";
             SerializationQueue = new ConcurrentQueue<SerializationObject>();
-            
-            FileStream LogFile = File.Create(PathToLogFile);
-            LogFile.Close();
+
+            using (FileStream LogFile = File.Create(PathToLogFile))
+            {
+                LogFile.Close();
+            }
 
             this.StopTask = false;
             Task.Run(WriteSerializedDataToFile);
