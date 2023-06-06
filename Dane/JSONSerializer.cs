@@ -14,7 +14,7 @@ namespace Data
         private readonly string PathToLogFile;
         private readonly ConcurrentQueue<SerializationObject> SerializationQueue;
         private readonly JArray BufferToWrite = new JArray();
-        private readonly int QueueSize = 20;
+        private readonly int QueueSize = 50;
         private CancellationTokenSource StateChange = new CancellationTokenSource();
         private bool StopTask;
 
@@ -66,7 +66,9 @@ namespace Data
                     }
 
                     stringBuilder.Append(JsonConvert.SerializeObject(BufferToWrite, Formatting.Indented));
+                    BufferToWrite.Clear();
                     await File.AppendAllTextAsync(PathToLogFile, stringBuilder.ToString());
+                    stringBuilder.Clear();
                 }
                 await Task.Delay(Timeout.Infinite, StateChange.Token).ContinueWith(_ => { });
 
