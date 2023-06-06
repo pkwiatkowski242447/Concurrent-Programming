@@ -100,10 +100,6 @@ namespace Data
 
                         this.Move(this.MoveTime);
 
-                        if (this.SerializerObject != null)
-                        {
-                            SerializerObject.AddDataBallToSerializationQueue(this);
-                        }
                         if (this.ObserverObject != null)
                         {
                             this.ObserverObject.OnNext(this);
@@ -136,6 +132,11 @@ namespace Data
                 finally
                 {
                     Monitor.Exit(LockObject);
+                }
+
+                if (this.SerializerObject != null)
+                {
+                    SerializerObject.AddDataBallToSerializationQueue(this);
                 }
             }
 

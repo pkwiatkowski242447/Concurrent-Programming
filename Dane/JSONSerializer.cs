@@ -5,79 +5,74 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace Data
 {
     internal class JSONSerializer : DataBallSerializer
     {
         private readonly string PathToLogFile;
-        private readonly ConcurrentQueue<JObject> SerializationQueue;
-        private readonly object BufferLockObject = new object();
-        private readonly JArray LoggedBallsArray;
+        private readonly ConcurrentQueue<SerializationObject> SerializationQueue;
+        private readonly JArray BufferToWrite = new JArray();
+        private readonly int QueueSize = 20;
+        private CancellationTokenSource StateChange = new CancellationTokenSource();
         private bool StopTask;
 
         public JSONSerializer()
         {
             string PathToTempFolder = Path.GetTempPath();
-            PathToLogFile = PathToTempFolder + "BallLogFile.json";
-            SerializationQueue = new ConcurrentQueue<JObject>();
+            PathToLogFile = PathToTempFolder + "SimulationLogFile.json";
+            SerializationQueue = new ConcurrentQueue<SerializationObject>();
             
             FileStream LogFile = File.Create(PathToLogFile);
             LogFile.Close();
 
-            LoggedBallsArray = new JArray();
             this.StopTask = false;
             Task.Run(WriteSerializedDataToFile);
         }
 
         public override void AddDataBallToSerializationQueue(DataBallInterface dataBall)
         {
-            Monitor.Enter(BufferLockObject);
-            try
+            SerializationObject BallObject = SerializationObject.CreateBallCopy(dataBall);
+            if (SerializationQueue.Count < this.QueueSize)
             {
-                JObject serilizedObject = JObject.FromObject(dataBall);
-                serilizedObject["Time"] = DateTime.Now.ToString("HH:mm:ss");
-
-                SerializationQueue.Enqueue(serilizedObject);
-            }
-            finally
-            {
-                Monitor.Exit(BufferLockObject);
+                SerializationQueue.Enqueue(BallObject);
+                StateChange.Cancel();
             }
         }
 
         public override void AddBoardDataToSerializationQueue(DataBoardInterface dataBoard)
         {
-            Monitor.Enter(BufferLockObject);
-            try
+            SerializationObject BoardObject = SerializationObject.CreateBoardCopy(dataBoard);
+            if (SerializationQueue.Count < this.QueueSize)
             {
-                JObject serializedBoard = JObject.FromObject(dataBoard);
-                serializedBoard["Time"] = DateTime.Now.ToString("HH:mm:ss");
-
-                SerializationQueue.Enqueue(serializedBoard);
-            }
-            finally
-            {
-                Monitor.Exit(BufferLockObject);
+                SerializationQueue.Enqueue(BoardObject);
+                StateChange.Cancel();
             }
         }
 
         private async void WriteSerializedDataToFile()
         {
-            string jsonString;
+            StringBuilder stringBuilder = new StringBuilder();
             while (!this.StopTask)
             {
                 if (!SerializationQueue.IsEmpty)
                 {
-                    while (SerializationQueue.TryDequeue(out JObject serilizedObject))
+                    while (SerializationQueue.TryDequeue(out SerializationObject serilizedObject))
                     {
-                        LoggedBallsArray.Add(serilizedObject);
+                        JObject jsonObject = JObject.FromObject(serilizedObject);
+                        jsonObject["Time"] = DateTime.Now.ToString("HH:mm:ss");
+                        BufferToWrite.Add(jsonObject);
                     }
 
-                    jsonString = JsonConvert.SerializeObject(LoggedBallsArray, Formatting.Indented);
-                    LoggedBallsArray.Clear();
+                    stringBuilder.Append(JsonConvert.SerializeObject(BufferToWrite, Formatting.Indented));
+                    await File.AppendAllTextAsync(PathToLogFile, stringBuilder.ToString());
+                }
+                await Task.Delay(Timeout.Infinite, StateChange.Token).ContinueWith(_ => { });
 
-                    await File.AppendAllTextAsync(PathToLogFile, jsonString);
+                if (this.StateChange.IsCancellationRequested)
+                {
+                    this.StateChange = new CancellationTokenSource();
                 }
             }
         }
@@ -89,8 +84,6 @@ namespace Data
 
         ~JSONSerializer()
         {
-            Monitor.Enter(BufferLockObject);
-            Monitor.Exit(BufferLockObject);
             this.Dispose();
         }
     }
