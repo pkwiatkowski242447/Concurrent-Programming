@@ -31,9 +31,8 @@ namespace Data
             Task.Run(WriteSerializedDataToFile);
         }
 
-        public override void AddDataBallToSerializationQueue(DataBallInterface dataBall)
+        public override void AddDataBallToSerializationQueue(SerializationObject BallObject)
         {
-            SerializationObject BallObject = SerializationObject.CreateBallCopy(dataBall);
             if (SerializationQueue.Count < this.QueueSize)
             {
                 SerializationQueue.Enqueue(BallObject);
@@ -41,9 +40,8 @@ namespace Data
             }
         }
 
-        public override void AddBoardDataToSerializationQueue(DataBoardInterface dataBoard)
+        public override void AddBoardDataToSerializationQueue(SerializationObject BoardObject)
         {
-            SerializationObject BoardObject = SerializationObject.CreateBoardCopy(dataBoard);
             if (SerializationQueue.Count < this.QueueSize)
             {
                 SerializationQueue.Enqueue(BoardObject);

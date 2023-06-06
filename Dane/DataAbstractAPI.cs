@@ -29,7 +29,8 @@ namespace Data
             public override void CreateBoard(int widthOfTheBoard, int heightOfTheBoard)
             {
                 this.Board = DataBoardInterface.CreateBoard(widthOfTheBoard, heightOfTheBoard);
-                ballSerializer?.AddBoardDataToSerializationQueue(this.Board);
+                SerializationObject BoardObject = SerializationObject.CreateBoardCopy(this.Board);
+                ballSerializer?.AddBoardDataToSerializationQueue(BoardObject);
             }
 
             public override DataBallInterface CreateASingleBall(int idOfTheBall, double radiusOfTheBall)

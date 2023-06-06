@@ -54,7 +54,6 @@ namespace LogicTest
         {
             public override int IdOfTheBall { get; }
             public override DataPositionInterface CenterOfTheBall { get => ActualCenterOfTheBall; }
-            public override DataPositionInterface VelocityVectorOfTheBall { get; set; }
             public override bool DidBallCollide { get; set; }
             public override bool StartBallMovement { get; set; }
             public override double TimeToWait { get; set; }
@@ -62,15 +61,34 @@ namespace LogicTest
 
             private IObserver<DataBallInterface>? ObserverObject;
             private DataPositionInterface ActualCenterOfTheBall;
+            private DataPositionInterface ActualVelocityVector;
             private DataBallSerializer? SerializerObject;
+            private object LockObject = new object();
             private bool StopTask = false;
             private int BaseWaitTime = 5;
+
+            public override DataPositionInterface VelocityVectorOfTheBall
+            {
+                get => this.ActualCenterOfTheBall;
+                set
+                {
+                    Monitor.Enter(LockObject);
+                    try
+                    {
+                        this.ActualCenterOfTheBall = value;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(LockObject);
+                    }
+                }
+            }
 
             public Ball(int id, DataPositionInterface centerOfTheBall, DataPositionInterface velocityVectorOfTheBall, DataBallSerializer? serializer)
             {
                 this.IdOfTheBall = id;
                 this.ActualCenterOfTheBall = centerOfTheBall;
-                this.VelocityVectorOfTheBall = velocityVectorOfTheBall;
+                this.ActualVelocityVector = velocityVectorOfTheBall;
                 this.DidBallCollide = false;
                 this.SerializerObject = serializer;
                 this.CancelDelay = new CancellationTokenSource();
@@ -90,10 +108,7 @@ namespace LogicTest
                         }
 
                         this.Move();
-                        if (this.SerializerObject != null)
-                        {
-                            SerializerObject.AddDataBallToSerializationQueue(this);
-                        }
+
                         if (this.ObserverObject != null)
                         {
                             this.ObserverObject.OnNext(this);
@@ -111,10 +126,25 @@ namespace LogicTest
 
             public void Move()
             {
-                double XCoordinate = this.CenterOfTheBall.XCoordinate + this.VelocityVectorOfTheBall.XCoordinate;
-                double YCoordinate = this.CenterOfTheBall.YCoordinate + this.VelocityVectorOfTheBall.YCoordinate;
-                DataPositionInterface NewCenterOfTheBall = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
-                this.SetCenterOfTheBall(NewCenterOfTheBall);
+                SerializationObject BallCopy;
+                Monitor.Enter(LockObject);
+                try
+                {
+                    double XCoordinate = this.CenterOfTheBall.XCoordinate + this.VelocityVectorOfTheBall.XCoordinate;
+                    double YCoordinate = this.CenterOfTheBall.YCoordinate + this.VelocityVectorOfTheBall.YCoordinate;
+                    DataPositionInterface NewCenterOfTheBall = DataPositionInterface.CreatePosition(XCoordinate, YCoordinate);
+                    this.SetCenterOfTheBall(NewCenterOfTheBall);
+                    BallCopy = SerializationObject.CreateBallCopy(this);
+                }
+                finally
+                {
+                    Monitor.Exit(LockObject);
+                }
+
+                if (this.SerializerObject != null)
+                {
+                    SerializerObject.AddDataBallToSerializationQueue(BallCopy);
+                }
             }
 
             public override void Dispose()
@@ -163,6 +193,31 @@ namespace LogicTest
             public override double VectorLength()
             {
                 return Math.Sqrt(Math.Pow(this.XCoordinate, 2) + Math.Pow(this.YCoordinate, 2));
+            }
+        }
+
+        internal class BallCopy : SerializationObject {
+            public int BallId { get; set; }
+            public DataPositionInterface BallPosition { get; set; }
+            public DataPositionInterface BallVelocityVector { get; set; }
+
+            public BallCopy(DataBallInterface dataBall)
+            {
+                this.BallPosition = DataPositionInterface.CreatePosition(dataBall.CenterOfTheBall.XCoordinate, dataBall.CenterOfTheBall.YCoordinate);
+                this.BallVelocityVector = DataPositionInterface.CreatePosition(dataBall.VelocityVectorOfTheBall.XCoordinate, dataBall.VelocityVectorOfTheBall.YCoordinate);
+                this.BallId = dataBall.IdOfTheBall;
+            }
+        }
+
+        internal class BoardCopy : SerializationObject
+        {
+            public int WidthOfTheBoard { get; set; }
+            public int HeightOfTheBoard { get; set; }
+
+            public BoardCopy(DataBoardInterface dataBoard)
+            {
+                this.WidthOfTheBoard = dataBoard.WidthOfTheBoard;
+                this.HeightOfTheBoard = dataBoard.HeightOfTheBoard;
             }
         }
 

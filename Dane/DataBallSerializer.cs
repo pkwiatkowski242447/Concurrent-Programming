@@ -4,8 +4,8 @@ namespace Data
 {
     public abstract class DataBallSerializer : IDisposable
     {
-        public abstract void AddDataBallToSerializationQueue(DataBallInterface dataBall);
-        public abstract void AddBoardDataToSerializationQueue(DataBoardInterface dataBoard);
+        public abstract void AddDataBallToSerializationQueue(SerializationObject BallObject);
+        public abstract void AddBoardDataToSerializationQueue(SerializationObject BoardObject);
 
         public static DataBallSerializer CreateJSONSerializer()
         {

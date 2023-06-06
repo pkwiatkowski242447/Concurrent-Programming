@@ -121,6 +121,7 @@ namespace Data
 
             private void Move(double MoveTime)
             {
+                SerializationObject BallCopy;
                 Monitor.Enter(LockObject);
                 try
                 {
@@ -128,6 +129,7 @@ namespace Data
                     double newYCoordinate = this.CenterOfTheBall.YCoordinate + (this.VelocityVectorOfTheBall.YCoordinate * MoveTime);
                     DataPositionInterface NewCenterOfTheBallPosition = DataPositionInterface.CreatePosition(newXCoordinate, newYCoordinate);
                     this.SetCenterOfTheBall(NewCenterOfTheBallPosition);
+                    BallCopy = SerializationObject.CreateBallCopy(this);
                 }
                 finally
                 {
@@ -136,7 +138,7 @@ namespace Data
 
                 if (this.SerializerObject != null)
                 {
-                    SerializerObject.AddDataBallToSerializationQueue(this);
+                    SerializerObject.AddDataBallToSerializationQueue(BallCopy);
                 }
             }
 
